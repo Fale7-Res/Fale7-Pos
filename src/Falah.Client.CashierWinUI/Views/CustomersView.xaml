@@ -24,7 +24,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox Style="{StaticResource SearchBoxStyle}" MinHeight="44" MaxWidth="420" HorizontalAlignment="Right"
+            <TextBox MaxLength="30" Style="{StaticResource SearchBoxStyle}" MinHeight="44" MaxWidth="420" HorizontalAlignment="Right"
                      InputScope="TelephoneNumber" PlaceholderText="رقم هاتف العميل..."
                      Text="{Binding PhoneQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Grid.Column="1" Content="بحث" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"

@@ -214,7 +214,7 @@
                                         Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"/>
                                 <Expander Header="العميل ما جاش - إلغاء الطلب (بموافقة مدير)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                     <StackPanel Spacing="8">
-                                        <TextBox AutomationProperties.AutomationId="CancelPickup_Reason" Header="سبب الإلغاء" IsEnabled="{Binding CanEditOperation}"
+                                        <TextBox MaxLength="500" AutomationProperties.AutomationId="CancelPickup_Reason" Header="سبب الإلغاء" IsEnabled="{Binding CanEditOperation}"
                                                  Text="{Binding CancelPickupReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         <ToggleSwitch AutomationProperties.AutomationId="CancelPickup_Prepared" AutomationProperties.Name="الأكل اتعمل؟" Header="الأكل اتعمل؟"
                                                       IsOn="{Binding CancelPickupPrepared, Mode=TwoWay}" OnContent="اتعمل - يتسجل هالك" OffContent="ما اتعملش - يرجع المخزون"/>

@@ -34,10 +34,13 @@ public partial class CashierViewModel
     public bool IsCashOnDelivery => IsDelivery && !IsSplitPaymentEnabled && PaymentMethod == "cash" && GrandTotalPiastres > 0;
     public bool CanEnterTender => CanEditOperation && !IsCashOnDelivery && !IsSplitPaymentEnabled && PaymentMethod == "cash";
     public string TenderLabel => IsCashOnDelivery ? "يُحصّل عند التوصيل بالجنيه" : "المبلغ المستلم بالجنيه";
+    /// <summary>Audit 2026-11-23, F-07: whether the checkout header shows the change - a cash payment taken now. Unlike
+    /// CanEnterTender it stays true while the payment is being sent, so the figure does not vanish mid-sale.</summary>
+    public bool ShowsChangeDue => !IsCashOnDelivery && !IsSplitPaymentEnabled && PaymentMethod == "cash";
     private void NotifyPaymentPresentation()
     {
         OnPropertyChanged(nameof(UsesWallet)); OnPropertyChanged(nameof(IsCashOnDelivery));
-        OnPropertyChanged(nameof(CanEnterTender)); OnPropertyChanged(nameof(TenderLabel));
+        OnPropertyChanged(nameof(CanEnterTender)); OnPropertyChanged(nameof(TenderLabel)); OnPropertyChanged(nameof(ShowsChangeDue));
     }
     partial void OnPaymentMethodChanged(string value) => NotifyPaymentPresentation();
     partial void OnSplitMethod1Changed(string value) => OnPropertyChanged(nameof(UsesWallet));

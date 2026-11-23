@@ -43,7 +43,7 @@
         </Grid>
 
         <!-- ================= MAIN POS WORKSPACE ================= -->
-        <Grid x:Name="WorkspaceGrid" Visibility="{Binding IsShiftOpen, Converter={StaticResource BoolToVisibleConverter}}" SizeChanged="OnWorkspaceSizeChanged">
+        <Grid x:Name="WorkspaceGrid" KeyboardAcceleratorPlacementMode="Hidden" Visibility="{Binding IsShiftOpen, Converter={StaticResource BoolToVisibleConverter}}" SizeChanged="OnWorkspaceSizeChanged">
             <Grid.KeyboardAccelerators>
                 <KeyboardAccelerator Key="F2" Invoked="OnSearchAccelerator"/>
                 <KeyboardAccelerator Key="F3" Invoked="OnOperationsAccelerator"/>
@@ -205,7 +205,7 @@
                                    TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding PendingPaymentActionError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="تأكيد استلام المبلغ" Style="{StaticResource SuccessButtonStyle}" HorizontalAlignment="Stretch"
                                 IsEnabled="{Binding CanConfirmPendingPayment}" Command="{Binding ConfirmElectronicPaymentCommand}"/>
-                        <TextBox IsEnabled="{Binding CanEditOperation}" PlaceholderText="سبب الإلغاء" Text="{Binding CancelPendingReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox MaxLength="500" IsEnabled="{Binding CanEditOperation}" PlaceholderText="سبب الإلغاء" Text="{Binding CancelPendingReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <!-- Required before cancelling: checkout already took the ingredients out of stock. -->
                         <TextBlock Text="هل تم تحضير الطلب؟" FontWeight="SemiBold" TextAlignment="Center"/>
                         <RadioButton GroupName="CancelPendingFood" Content="تم التحضير — يُسجَّل هالكًا" IsEnabled="{Binding CanEditOperation}"
@@ -375,7 +375,7 @@
                     <TextBox AutomationProperties.Name="مبلغ المصروف بالجنيه" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Amount" Text="{Binding ExpenseAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center"/>
 
-                    <TextBox IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Description" PlaceholderText="بيان المصروف" Text="{Binding ExpenseDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox MaxLength="1000" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Description" PlaceholderText="بيان المصروف" Text="{Binding ExpenseDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                     <StackPanel Spacing="8" Visibility="{Binding ExpenseNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
                         <TextBlock Text="صلاحيتك الحالية لا تسمح بصرف مصروف من الدرج - أدخل رمز المدير المخوّل باعتماد هذا المصروف."

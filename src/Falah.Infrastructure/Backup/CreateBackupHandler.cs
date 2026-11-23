@@ -84,6 +84,14 @@ public sealed class CreateBackupHandler
             entity.FileSizeBytes = File.Exists(filePath) ? new FileInfo(filePath).Length : null;
             entity.Status = nameof(BackupRecordStatus.Succeeded);
             entity.CompletedAtUtc = DateTimeOffset.UtcNow;
+            // Audit 2026-11-23, F-03: the schema this backup was taken at, beside it, so a restore can refuse a
+            // backup this build cannot run on. A stamp that cannot be written leaves the backup standing.
+            if (!BackupSchemaStamp.TryWrite(filePath, await BackupSchemaStamp.AppliedVersionAsync(_db, ct)))
+                _auditLog.Append(new AuditEvent(
+                    $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
+                    "تعذر تسجيل إصدار قاعدة البيانات بجانب النسخة الاحتياطية", "backup",
+                    $"{BackupSchemaStamp.PathFor(filePath)} - النسخة نفسها سليمة، لكن الاستعادة لن تعرف إصدارها مسبقًا.",
+                    "warning", DateTimeOffset.UtcNow, ReferenceId: entity.Id));
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "إنشاء نسخة احتياطية لقاعدة البيانات", "backup", $"تم حفظ النسخة في {filePath} ({entity.FileSizeBytes} بايت)",
@@ -121,6 +129,8 @@ public sealed class CreateBackupHandler
         {
             Directory.CreateDirectory(copyDirectory);
             File.Copy(filePath, copyPath, overwrite: false);
+            if (File.Exists(BackupSchemaStamp.PathFor(filePath)))
+                File.Copy(BackupSchemaStamp.PathFor(filePath), BackupSchemaStamp.PathFor(copyPath), overwrite: false);
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", actor.Id, actor.Name, actor.Role,
                 "نسخ النسخة الاحتياطية إلى المكان الثاني", "backup", $"تم نسخها إلى {copyPath}",

@@ -30,8 +30,11 @@ public sealed class CreateEmployeeHandler
         if (existing is not null) return EmployeeQueryService.ToDto(existing);
 
         EmployeeRules.AssertEmployeeInput(request.Name, request.EmployeeNumber, request.JobTitle, request.Phone);
-        if (!Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out var compensationType) || !Enum.IsDefined(compensationType))
+        // QA-06 (audit 2026-11-23): a pay type is a name ("Daily"), never a number, and pay is never negative.
+        if (string.IsNullOrWhiteSpace(request.CompensationType) || request.CompensationType.Trim().All(char.IsDigit)
+            || !Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out var compensationType) || !Enum.IsDefined(compensationType))
             throw new DomainException("نوع الأجر غير صالح.");
+        EmployeeRules.AssertCompensation(request.DailyWagePiastres, request.ShiftValuePiastres, request.MonthlySalaryPiastres, request.OvertimeRatePiastres);
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -80,8 +83,11 @@ public sealed class UpdateEmployeeHandler
     public async Task<EmployeeDto> HandleAsync(UpdateEmployeeRequest request, CancellationToken ct = default)
     {
         EmployeeRules.AssertEmployeeInput(request.Name, request.EmployeeNumber, request.JobTitle, request.Phone);
-        if (!Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out var compensationType) || !Enum.IsDefined(compensationType))
+        // QA-06 (audit 2026-11-23): a pay type is a name ("Daily"), never a number, and pay is never negative.
+        if (string.IsNullOrWhiteSpace(request.CompensationType) || request.CompensationType.Trim().All(char.IsDigit)
+            || !Enum.TryParse<CompensationType>(request.CompensationType, ignoreCase: true, out var compensationType) || !Enum.IsDefined(compensationType))
             throw new DomainException("نوع الأجر غير صالح.");
+        EmployeeRules.AssertCompensation(request.DailyWagePiastres, request.ShiftValuePiastres, request.MonthlySalaryPiastres, request.OvertimeRatePiastres);
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");

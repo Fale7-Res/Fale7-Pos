@@ -88,7 +88,7 @@
          <TextBlock Text="{Binding VariantName}" FontSize="12" Foreground="{ThemeResource TextMutedBrush}" Visibility="{Binding VariantName, Converter={StaticResource NullToCollapsedConverter}}"/>
          <TextBlock Text="{Binding AppliedOfferName}" FontSize="12" Foreground="{ThemeResource BrandPrimaryBrush}" Visibility="{Binding AppliedOfferName, Converter={StaticResource NullToCollapsedConverter}}"/>
         </StackPanel>
-        <Button Grid.Column="1" Content="×" AutomationProperties.Name="حذف الصنف" Style="{StaticResource GhostButtonStyle}" MinHeight="44" Padding="0" FontSize="22" VerticalAlignment="Top"
+        <Button Grid.Column="1" Content="×" AutomationProperties.Name="حذف الصنف" Style="{StaticResource GhostButtonStyle}" MinHeight="44" MinWidth="44" Padding="0" FontSize="22" VerticalAlignment="Top"
          Command="{Binding ElementName=Root, Path=DataContext.RemoveLineCommand}" CommandParameter="{Binding}"/>
        </Grid>
        <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -105,7 +105,7 @@
        <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextMutedBrush}" Visibility="{Binding Notes, Converter={StaticResource NullToCollapsedConverter}}"/>
        <Button Content="ملاحظات التحضير" Style="{StaticResource GhostButtonStyle}" FontSize="12" Padding="0" MinHeight="44" HorizontalAlignment="Right">
         <Button.Flyout><Flyout><StackPanel Width="260" Spacing="8">
-         <TextBox Header="ملاحظات للمطبخ" Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True"/>
+         <TextBox MaxLength="500" Header="ملاحظات للمطبخ" Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True"/>
          <Button Content="بدون بصل" Tag="بدون بصل" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
          <Button Content="حار" Tag="حار" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
         </StackPanel></Flyout></Button.Flyout>
@@ -120,7 +120,7 @@
     <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="3*"/></Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
      <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-     <RowDefinition Height="8"/><RowDefinition Height="1"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+     <RowDefinition Height="8"/><RowDefinition Height="1"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <TextBlock x:Name="FooterSubtotalLabel" Grid.Row="0" Grid.Column="0" Text="الأصناف" MinHeight="26" FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{ThemeResource TextMutedBrush}"/>
     <TextBlock x:Name="FooterSubtotalAmount" Grid.Row="0" Grid.Column="1" Text="{Binding CartSubtotalDisplay}" MinHeight="26" FontSize="14" TextWrapping="Wrap" TextAlignment="Left" VerticalAlignment="Center" Foreground="{ThemeResource TextPrimaryBrush}"/>
@@ -143,6 +143,11 @@
                Foreground="{ThemeResource TextMutedBrush}"
                Visibility="{Binding CheckoutBlockedReason, Converter={StaticResource NullToCollapsedConverter}}"/>
     <Button x:Name="FooterCheckoutButton" Grid.Row="10" Grid.ColumnSpan="2" Margin="0,12,0,0" AutomationProperties.AutomationId="OpenCheckoutButton" Content="متابعة إلى الدفع  ←" MinHeight="56" Height="Auto" FontSize="18" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding OpenCheckoutCommand}" IsEnabled="{Binding CanOpenCheckout}"/>
+    <!-- Audit 2026-11-23, F-07: the last paid sale's number and change, quietly, until the next payment opens. -->
+    <TextBlock Grid.Row="12" Grid.ColumnSpan="2" Margin="0,8,0,0" Text="{Binding LastSaleNote}" FontSize="15" FontWeight="SemiBold"
+               TextAlignment="Center" TextWrapping="Wrap" Foreground="{ThemeResource BrandPrimaryBrush}"
+               AutomationProperties.AutomationId="Cart_LastSaleNote"
+               Visibility="{Binding LastSaleNote, Converter={StaticResource NullToCollapsedConverter}}"/>
     <Grid x:Name="FooterActions" Grid.Row="11" Grid.ColumnSpan="2" ColumnSpacing="8" Margin="0,6,0,0">
      <Button x:Name="FooterCancelButton" Content="إلغاء الطلب" Style="{StaticResource GhostButtonStyle}" Foreground="{ThemeResource TextMutedBrush}" FontSize="13" MinHeight="44" HorizontalAlignment="Stretch" Command="{Binding RequestClearCartCommand}" IsEnabled="{Binding CanEditOperation}"/>
     </Grid>

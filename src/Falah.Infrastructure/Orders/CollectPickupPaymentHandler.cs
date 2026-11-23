@@ -32,9 +32,8 @@ public sealed class CollectPickupPaymentHandler
 
     public async Task<CheckoutOrderResult> HandleAsync(CollectPickupPaymentRequest request, CancellationToken ct = default)
     {
+        InputRules.AssertRequestId(request.RequestId);   // QA-03 (audit 2026-11-23): before the replay lookup
         if (await FindPaidByAsync(request.RequestId, ct) is { } replay) return ToResult(replay, wasReplayed: true);
-
-        if (string.IsNullOrWhiteSpace(request.RequestId)) throw new DomainException("رقم العملية مطلوب.");
         var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
             ?? throw new InvalidOperationException("الكاشير غير موجود.");
         if (!AuthorizationPolicy.HasPermission(OrderMapper.ToActor(cashierUser), "pos"))

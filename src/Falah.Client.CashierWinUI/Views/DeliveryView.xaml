@@ -210,6 +210,11 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+                    <!-- Audit 2026-11-23, F-11: say so when there is nobody to assign. -->
+                    <TextBlock Grid.Row="1" Margin="16" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"
+                               Style="{StaticResource MutedText}" AutomationProperties.AutomationId="Delivery_NoDrivers"
+                               Text="لا يوجد سائقون نشطون. أضف سائقًا أو فعّله من «السائقون وخدمات التوصيل»."
+                               Visibility="{Binding HasNoDrivers, Converter={StaticResource BoolToVisibleConverter}}"/>
                 </Grid>
             </Border>
         </Grid>

@@ -36,7 +36,8 @@ public sealed class MarkDeliveryReadyHandler
             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "delivery_manage", null);
         }
-        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage", approval, requireApproval: true);
+        // Audit 2026-11-23, F-05: only an approval the check actually validated is named as the authoriser.
+        var approvedBy = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage", approval, requireApproval: true).Approver?.ApproverName;
 
         await using var transaction = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         var delivery = await _db.Deliveries
@@ -53,7 +54,7 @@ public sealed class MarkDeliveryReadyHandler
         _db.DeliveryEvents.Add(new Persistence.Entities.DeliveryEventEntity
         {
             Id = $"delivery-event-{Guid.NewGuid():N}", DeliveryId = delivery.Id, OrderId = delivery.OrderId,
-            Type = "ready", Actor = actorUser.Name, Approver = approval?.ApproverName, CreatedAtUtc = DateTimeOffset.UtcNow,
+            Type = "ready", Actor = actorUser.Name, Approver = approvedBy, CreatedAtUtc = DateTimeOffset.UtcNow,
         });
 
         await _db.SaveChangesAsync(ct);

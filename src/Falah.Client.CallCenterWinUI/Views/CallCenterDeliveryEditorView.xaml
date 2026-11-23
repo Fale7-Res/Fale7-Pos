@@ -32,7 +32,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Header="رقم الهاتف" InputScope="TelephoneNumber" MinHeight="44"
+                            <TextBox MaxLength="30" Header="رقم الهاتف" InputScope="TelephoneNumber" MinHeight="44"
                                      Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <Button Grid.Column="1" Content="بحث عن العميل" VerticalAlignment="Bottom" MinHeight="44"
                                     Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LookupCustomerCommand}"/>
@@ -42,7 +42,7 @@
                         <TextBlock Text="{Binding CustomerLookupNote}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
                                    Visibility="{Binding CustomerLookupNote, Converter={StaticResource NullToCollapsedConverter}}"/>
 
-                        <TextBox Header="اسم العميل" MinHeight="44"
+                        <TextBox MaxLength="200" Header="اسم العميل" MinHeight="44"
                                  Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <ComboBox Header="عنوان محفوظ" HorizontalAlignment="Stretch" MinHeight="44"
@@ -88,7 +88,7 @@
 
                         <TextBox Header="علامة مميزة" MinHeight="44"
                                  Text="{Binding DeliveryLandmark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Header="ملاحظات التوصيل" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
+                        <TextBox MaxLength="500" Header="ملاحظات التوصيل" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
                                  Text="{Binding DeliveryNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{Binding DeliveryServicesError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"

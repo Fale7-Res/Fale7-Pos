@@ -24,7 +24,9 @@ public sealed class MenuPricingService
 
     public async Task<List<ResolvedItem>> ResolveAsync(IReadOnlyList<CheckoutItemRequest> requests, DateTimeOffset nowUtc, CancellationToken ct)
     {
-        if (requests.Count == 0) throw new DomainException("السلة فارغة. الرجاء إضافة أصناف قبل الدفع.");
+        if (requests is null || requests.Count == 0) throw new DomainException("السلة فارغة. الرجاء إضافة أصناف قبل الدفع.");
+        // QA-11 (audit 2026-11-23): a note prints on the kitchen ticket; it has a sane upper bound.
+        foreach (var line in requests) InputRules.AssertMaxLength(line?.Notes, InputRules.MaxNoteLength, "ملاحظة الصنف");
 
         var productIds = requests.Select(r => r.ProductId).Distinct().ToList();
         var products = await _db.Products.Include(p => p.Variants)

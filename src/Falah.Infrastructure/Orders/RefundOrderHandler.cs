@@ -44,10 +44,18 @@ public sealed class RefundOrderHandler
 
     public async Task<RefundOrderResult> HandleAsync(RefundOrderRequest request, CancellationToken ct = default)
     {
+        // QA-03 (audit 2026-11-23): an empty id is no replay key; refused before the lookup.
+        InputRules.AssertRequestId(request.RefundRequestId);
         var refundKey = $"refund-{request.RefundRequestId}";
 
         var existing = await FindExistingAsync(refundKey, ct);
         if (existing is not null) return await ToResultAsync(existing, wasReplayed: true, ct);
+
+        // QA-07 / QA-09 (audit 2026-11-23): the till always required a reason and a positive amount; the
+        // server now does too, with the right message (a zero amount used to read "nothing left to refund").
+        if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب الاسترداد مطلوب.");
+        InputRules.AssertMaxLength(request.Reason.Trim(), InputRules.MaxReasonLength, "سبب الاسترداد");
+        if (request.AmountPiastres <= 0) throw new DomainException("مبلغ الاسترداد يجب أن يكون أكبر من صفر.");
 
         var cashierUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CashierId, ct)
             ?? throw new InvalidOperationException("الكاشير غير موجود.");

@@ -77,6 +77,9 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
                 // assert the Failed state straight after one failure, so the host starts with retries off;
                 // PrintJobAutomaticRetryTests turns them back on through configOverrides.
                 ["PrintJobs:AutomaticRetries"] = "0",
+                // The server's own log file is off in test hosts (it would write to ProgramData);
+                // RuntimeLoggingServerTests turns it on into a temporary folder.
+                ["Logging:File:Enabled"] = "false",
                 // Explicitly provision only this uniquely named test database, including Production-mode fixtures.
                 ["Database:MigrateOnStartup"] = "true",
             });

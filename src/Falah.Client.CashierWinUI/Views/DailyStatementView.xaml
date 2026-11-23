@@ -28,15 +28,15 @@
                         Command="{Binding ShowYesterdayCommand}"/>
                 <Button MinHeight="40" Content="اليوم" Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding ShowTodayCommand}"/>
-                <Button MinHeight="40" MinWidth="40" Content="&#xE76B;" FontFamily="Segoe MDL2 Assets"
+                <Button MinHeight="44" MinWidth="44" Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" AutomationProperties.Name="اليوم السابق" ToolTipService.ToolTip="اليوم السابق"
                         Style="{StaticResource SecondaryButtonStyle}" Command="{Binding PreviousDayCommand}"/>
                 <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="10" Padding="12,8" MinWidth="160">
                     <TextBlock Text="{Binding SelectedDateDisplay}" FontWeight="Bold" FontSize="12" TextAlignment="Center"/>
                 </Border>
-                <Button MinHeight="40" MinWidth="40" Content="&#xE76C;" FontFamily="Segoe MDL2 Assets"
+                <Button MinHeight="44" MinWidth="44" Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" AutomationProperties.Name="اليوم التالي" ToolTipService.ToolTip="اليوم التالي"
                         Style="{StaticResource SecondaryButtonStyle}" Command="{Binding NextDayCommand}"
                         IsEnabled="{Binding CanGoNext}"/>
-                <Button MinHeight="40" MinWidth="40" Content="&#xE72C;" FontFamily="Segoe MDL2 Assets"
+                <Button MinHeight="44" MinWidth="44" Content="&#xE72C;" FontFamily="Segoe MDL2 Assets" AutomationProperties.Name="تحديث" ToolTipService.ToolTip="تحديث"
                         Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LoadCommand}"/>
             </StackPanel>
         </Grid>

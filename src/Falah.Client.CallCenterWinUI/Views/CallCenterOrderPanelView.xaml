@@ -42,7 +42,7 @@
                     <!-- Phone stays inline: it is the very first thing typed when the call connects,
                          and it is the customer's identity for lookup. Everything else lives one tap
                          away so the order lines below keep their vertical space. -->
-                    <TextBox PlaceholderText="رقم هاتف العميل" InputScope="TelephoneNumber" MinHeight="44"
+                    <TextBox MaxLength="30" PlaceholderText="رقم هاتف العميل" InputScope="TelephoneNumber" MinHeight="44"
                              Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Text="{Binding CustomerLookupNote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
                                Foreground="{ThemeResource BrandPrimaryBrush}"
@@ -132,7 +132,7 @@
                                             <Button.Flyout>
                                                 <Flyout>
                                                     <StackPanel Width="260" Spacing="8">
-                                                        <TextBox Header="ملاحظات للمطبخ" TextWrapping="Wrap" AcceptsReturn="True"
+                                                        <TextBox MaxLength="500" Header="ملاحظات للمطبخ" TextWrapping="Wrap" AcceptsReturn="True"
                                                                  Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                         <Button Content="بدون بصل" Tag="بدون بصل" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
                                                         <Button Content="حار" Tag="حار" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>

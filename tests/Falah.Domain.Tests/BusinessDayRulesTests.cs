@@ -16,6 +16,39 @@ public class BusinessDayRulesTests
             BusinessDayRules.Open("day-2", new DateOnly(2026, 3, 5), "owner", Now, new[] { open }));
     }
 
+    // Independent audit 2026-11-23, F-02: the date of a new business day is typed in the Control Center.
+    // A closed date or a future date is refused - a typo used to duplicate a closed period, or accrue
+    // months of future salary at its close.
+    [Fact]
+    public void A_business_day_cannot_be_opened_for_a_date_after_today()
+    {
+        var today = new DateOnly(2026, 11, 23);
+        Assert.Throws<DomainException>(() => BusinessDayRules.AssertOpenableDate(today.AddDays(1), today, alreadyClosed: false));
+    }
+
+    [Fact]
+    public void A_business_day_cannot_be_opened_again_for_a_date_already_closed()
+    {
+        var today = new DateOnly(2026, 11, 23);
+        Assert.Throws<DomainException>(() => BusinessDayRules.AssertOpenableDate(new DateOnly(2026, 11, 1), today, alreadyClosed: true));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Today_or_an_earlier_date_not_yet_closed_can_be_opened(int offsetDays)
+    {
+        var today = new DateOnly(2026, 11, 23);
+        BusinessDayRules.AssertOpenableDate(today.AddDays(offsetDays), today, alreadyClosed: false);
+    }
+
+    [Fact]
+    public void A_new_day_for_today_may_follow_todays_closed_day()
+    {
+        var today = new DateOnly(2026, 11, 23);
+        BusinessDayRules.AssertOpenableDate(today, today, alreadyClosed: true);
+    }
+
     [Fact]
     public void Reopening_a_day_requires_a_reason()
     {

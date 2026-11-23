@@ -69,7 +69,8 @@ public sealed class RecordDeliveryResultHandler
             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "delivery_manage", request.Reason);
         }
-        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage", approval, requireApproval: true);
+        // Audit 2026-11-23, F-05: only an approval the check actually validated is named as the authoriser.
+        var approvedBy = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage", approval, requireApproval: true).Approver?.ApproverName;
 
         await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, ct);
         try
@@ -181,7 +182,7 @@ public sealed class RecordDeliveryResultHandler
             {
                 Id = eventId, DeliveryId = delivery.Id, OrderId = delivery.OrderId, DriverId = delivery.DriverId,
                 TripId = delivery.TripId, Type = targetStatus.ToString().ToLowerInvariant(), Reason = request.Reason,
-                AmountPiastres = collectedForEvent, Actor = actorUser.Name, Approver = shortfallApprover ?? approval?.ApproverName, CreatedAtUtc = now,
+                AmountPiastres = collectedForEvent, Actor = actorUser.Name, Approver = shortfallApprover ?? approvedBy, CreatedAtUtc = now,
             });
 
             if (shortfall.IsPositive)
@@ -200,7 +201,7 @@ public sealed class RecordDeliveryResultHandler
                 // than its internal id.
                 $"تسجيل نتيجة توصيل: {DescribeOutcome(targetStatus)}", "order", $"طلب {order.OrderNumber} - {request.Reason}",
                 targetStatus == DeliveryStatus.Delivered ? "normal" : "warning", now,
-                Reason: request.Reason, AuthorizedBy: approval?.ApproverName, ReferenceId: delivery.Id));
+                Reason: request.Reason, AuthorizedBy: approvedBy, ReferenceId: delivery.Id));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

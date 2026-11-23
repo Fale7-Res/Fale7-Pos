@@ -11,7 +11,7 @@
    PlaceholderText="ابحث عن صنف…" Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
  </Grid>
  <GridView Grid.Row="1" x:Name="CategoriesGridView" ItemsSource="{Binding CategoryTiles}" IsItemClickEnabled="True" SelectionMode="None"
-  ItemClick="OnCategoryClicked" Height="66" ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+  ItemClick="OnCategoryClicked" Height="66" ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Visible"
   ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
   <GridView.ItemsPanel><ItemsPanelTemplate><ItemsStackPanel Orientation="Horizontal"/></ItemsPanelTemplate></GridView.ItemsPanel>
   <GridView.ItemContainerStyle><Style TargetType="GridViewItem"><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,8,0"/></Style></GridView.ItemContainerStyle>

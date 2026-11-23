@@ -37,7 +37,10 @@ $log = Join-Path $out 'build.log'
 
 function Publish([string]$project, [string]$folder, [string[]]$extra) {
     Write-Host "  publish $folder"
-    & dotnet publish $project -c Release -r win-x64 --self-contained true -o (Join-Path $out $folder) -nologo @extra *>> $log
+    # The package id and commit become every program's version, so each log line (server, station, print
+    # agent) names the exact build that wrote it (runtime logging audit 2026-11-23).
+    $stamp = "-p:InformationalVersion=$id-$commit$(if ($dirty) { '-dirty' })"
+    & dotnet publish $project -c Release -r win-x64 --self-contained true -o (Join-Path $out $folder) -nologo $stamp @extra *>> $log
     if ($LASTEXITCODE -ne 0) { throw "publish failed for $project (see $log)" }
 }
 Publish 'src/Falah.Server/Falah.Server.csproj' 'Server' @()

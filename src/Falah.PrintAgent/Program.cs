@@ -202,17 +202,22 @@ async Task<int> RunAgentAsync(CancellationToken stopToken)
 
 
     Log($"logged in as {server.UserName} ({reportAs})");
-    Log($"print agent started - route {options.Route}, server {options.ServerBaseAddress}, transport {transport.Description}");
+    // Runtime logging audit 2026-11-23 (L-05): which build, on which machine.
+    var agentVersion = (typeof(PollOutageLog).Assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+        .FirstOrDefault() as System.Reflection.AssemblyInformationalVersionAttribute)?.InformationalVersion?.Split('+')[0] ?? "0";
+    Log($"print agent {agentVersion} started on {Environment.MachineName} - route {options.Route}, server {options.ServerBaseAddress}, transport {transport.Description}");
     if (options.Transport.Equals("file", StringComparison.OrdinalIgnoreCase))
         Log("WARNING: the file transport writes tickets to disk and prints nothing. Use it for verification only.");
 
     var pollDelay = TimeSpan.FromSeconds(options.PollSeconds);
+    var outage = new PollOutageLog(Log);
     while (!shutdown.IsCancellationRequested)
     {
         try
         {
             await processor.DrainAsync(options.Route, shutdown.Token, drawer is null ? null
                 : async token => { await drawer.DrainAsync(token); });
+            outage.Succeeded();
         }
         catch (OperationCanceledException) when (shutdown.IsCancellationRequested)
         {
@@ -222,7 +227,7 @@ async Task<int> RunAgentAsync(CancellationToken stopToken)
         {
             // A server that is down must not kill the agent: the queue is durable server-side, so the
             // agent keeps polling and drains the backlog once the server is reachable again.
-            Log($"poll failed: {ex.GetType().Name}: {ex.Message}");
+            outage.Failed(ex);
         }
 
         try { await Task.Delay(pollDelay, shutdown.Token); }

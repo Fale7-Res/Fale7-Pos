@@ -177,7 +177,7 @@ Start-Service -Name $serviceName
 $url = "https://${ServerName}:$Port"
 if (-not (Test-FalahServer "https://localhost:$Port" 25)) {
     if ($bootstrap) { Set-ServiceEnvironment $settings '' }
-    throw "السيرفر مردّش. راجع: Get-EventLog -LogName Application -Source $serviceName -Newest 20"
+    throw "السيرفر مردّش. راجع سجل السيرفر: $env:ProgramData\Falah\Logs\Server\ أو: Get-EventLog -LogName Application -Newest 50 | Where-Object { `$_.Source -like 'Falah*' }"
 }
 if ($bootstrap) {
     Set-ServiceEnvironment $settings ''   # the owner's PIN leaves the configuration as soon as the account exists

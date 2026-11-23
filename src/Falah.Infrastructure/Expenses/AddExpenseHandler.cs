@@ -44,6 +44,7 @@ public sealed class AddExpenseHandler
             throw new DomainException("حساب الدفع غير صالح لتسجيل مصروف.");
         if (request.AmountPiastres <= 0) throw new DomainException("مبلغ المصروف يجب أن يكون أكبر من صفر.");
         if (string.IsNullOrWhiteSpace(request.Description)) throw new DomainException("بيان المصروف مطلوب.");
+        InputRules.AssertMaxLength(request.Description.Trim(), InputRules.MaxDescriptionLength, "بيان المصروف");   // QA-11
         Falah.Domain.Financial.ExpenseCategories.AssertAllowed(request.Category);   // fixed list, no ingredients (owner)
 
         var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)

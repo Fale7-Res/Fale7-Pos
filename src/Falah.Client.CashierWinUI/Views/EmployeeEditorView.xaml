@@ -79,9 +79,9 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                    <TextBox MaxLength="200" Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                              Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <TextBox Grid.Column="1" Header="الرقم الوظيفي" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                    <TextBox MaxLength="50" Grid.Column="1" Header="الرقم الوظيفي" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                              Text="{Binding EmployeeNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </Grid>
 
@@ -90,9 +90,9 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Header="المسمى الوظيفي" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                    <TextBox MaxLength="200" Header="المسمى الوظيفي" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                              Text="{Binding JobTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    <TextBox Grid.Column="1" Header="رقم الهاتف" MinHeight="44" InputScope="TelephoneNumber"
+                                    <TextBox MaxLength="30" Grid.Column="1" Header="رقم الهاتف" MinHeight="44" InputScope="TelephoneNumber"
                                              IsEnabled="{Binding CanEdit}"
                                              Text="{Binding Phone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </Grid>

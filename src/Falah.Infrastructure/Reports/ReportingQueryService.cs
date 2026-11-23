@@ -35,7 +35,7 @@ public sealed class ReportingQueryService
     private async Task<List<OrderEntity>> LoadSalesOrdersAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct)
     {
         var query = _db.Orders.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection);
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection);
         if (range is { } period)
         {
             // Cairo midnight boundaries, so a month's total is exactly the sum of the days inside it.
@@ -168,7 +168,7 @@ public sealed class ReportingQueryService
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
         var orderEntities = await _db.Orders.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection && o.BusinessDayId == businessDayId).ToListAsync(ct);
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection && o.BusinessDayId == businessDayId).ToListAsync(ct);
         var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
         var sales = SalesRules.ComputeSalesReport(
             domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct),
@@ -259,7 +259,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id, (i, o) => new { i.ProductName, i.Quantity, i.TotalPricePiastres })
             .ToListAsync(ct);
@@ -280,7 +280,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id,
                 (i, o) => new { i.OrderId, i.ProductId, i.ProductName, i.Quantity, i.TotalPricePiastres, o.CreatedAtUtc })
@@ -315,7 +315,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id,
                 (i, o) => new { i.ProductName, i.Quantity, i.TotalPricePiastres, o.CreatedAtUtc })
@@ -333,7 +333,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id, (i, _) => i)
             .Join(_db.Products.AsNoTracking(), i => i.ProductId, p => p.Id, (i, p) => new { p.CategoryId, i.Quantity, i.TotalPricePiastres })
@@ -357,13 +357,13 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var soldOrders = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                 && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end))
             .Select(o => new { o.Id, o.OrderType, o.FoodCostFrozenAtUtc, o.FrozenPackagingCostPiastres, o.FrozenPackagingMissing })
             .ToListAsync(ct);
         var frozenOrders = soldOrders.Where(o => o.FoodCostFrozenAtUtc != null).Select(o => o.Id).ToHashSet();
         var soldLines = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id, (i, _) => new { i.OrderId, i.ProductId, i.VariantId, i.ProductName, i.Quantity, i.FrozenUnitFoodCostPiastres })
             .ToListAsync(ct);
@@ -624,7 +624,7 @@ public sealed class ReportingQueryService
     {
         var pendingWire = ElectronicPaymentStatus.Pending.ToWireString();
         var entities = await _db.Orders.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.ElectronicPaymentStatus == pendingWire && o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection)
+            .Where(o => o.ElectronicPaymentStatus == pendingWire && o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection)
             .ToListAsync(ct);
 
         var now = DateTimeOffset.UtcNow;

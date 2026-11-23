@@ -14,6 +14,21 @@ public static class EmployeeRules
         if (string.IsNullOrWhiteSpace(employeeNumber)) throw new DomainException("الرقم الوظيفي مطلوب.");
         if (string.IsNullOrWhiteSpace(jobTitle)) throw new DomainException("المسمى الوظيفي مطلوب.");
         if (string.IsNullOrWhiteSpace(phone)) throw new DomainException("رقم هاتف الموظف مطلوب.");
+        // QA-08 / QA-11 (audit 2026-11-23): what does not fit is refused with a message, not a database 500.
+        InputRules.AssertMaxLength(name.Trim(), InputRules.MaxNameLength, "اسم الموظف");
+        InputRules.AssertMaxLength(employeeNumber.Trim(), MaxEmployeeNumberLength, "الرقم الوظيفي");
+        InputRules.AssertMaxLength(jobTitle.Trim(), InputRules.MaxNameLength, "المسمى الوظيفي");
+        InputRules.AssertMaxLength(phone.Trim(), 30, "رقم هاتف الموظف");
+    }
+
+    public const int MaxEmployeeNumberLength = 50;
+
+    /// <summary>QA-06 (audit 2026-11-23): no negative pay, whatever sent it - the employee screen already
+    /// refuses it; a negative wage would post negative accruals to the employee's ledger.</summary>
+    public static void AssertCompensation(long dailyWagePiastres, long shiftValuePiastres, long? monthlySalaryPiastres, long? overtimeRatePiastres)
+    {
+        if (dailyWagePiastres < 0 || shiftValuePiastres < 0 || monthlySalaryPiastres < 0 || overtimeRatePiastres < 0)
+            throw new DomainException("الأجر لا يمكن أن يكون بالسالب.");
     }
 
     /// <summary>Ported verbatim from calculateEmployeeBalance's own reduce: sum(credit) -

@@ -41,6 +41,9 @@ public sealed class CheckoutOrderHandler
     {
         // Fast idempotent-replay path first, no transaction needed for a pure read: a same-task
         // retry or a network retry that already succeeded gets back the exact same order.
+        // QA-03 (audit 2026-11-23): checked BEFORE the replay lookup - an empty id is no key at all, and
+        // looking it up made a second, different sale return the first one and never be recorded.
+        InputRules.AssertRequestId(request.CheckoutRequestId);
         var existing = await FindExistingAsync(request.CheckoutRequestId, ct);
         if (existing is not null) return ToResult(existing, wasReplayed: true);
 
@@ -96,6 +99,10 @@ public sealed class CheckoutOrderHandler
             var missing = DeliveryRules.FirstMissingPickupField(request.CustomerPhone, request.CustomerName);
             if (missing is not null) throw new DomainException(missing);
         }
+
+        // QA-11 (audit 2026-11-23): customer details print on tickets and fit their columns.
+        InputRules.AssertMaxLength(request.CustomerName?.Trim(), InputRules.MaxNameLength, "اسم العميل");
+        InputRules.AssertMaxLength(request.CustomerPhone?.Trim(), 30, "رقم هاتف العميل");
 
         // AUD-01: the fee (and the service name frozen with it) is the configured zone's, never the client's.
         DeliveryRules.DeliveryServiceTerms? serviceTerms = null;

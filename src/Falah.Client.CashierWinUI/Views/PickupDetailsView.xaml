@@ -11,9 +11,9 @@
    <StackPanel Grid.Row="1" Padding="24,0,24,20" Spacing="14">
     <TextBlock Text="اسم العميل ورقم هاتفه، عشان نعرف الطلب ده بتاع مين وقت الاستلام."
                TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
-    <TextBox AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
+    <TextBox MaxLength="30" AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
              Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-    <TextBox AutomationProperties.AutomationId="Pickup_Name" IsEnabled="{Binding CanEditOperation}" Header="اسم العميل"
+    <TextBox MaxLength="200" AutomationProperties.AutomationId="Pickup_Name" IsEnabled="{Binding CanEditOperation}" Header="اسم العميل"
              Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <TextBlock Text="موعد الاستلام (اختياري) - سيبه فاضي لو العميل جاي دلوقتي." TextWrapping="Wrap"
                FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>

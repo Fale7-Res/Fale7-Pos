@@ -5,7 +5,7 @@ using Falah.Domain.Orders;
 
 public static class OrderEnumMapping
 {
-    public static OrderType ParseOrderType(string value) => value.ToLowerInvariant() switch
+    public static OrderType ParseOrderType(string value) => (value ?? "").ToLowerInvariant() switch
     {
         // "dine_in"/"dinein" is the pre-rename spelling. Orders written before the type became
         // Pickup still carry it in the database and are still read back, so parsing keeps
@@ -13,17 +13,18 @@ public static class OrderEnumMapping
         "pickup" or "dine_in" or "dinein" => OrderType.Pickup,
         "takeaway" => OrderType.Takeaway,
         "delivery" => OrderType.Delivery,
-        _ => throw new ArgumentException($"نوع طلب غير معروف: {value}"),
+        // QA-08 (audit 2026-11-23): a validation message (422), not an unexpected error (500).
+        _ => throw new Falah.Domain.Common.DomainException($"نوع طلب غير معروف: {value}"),
     };
 
-    public static PaymentMethod ParsePaymentMethod(string value) => value.ToLowerInvariant() switch
+    public static PaymentMethod ParsePaymentMethod(string value) => (value ?? "").ToLowerInvariant() switch
     {
         "cash" => PaymentMethod.Cash,
         "card" => PaymentMethod.Card,
         "instapay" => PaymentMethod.InstaPay,
         "wallet" => PaymentMethod.Wallet,
         "multi" => PaymentMethod.Multi,
-        _ => throw new ArgumentException($"طريقة دفع غير معروفة: {value}"),
+        _ => throw new Falah.Domain.Common.DomainException($"طريقة دفع غير معروفة: {value}"),
     };
 
     public static string ToWireString(this OrderType type) => type switch
@@ -44,13 +45,17 @@ public static class OrderEnumMapping
         _ => throw new ArgumentOutOfRangeException(nameof(method)),
     };
 
+    /// <summary>The stored form of a cancelled order, for queries (audit 2026-11-23, F-14): comparing with
+    /// nameof(OrderStatus.Cancelled) ("Cancelled") matched only because the database collation ignores case.</summary>
+    public const string CancelledWire = "cancelled";
+
     public static string ToWireString(this OrderStatus status) => status switch
     {
         OrderStatus.Pending => "pending",
         OrderStatus.Preparing => "preparing",
         OrderStatus.Ready => "ready",
         OrderStatus.Completed => "completed",
-        OrderStatus.Cancelled => "cancelled",
+        OrderStatus.Cancelled => CancelledWire,
         OrderStatus.Refunded => "refunded",
         _ => throw new ArgumentOutOfRangeException(nameof(status)),
     };

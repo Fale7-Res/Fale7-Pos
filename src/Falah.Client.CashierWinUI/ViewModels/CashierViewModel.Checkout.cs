@@ -276,6 +276,12 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(CheckoutBlockedReason));
     }
 
+    /// <summary>Independent audit 2026-11-23, F-07: the last paid sale's number and change, on one quiet footer line.
+    /// A paid sale returns straight to an empty order (owner, 2026-11-19) and the dialog's change row could be
+    /// scrolled out of sight, so the cashier could finish a sale without ever seeing the change. Cleared when the
+    /// next payment is opened.</summary>
+    [ObservableProperty] private string? _lastSaleNote;
+
     [RelayCommand]
     private void OpenCheckout()
     {
@@ -291,6 +297,7 @@ public partial class CashierViewModel
         if (IsPickup && (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone)))
         { OpenPickupEditor(); return; }
         CheckoutError = null;
+        LastSaleNote = null;
         PaymentMethod = "cash";
         AmountPaidText = CashInput.Format(GrandTotalPiastres);
         _replaceTenderOnNextKey = true;
@@ -482,6 +489,8 @@ public partial class CashierViewModel
 
         _reviewingExistingOrder = false;
         LastCheckoutResult = result.Value;
+        LastSaleNote = $"آخر طلب {result.Value.OrderNumber}"
+            + (result.Value.ChangeDuePiastres > 0 ? $" — الباقي للعميل {CashInput.Format(result.Value.ChangeDuePiastres)} ج" : "");
         IsCheckoutOpen = false;
         Cart.Clear();
         RecomputeCartTotals();

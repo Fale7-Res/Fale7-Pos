@@ -583,7 +583,10 @@
     "Audit 2026-11-18: should confirming an InstaPay/wallet transfer require the bank or wallet reference to be typed (none is captured today; the confirmation is now audited)?",
     "Audit 2026-11-18: backup encryption (needs a SQL Server certificate kept off the machine) and the acceptable data loss window (automatic backup every 20 h today; MaxAgeHours lower or full recovery with log backups?).",
     "Audit 2026-11-18 (PERF-0001 follow-up): narrow TreasuryMovements SourceAccountId/DestinationAccountId/ShiftId/Status from nvarchar(max) so they can be indexed? Not additive - needs a reviewed migration.",
-    "FIN-0030 (owner 2026-11-22: ask the accountant): is VAT computed before or after the comp is subtracted? (unchanged until the accountant answers)"
+    "FIN-0030 (owner 2026-11-22: ask the accountant): is VAT computed before or after the comp is subtracted? (unchanged until the accountant answers)",
+    "Audit 2026-11-23 F-19: should recipes/costs, the driver list and inventory balances need a permission to read (today any session)?",
+    "Audit 2026-11-23 F-20: protect the print-agent PIN with machine DPAPI after an on-site trial; confirm tills do not run under a Windows administrator account.",
+    "Audit 2026-11-23 F-17: add a filtered unique index for 'one active business day' in the next planned schema update (check production data for duplicates first)."
   ],
   "last_codex_update_utc": "2026-11-07T23:30:51.242Z",
   "handoff_document": "docs/CODEX_TAKEOVER_20261108.md",
@@ -823,5 +826,75 @@
     ],
     "round2_screens": "built, not run on a screen: refund method, cash count, customer delete, pickup pay-on-collection / collect / cancel",
     "round2_tests": "Domain 579/579, Client 457/457; integration: decision-14 group (close, reporting, dashboard, profitability, inventory) 126/126; neighbour run (checkout, voids, shift close, reporting, daily statement, business day, cash flow, refunds, electronic confirm, printing, owner dashboard/financial, customers, pickups, audit wiring) 312/312 in 35 m; earlier per-decision classes green (payroll/accrual 30, close 32, printing/confirm 52, retry/claim/printing/dashboard 100, refunds 59, wage history 22, profitability 4). Full suite not run for this round."
+  },
+  "qa_audit_20261123": {
+    "summary": "Defensive QA / negative testing / runtime logging audit (143 scenarios in an isolated copy, no P0/P1, financial integrity held), then the owner's go-ahead ('صلح') to fix. Reports: docs/FINAL_DEFENSIVE_QA_REPORT.md (section 7 = fixes), docs/FINAL_RUNTIME_LOGGING_REPORT.md (section 7), docs/HOW_TO_COLLECT_RUNTIME_LOGS.md.",
+    "fixed": [
+      "QA-01 clients show the server's reference number in the error message; X-Correlation-Id sent by every client and used as the server's reference",
+      "QA-02 customer phones normalised (Arabic-Indic digits) - no duplicate customer from the same number",
+      "QA-03 an empty request id is rejected before the replay lookup (checkout, refund, pickup collect, shift close)",
+      "QA-06 negative wages, receipt copies above 5, negative cash-count quantities refused with Arabic messages",
+      "QA-07 refund reason required server-side",
+      "QA-08 unknown order type / payment method, null items, overlong text = 422 with an Arabic message, not 500",
+      "QA-09/10/11 messages; negative denomination count refused (was turned into 0); length limits server-side (InputRules) and MaxLength on 23 boxes in 12 XAML views",
+      "L-01 server rolling log file C:\\ProgramData\\Falah\\Logs\\Server\\server-yyyyMMdd.log (10 MB parts, 30 days, critical lines written at once); off in test hosts",
+      "L-02 service installer hints point to the log file and Event Log source Falah*",
+      "L-03/L-04 station logs %LOCALAPPDATA%\\Falah\\logs\\{cashier|callcenter}-yyyyMMdd.log (5xx and no-answer with reference; path only, no body, no PIN/token); crash log header carries version and machine",
+      "L-05 print agent logs the start of an outage once and the recovery; version stamped by the install package"
+    ],
+    "not_changed": [
+      "QA-04 a till blocked by repeated 500s on a kept operation: support procedure in HOW_TO_COLLECT_RUNTIME_LOGS.md section 4",
+      "QA-05 login lockout after 5 wrong PINs / 15 min (20 / day per machine): accepted security behaviour"
+    ],
+    "tests": "Domain 597/597; Client 467/467; integration InputHardening 9 + RuntimeLoggingServer 7 + PollOutageLog 3 = 19/19 on the final source (critical-line test watched RED with the fix disabled); full integration suite 1106/1107 in 2h26m on the source before the critical-line change - the one failure PrintingVerticalSliceTests.A_pickup_order_carries_no_table_even_if_one_is_sent did not reproduce: the class 37/37 alone right after (failure message not captured by the run's filter); builds Falah.sln, CashierWinUI x64, CallCenterWinUI x64 0 errors",
+    "on_site_pending": [
+      "installed server writes C:\\ProgramData\\Falah\\Logs\\Server (service account can create the folder)",
+      "each till / call-center PC writes its station log under the Windows account it runs as",
+      "print agent outage and recovery lines with the printer PC unplugged from the LAN",
+      "a staff member reads the reference number from a real error and the developer finds it in the server log"
+    ],
+    "owner_decisions_20261123": {
+      "quantity per order line": "no fixed cap - unchanged (overflow checks only)",
+      "future hire date": "allowed - unchanged",
+      "login lockout": "keep 5 wrong PINs per 15 min and 20 per day per machine - unchanged",
+      "QA-04": "keep the support procedure (HOW_TO_COLLECT_RUNTIME_LOGS.md section 4); no release button - unchanged"
+    },
+    "owner_questions_pending_new": [],
+    "committed": false
+  },
+  "independent_audit_20261123": {
+    "summary": "Independent zero-trust audit (artifacts/independent-audit-20261123/AUDIT_REPORT.md, NO-GO: 3 P1, 4 P2) then the owner's go-ahead ('solve all') with four decisions. Runtime proofs A-01..A-05 reproduced in a scratch copy; regression tests added to the repository.",
+    "owner_decisions_20261123": [
+      "F-01 a split-paid order may be refunded WHOLE through any one of its methods (accepted control risk); the drawer and the blind close must reflect it (proven by SplitOrderRefundTests)",
+      "F-08 without orders_view_all, open/look up only orders of the open shift (+ unfinished pickups/transfers from earlier shifts)",
+      "F-13 VAT rounds half a piastre up",
+      "F-17 DB unique guard for business days deferred to a planned schema update"
+    ],
+    "fixed": [
+      "F-02 business day cannot be opened for a future date or for a PAST date already closed (a new day for today after today's close stays allowed); day-close salary accrual never goes past today",
+      "F-03 every backup writes <bak>.schema (newest applied migration), copied/pruned with it; restore refuses a different stamped schema before anything is destroyed; an unstamped backup is checked after restore and the result names the missing migration and Update-Database.ps1; procedure in DEPLOYMENT.md section 2",
+      "F-04 RequestIdFilter on every POST/PUT: required *RequestId missing/blank/over 200 chars = 422 before any handler (optional string? ids may be omitted, not blank)",
+      "F-05 shift close validates and spends any presented approval and names only a validated approver; delivery assign/ready/reassign/result and price rules attribute only AuthorizeCommand's validated approver",
+      "F-06 GET /api/orders takes from/to (Cairo dates, default today) and limit (default 500, max 2000); Orders screen has date pickers for orders_view_all and a 'first 500' note",
+      "F-07 checkout change due pinned in the dialog header beside the total; after a paid sale the cart footer shows 'آخر طلب #n — الباقي ...' until the next payment opens (no card, per the 2026-11-19 decision)",
+      "F-08 RefuseOrderOutsideOpenShiftAsync on GET /api/orders/{id} and /api/orders/lookup",
+      "F-09 business-day creation, driver settlement and user identity app locks wait LockTimeouts.Milliseconds (5 s) instead of 15 s",
+      "F-10 shift-open funding error names the main treasury and the remedy (no balance figure; Shifts screen masking unchanged)",
+      "F-11 cart delete target 44 px; category strip scrollbar always shown; workspace accelerator key-tips hidden; drivers panel empty state; dashboard titled لوحة المتابعة",
+      "F-12 daily statement icon buttons named (and 44 px)",
+      "F-13 TaxEngine and refund tax share round AwayFromZero",
+      "F-14 OrderEnumMapping.CancelledWire replaces nameof(OrderStatus.Cancelled) in 11 queries; StoredStatusConventionTests guards it",
+      "F-16 delivery board refreshes every 30 s while shown, never under an open dialog or a pending action",
+      "F-18 CancelUncollectedPickup checks the request id before the replay lookup"
+    ],
+    "not_changed": [
+      "F-15 login/approval PIN check cost grows with active users (PBKDF2 210k each): measure on the restaurant machine",
+      "F-17 deferred (owner)",
+      "F-19 ungated reads of recipes/drivers/inventory balance: owner question in ASSESSMENT.md",
+      "F-20 print-agent PIN plaintext (ACL'd): DPAPI needs on-site trial; owner question in ASSESSMENT.md",
+      "F-21 Program.cs size / duplicated approval plumbing: refactor not started (F-04/F-05 now enforced centrally or per handler)",
+      "F-11 the stuck lock-button tooltip was the automation cursor resting on it - not a product defect"
+    ],
+    "tests": "Final source: build 0 errors (Falah.sln + CashierWinUI x64); Domain 606/606; Client 474/474; FULL integration suite 1135/1135 (0 failed, 0 skipped, 2 h 28 m, 2026-11-23 18:43-21:11, --no-build on the final build). RED observed before the fix: BusinessDayDateGuardTests (3), RequestIdGuardTests (7); A-01..A-05 scratch proofs. Live UI (winapp ui, FalahAudit_20261123b): F-06/07/10/11 screens; the F-07 footer note first overlapped the cancel button and was moved to its own row."
   }
 }

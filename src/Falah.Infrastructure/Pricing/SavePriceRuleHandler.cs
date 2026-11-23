@@ -51,7 +51,8 @@ public sealed class SavePriceRuleHandler
             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "offers_manage", null);
         }
-        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "offers_manage", approval, requireApproval: true);
+        // Audit 2026-11-23, F-05: only an approval the check actually validated is named as the authoriser.
+        var approvedBy = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "offers_manage", approval, requireApproval: true).Approver?.ApproverName;
 
         var knownProductCount = await _db.Products.AsNoTracking().CountAsync(p => productIds.Contains(p.Id), ct);
         if (knownProductCount != productIds.Count) throw new DomainException("يوجد صنف غير موجود ضمن أصناف العرض.");
@@ -81,7 +82,7 @@ public sealed class SavePriceRuleHandler
             receiptId, actorUser.Id, actorUser.Name, actorUser.Role,
             $"حفظ عرض تسعير: {entity.Name}", "menu",
             $"السعر: {entity.FixedPricePiastres} قرش - عدد الأصناف: {productIds.Count} - مفعّل: {(entity.Active ? "نعم" : "لا")}",
-            "normal", DateTimeOffset.UtcNow, AuthorizedBy: approval?.ApproverName, ReferenceId: ruleId,
+            "normal", DateTimeOffset.UtcNow, AuthorizedBy: approvedBy, ReferenceId: ruleId,
             OperationId: request.RequestId, NewValue: System.Text.Json.JsonSerializer.Serialize(ToDto(entity))));
 
         await _db.SaveChangesAsync(ct);

@@ -74,8 +74,15 @@ public sealed class OpenShiftHandler
 
             if (inherited is null && openingCash.IsPositive)
             {
-                var mainMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, TreasuryAccounts.Main, ct);
-                FinancialRules.AssertProtectedSourceBalance(mainMovements, TreasuryAccounts.Main, openingCash);
+                var mainBalance = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, TreasuryAccounts.Main, ct);
+                // Audit 2026-11-23, F-10: say which account and what to do - on a new installation the default float
+                // always failed with only "source balance insufficient". The amount is deliberately not given: the
+                // Shifts screen hides this answer from a user who may not see the main treasury (it keys on the
+                // first sentence, kept as it was).
+                if (mainBalance < openingCash)
+                    throw new DomainException("رصيد حساب المصدر غير كافٍ لتنفيذ الحركة: الخزينة الرئيسية لا تكفي للعهدة المطلوبة. "
+                        + "سجّل إيداعًا في الخزينة الرئيسية أولًا (الخزينة ← إيداع) أو افتح الوردية بعهدة أقل.");
+                FinancialRules.AssertProtectedSourceBalance(mainBalance, TreasuryAccounts.Main, openingCash);
             }
 
             var entity = new ShiftEntity

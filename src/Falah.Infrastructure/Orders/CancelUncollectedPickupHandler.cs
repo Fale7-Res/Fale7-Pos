@@ -37,9 +37,10 @@ public sealed class CancelUncollectedPickupHandler
 
     public async Task<string> HandleAsync(CancelUncollectedPickupRequest request, CancellationToken ct = default)
     {
+        // Audit 2026-11-23, F-18: the id is checked before it is used to look anything up (QA-03).
+        InputRules.AssertRequestId(request.RequestId);
         if (await ReplayAsync(request.RequestId, ct) is { } replay) return replay;
 
-        if (string.IsNullOrWhiteSpace(request.RequestId)) throw new DomainException("رقم العملية مطلوب.");
         if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب الإلغاء مطلوب.");
         var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
 

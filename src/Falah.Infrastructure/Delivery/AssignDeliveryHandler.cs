@@ -56,7 +56,8 @@ public sealed class AssignDeliveryHandler
             approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                 approverUser.Role, DateTimeOffset.UtcNow, "delivery_manage", null);
         }
-        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage", approval, requireApproval: true);
+        // Audit 2026-11-23, F-05: only an approval the check actually validated is named as the authoriser.
+        var approvedBy = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage", approval, requireApproval: true).Approver?.ApproverName;
 
         await using var transaction = await _db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, ct);
         try
@@ -109,7 +110,7 @@ public sealed class AssignDeliveryHandler
             _db.DeliveryEvents.Add(new DeliveryEventEntity
             {
                 Id = eventId, DeliveryId = delivery.Id, OrderId = delivery.OrderId, DriverId = driver.Id, TripId = tripId,
-                Type = "assignment", Actor = actorUser.Name, Approver = approval?.ApproverName,
+                Type = "assignment", Actor = actorUser.Name, Approver = approvedBy,
                 AmountPiastres = facts.AmountToCollect.Piastres, CreatedAtUtc = now,
             });
 
@@ -130,7 +131,7 @@ public sealed class AssignDeliveryHandler
                 // The order NUMBER, not its internal id: this line is read by an owner in the audit
                 // screen, and "ord-b111c8..." names nothing they can look up.
                 "تعيين سائق لطلب دليفري", "order", $"تعيين {driver.Name} لطلب {order.OrderNumber}",
-                "normal", now, AuthorizedBy: approval?.ApproverName, ReferenceId: delivery.Id));
+                "normal", now, AuthorizedBy: approvedBy, ReferenceId: delivery.Id));
 
             await _db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);

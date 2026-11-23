@@ -22,6 +22,12 @@ public partial class App : global::Microsoft.UI.Xaml.Application
         // Audit 2026-11-18: written down before the process ends (see CrashLog). Not marked handled:
         // the station recovers its in-flight work on the next start, which a half-finished screen would not.
         var crashDirectory = System.IO.Path.Combine(Services.FileRetainedRequestStore.DataRoot(), "logs");
+        // Runtime logging audit 2026-11-23: the station log beside the crash log (FALAH_LOG_DIR overrides),
+        // 30 days kept, and a start line naming the build and the machine.
+        Falah.Client.Diagnostics.ClientLog.Configure(Falah.Client.Diagnostics.ClientLog.ResolveDirectory(crashDirectory), "cashier");
+        Falah.Client.Diagnostics.ClientLog.DeleteOldLogs(retentionDays: 30);
+        Falah.Client.Diagnostics.ClientLog.Write("INFO", "cashier station started");
+        crashDirectory = Falah.Client.Diagnostics.ClientLog.ResolveDirectory(crashDirectory)!;
         UnhandledException += (_, e) => Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "cashier", e.Exception, "UI");
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "cashier", e.ExceptionObject as Exception, "process");

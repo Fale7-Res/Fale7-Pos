@@ -130,5 +130,6 @@ if ($ok) {
     Write-Host "النسخ الاحتياطي التلقائي شغال جوه السيرفر - راجع شاشة النسخ الاحتياطي بعد يوم."
 } else {
     Write-Warning "الخدمة اتسجّلت لكن السيرفر مردّش خلال دقيقة. راجع سجل الأحداث:"
-    Write-Warning "  Get-EventLog -LogName Application -Source $ServiceName -Newest 20"
+    Write-Warning "  Get-Content `"$env:ProgramData\Falah\Logs\Server\server-$(Get-Date -Format yyyyMMdd).log`" -Tail 50"
+    Write-Warning "  Get-EventLog -LogName Application -Newest 50 | Where-Object { `$_.Source -like 'Falah*' }"
 }

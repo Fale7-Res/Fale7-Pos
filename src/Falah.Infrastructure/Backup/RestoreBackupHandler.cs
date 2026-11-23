@@ -77,6 +77,14 @@ public sealed class RestoreBackupHandler
             if (!File.Exists(backup.FilePath))
                 throw new DomainException("ملف النسخة الاحتياطية غير موجود على القرص.");
 
+            // Audit 2026-11-23, F-03: a backup taken at another schema than this build's is refused here, before
+            // the safety backup and before anything is destroyed (BackupSchemaStamp).
+            if (BackupSchemaStamp.Read(backup.FilePath) is { } recorded && BackupSchemaStamp.CodeVersion(_db) is { } current
+                && !string.Equals(recorded, current, StringComparison.Ordinal))
+                throw new DomainException(
+                    $"النسخة دي اتعملت على إصدار قاعدة بيانات ({recorded}) غير إصدار البرنامج الحالي ({current}). "
+                    + "استعادتها من هنا هتوقف السيرفر. اتبع خطوات الاستعادة عبر الإصدارات في docs/DEPLOYMENT.md (استعادة ثم deploy\\Update-Database.ps1 ثم إعادة تشغيل الخدمة).");
+
             var pendingCount = await _db.FinancialJournalEntries.AsNoTracking().CountAsync(j => j.Status != "Complete", ct);
             BackupRules.AssertNoActiveOperations(pendingCount);
         }
@@ -165,6 +173,28 @@ public sealed class RestoreBackupHandler
         restoreRecord.Status = databaseWasReplaced ? nameof(BackupRecordStatus.Succeeded) : nameof(BackupRecordStatus.Failed);
         restoreRecord.ErrorMessage = outcome.Error is null ? null
             : databaseWasReplaced ? "تمت استعادة البيانات، لكن تعذر إكمال إعادة فتح الاتصال: " + outcome.Error : outcome.Error;
+
+        // Audit 2026-11-23, F-03: a backup with no schema stamp (taken before stamps existed) could not be checked
+        // beforehand, so the restored database is checked now, and the operator is told exactly what to do.
+        if (databaseWasReplaced)
+        {
+            try
+            {
+                using (var pooled = new SqlConnection(connectionString)) SqlConnection.ClearPool(pooled);
+                var missing = await BackupSchemaStamp.MissingMigrationsAsync(_db, connectionString, CancellationToken.None);
+                if (missing.Count > 0)
+                {
+                    var warning = $"قاعدة البيانات المستعادة أقدم من البرنامج الحالي (ناقصها {missing.Count} تحديث، آخرها {missing[^1]}). "
+                        + "السيرفر مش هيشتغل صح ولا هيبدأ بعد إعادة التشغيل لحد ما تشغّل deploy\\Update-Database.ps1 (بعد نسخة احتياطية) ثم تعيد تشغيل خدمة FalahServer.";
+                    restoreRecord.ErrorMessage = restoreRecord.ErrorMessage is null ? warning : restoreRecord.ErrorMessage + " | " + warning;
+                }
+            }
+            catch (Exception ex) when (ex is SqlException or InvalidOperationException)
+            {
+                var note = "تعذر التحقق من إصدار قاعدة البيانات المستعادة: " + ex.Message;
+                restoreRecord.ErrorMessage = restoreRecord.ErrorMessage is null ? note : restoreRecord.ErrorMessage + " | " + note;
+            }
+        }
         _auditLog.Append(new AuditEvent(
             $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
             databaseWasReplaced ? "استعادة نسخة احتياطية" : "فشل استعادة نسخة احتياطية", "backup",

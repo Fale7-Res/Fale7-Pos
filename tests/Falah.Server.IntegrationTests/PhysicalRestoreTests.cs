@@ -153,4 +153,51 @@ public class PhysicalRestoreTests : IAsyncLifetime
         Assert.Equal(1, await UsersNamedAsync("باقٍ بعد الفشل"));      // nothing was replaced
         (await _owner.GetAsync("/api/menu")).EnsureSuccessStatusCode();
     }
+    // ---- Independent audit 2026-11-23, F-03: the schema a backup was taken at ----
+
+    private Task<string> LatestMigrationAsync() =>
+        _factory.QueryAsync(async db => (await db.Database.GetAppliedMigrationsAsync()).OrderBy(m => m, StringComparer.Ordinal).Last());
+
+    [Fact]
+    public async Task A_backup_records_the_schema_it_was_taken_at_beside_the_file()
+    {
+        var backup = await BackupAsync();
+
+        var stamp = Falah.Infrastructure.Backup.BackupSchemaStamp.PathFor(backup.FilePath);
+        Assert.True(File.Exists(stamp));
+        Assert.Equal(await LatestMigrationAsync(), File.ReadAllText(stamp).Trim());
+    }
+
+    [Fact]
+    public async Task A_backup_taken_at_another_schema_is_refused_before_anything_is_replaced()
+    {
+        var backup = await BackupAsync();
+        File.WriteAllText(Falah.Infrastructure.Backup.BackupSchemaStamp.PathFor(backup.FilePath), "20200101000000_AnOlderRelease");
+        await _factory.SeedUserAsync("باقٍ بعد الرفض", "cashier", "pos");
+
+        var response = await RestoreAsync(backup);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains("Update-Database", await response.Content.ReadAsStringAsync());
+        Assert.Equal("MULTI_USER", await UserAccessAsync());
+        Assert.Equal(1, await UsersNamedAsync("باقٍ بعد الرفض"));      // nothing was replaced
+    }
+
+    [Fact]
+    public async Task An_unstamped_backup_of_an_older_schema_is_restored_and_says_the_update_must_be_applied()
+    {
+        // An older release's backup: the newest migration is not in its history, and it has no stamp.
+        var latest = await LatestMigrationAsync();
+        await _factory.QueryAsync(db => db.Database.ExecuteSqlRawAsync("DELETE FROM [__EFMigrationsHistory] WHERE [MigrationId] = {0}", latest));
+        var backup = await BackupAsync();
+        File.Delete(Falah.Infrastructure.Backup.BackupSchemaStamp.PathFor(backup.FilePath));
+
+        var response = await RestoreAsync(backup);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var restore = (await response.Content.ReadFromJsonAsync<BackupRecordDto>())!;
+        Assert.Equal("Succeeded", restore.Status);
+        Assert.Contains(latest, restore.ErrorMessage);
+        Assert.Contains("Update-Database", restore.ErrorMessage);
+    }
 }

@@ -18,6 +18,7 @@ public class SplitOrderRefundTests : IAsyncLifetime
     private string _cashierId = default!;
     private string _managerId = default!;
     private string _orderId = default!;
+    private string _shiftId = default!;
 
     public async Task InitializeAsync()
     {
@@ -25,7 +26,7 @@ public class SplitOrderRefundTests : IAsyncLifetime
         _cashierId = await _factory.SeedUserAsync("كاشير", "cashier", "pos", "shifts_open_own", "shifts_blind_close");
         _managerId = await _factory.SeedUserAsync("مدير", "manager", "all");
         await _factory.SeedOpenBusinessDayWithFundedMainAsync();
-        var shiftId = (await (await As(_cashierId).PostAsJsonAsync("/api/shifts/open",
+        var shiftId = _shiftId = (await (await As(_cashierId).PostAsJsonAsync("/api/shifts/open",
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "وردية", _cashierId, 50_000))).Content.ReadFromJsonAsync<OpenShiftResult>())!.ShiftId;
         var productId = await _factory.SeedProductAsync(20_000);
         var sale = await As(_cashierId).PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
@@ -80,5 +81,22 @@ public class SplitOrderRefundTests : IAsyncLifetime
     {
         var response = await RefundAsync(5_000, method);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    }
+
+    /// <summary>Owner, 2026-11-23 (independent audit F-01): the whole split order may go back through any one of
+    /// the methods it was paid with - and the drawer must then expect exactly what physically left it, so the
+    /// blind close shows no false shortage. 500 ج opening + 80 ج cash leg - 200 ج cash refund = 380 ج.</summary>
+    [Fact]
+    public async Task A_whole_split_order_refunded_in_cash_leaves_no_false_shortage_at_the_close()
+    {
+        var refund = await RefundAsync(20_000, "cash");
+        Assert.Equal(HttpStatusCode.OK, refund.StatusCode);
+
+        var prepare = await As(_cashierId).PostAsJsonAsync("/api/shifts/prepare-close", new PrepareShiftCloseRequest(_shiftId, 38_000));
+        prepare.EnsureSuccessStatusCode();
+        var preview = (await prepare.Content.ReadFromJsonAsync<PrepareShiftCloseResult>())!;
+
+        Assert.Equal(38_000, preview.ExpectedCashPiastres);
+        Assert.Equal(0, preview.DifferencePiastres);
     }
 }

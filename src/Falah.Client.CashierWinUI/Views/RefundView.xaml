@@ -7,7 +7,7 @@
     <TextBlock Text="{Binding OrderLookupResult.OrderNumber}" Foreground="{ThemeResource TextMutedBrush}"/>
     <TextBlock><Run Text="المتاح للاسترداد: "/><Run Text="{Binding RefundRemainingDisplay}" FontWeight="Bold"/></TextBlock>
     <TextBox Header="المبلغ بالجنيه" Text="{Binding RefundAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditOperation}" FontSize="24"/>
-    <TextBox Header="سبب الاسترداد" Text="{Binding RefundReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditOperation}"/>
+    <TextBox MaxLength="500" Header="سبب الاسترداد" Text="{Binding RefundReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditOperation}"/>
     <!-- FIN-0005: a split-paid order goes back through one of the methods it was paid with. -->
     <ComboBox Header="الفلوس ترجع بـ" HorizontalAlignment="Stretch" MinHeight="44" IsEnabled="{Binding CanEditOperation}"
               AutomationProperties.AutomationId="Refund_Method" AutomationProperties.Name="طريقة رجوع الفلوس"

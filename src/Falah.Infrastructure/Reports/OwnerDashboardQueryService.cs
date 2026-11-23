@@ -185,7 +185,7 @@ public sealed class OwnerDashboardQueryService
         DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
     {
         var sales = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
             .Select(o => new { o.CreatedAtUtc, o.TotalPiastres })
             .ToListAsync(ct);
         var refunds = await _db.OrderRefunds.AsNoTracking()

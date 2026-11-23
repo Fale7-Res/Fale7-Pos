@@ -26,11 +26,27 @@
             </Button>
         </Grid>
 
-        <Grid Grid.Row="1" Padding="28,0,28,12">
-            <TextBox Style="{StaticResource SearchBoxStyle}" MinHeight="44" MaxWidth="460" HorizontalAlignment="Right"
-                     PlaceholderText="ابحث برقم الطلب أو اسم/هاتف العميل..."
-                     Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        </Grid>
+        <StackPanel Grid.Row="1" Padding="28,0,28,12" Spacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBox Style="{StaticResource SearchBoxStyle}" MinHeight="44" Width="420" VerticalAlignment="Bottom"
+                         PlaceholderText="ابحث برقم الطلب أو اسم/هاتف العميل..."
+                         Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <!-- Audit 2026-11-23, F-06: whoever sees every order picks the dates (today by default); the history
+                     is no longer fetched whole. -->
+                <StackPanel Orientation="Horizontal" Spacing="10"
+                            Visibility="{Binding CanPickDates, Converter={StaticResource BoolToVisibleConverter}}">
+                    <CalendarDatePicker Date="{Binding FromDate, Mode=TwoWay}" Header="من" MinWidth="170" MinHeight="44"
+                                        AutomationProperties.Name="من تاريخ" AutomationProperties.AutomationId="Orders_From"/>
+                    <CalendarDatePicker Date="{Binding ToDate, Mode=TwoWay}" Header="إلى" MinWidth="170" MinHeight="44"
+                                        AutomationProperties.Name="إلى تاريخ" AutomationProperties.AutomationId="Orders_To"/>
+                    <Button Content="عرض" MinHeight="44" VerticalAlignment="Bottom" Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding LoadCommand}" AutomationProperties.AutomationId="Orders_Show"/>
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                       Text="ظهر أول 500 طلب في الفترة دي بس. ضيّق التواريخ علشان تشوف الباقي."
+                       Visibility="{Binding IsTruncated, Converter={StaticResource BoolToVisibleConverter}}"/>
+        </StackPanel>
 
         <Border Grid.Row="2" Style="{StaticResource PageCardStyle}" Margin="28,0,28,24" Padding="0">
             <Grid>

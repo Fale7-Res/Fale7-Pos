@@ -140,6 +140,24 @@ public partial class DeliveryViewModel : ObservableObject
 
     public bool HasNoDeliveries => !IsLoading && LoadError is null && Board.Count == 0;
 
+    /// <summary>Audit 2026-11-23, F-11: the drivers panel said nothing when there was nobody to assign.</summary>
+    public bool HasNoDrivers => !IsLoading && LoadError is null && Drivers.Count == 0;
+
+    /// <summary>Audit 2026-11-23, F-16: how often the board reads itself again while it is on screen. A dispatcher
+    /// used to work from orders that had already moved on until someone pressed "تحديث".</summary>
+    public static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromSeconds(30);
+
+    /// <summary>Never under the dispatcher's hands: not while anything is loading or being sent, an answer is still
+    /// awaited, or a dialog about one delivery or driver is open.</summary>
+    public bool CanAutoRefresh => !IsLoading && !IsBusy && CanEditAction
+        && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null;
+
+    [RelayCommand]
+    private async Task AutoRefreshAsync()
+    {
+        if (CanAutoRefresh) await LoadAsync();
+    }
+
     /// <summary>Writes are gated on delivery_manage; the server enforces this too (and accepts a
     /// manager approval instead), this only decides whether the buttons are offered at all.</summary>
     public bool CanDispatch => _session.HasPermission("delivery_manage");
@@ -176,6 +194,7 @@ public partial class DeliveryViewModel : ObservableObject
         {
             IsLoading = false;
             OnPropertyChanged(nameof(HasNoDeliveries));
+            OnPropertyChanged(nameof(HasNoDrivers));
         }
     }
 

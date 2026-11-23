@@ -94,6 +94,10 @@ public sealed class SalaryAccrualService
     {
         try
         {
+            // Audit 2026-11-23, F-02: a day's close never accrues salary for days that have not happened yet.
+            // Accrual resumes after the latest accrued day, so a future date also skipped every real day before it.
+            var today = BusinessClock.Today();
+            if (throughDate > today) throughDate = today;
             var posted = await SalaryAccrual.AccrueThroughAsync(_db, throughDate, recordedBy, employeeIds: null, ct);
             if (posted > 0) await _db.SaveChangesAsync(ct);
         }

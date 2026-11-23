@@ -10,7 +10,7 @@
          taller than that, so anything inside it can be scrolled out of sight - and the one number
          the operator must not lose sight of while taking money is the total. -->
     <Grid Padding="24,14" ColumnSpacing="16">
-     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
      <StackPanel Spacing="3"><TextBlock Text="إتمام الطلب" FontSize="25" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
       <TextBlock Text="اختر طريقة الدفع وراجع المبلغ قبل التأكيد" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/></StackPanel>
      <Border Grid.Column="1" Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="14" Padding="18,8" VerticalAlignment="Center">
@@ -19,7 +19,17 @@
        <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="26" FontWeight="SemiBold" Foreground="{ThemeResource BrandPrimaryBrush}"/>
       </StackPanel>
      </Border>
-     <Button Grid.Column="2" Content="رجوع للطلب" Command="{Binding CloseCheckoutCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
+     <!-- Audit 2026-11-23, F-07: the change is pinned beside the total for the same reason - at the bottom of the
+          scrolling tender column it sat below the fold at 1920x1080 and the cashier read "55.00" half cut off. -->
+     <Border Grid.Column="2" Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="14" Padding="18,8" VerticalAlignment="Center"
+             Visibility="{Binding ShowsChangeDue, Converter={StaticResource BoolToVisibleConverter}}">
+      <StackPanel Spacing="0">
+       <TextBlock Text="الباقي للعميل" Foreground="{ThemeResource TextMutedBrush}" FontSize="12"/>
+       <TextBlock Text="{Binding ChangeDuePiastres, Converter={StaticResource PiastresToDisplayConverter}}" AutomationProperties.AutomationId="Checkout_ChangeDue"
+                  FontSize="26" FontWeight="SemiBold" Foreground="{ThemeResource BrandPrimaryBrush}"/>
+      </StackPanel>
+     </Border>
+     <Button Grid.Column="3" Content="رجوع للطلب" Command="{Binding CloseCheckoutCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
     </Grid>
     <Grid Grid.Row="1" ColumnSpacing="24" Padding="24,0,24,8" IsHitTestVisible="{Binding CanEditOperation}">
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -72,7 +82,7 @@
         <StackPanel Spacing="8" Visibility="{Binding IsCompEnabled, Converter={StaticResource BoolToVisibleConverter}}">
          <TextBox IsEnabled="{Binding CanEditOperation}" Header="قيمة الضيافة بالجنيه" Text="{Binding CompAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
          <ComboBox IsEnabled="{Binding CanEditOperation}" Header="نوع الضيافة" HorizontalAlignment="Stretch" ItemsSource="{Binding CompReasonCodes}" DisplayMemberPath="Label" SelectedValuePath="Code" SelectedValue="{Binding CompReasonCode, Mode=TwoWay}"/>
-         <TextBox IsEnabled="{Binding CanEditOperation}" Header="السبب" Text="{Binding CompReasonText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+         <TextBox MaxLength="500" IsEnabled="{Binding CanEditOperation}" Header="السبب" Text="{Binding CompReasonText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
          <PasswordBox IsEnabled="{Binding CanEditOperation}" Header="رمز المدير" Password="{Binding CompManagerPin, Mode=TwoWay}" Visibility="{Binding CompNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
         </StackPanel>
        </StackPanel>
@@ -110,14 +120,6 @@
        <Button Grid.Row="3" Content="." Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="."/>
        <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="0"/>
        <Button Grid.Row="3" Grid.Column="2" Content="⌫" AutomationProperties.Name="حذف آخر رقم" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="back"/>
-      </Grid>
-      <!-- Two real columns, not one cell with a Left-aligned value: HorizontalAlignment mirrors under
-           RightToLeft, so "Left" put the amount back on the label's own side and the two drew on top
-           of each other. Same label/value column split the cart footer already uses. -->
-      <Grid ColumnSpacing="8">
-       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <TextBlock Grid.Column="0" Text="الباقي للعميل" VerticalAlignment="Center" FontSize="15" Foreground="{ThemeResource TextPrimaryBrush}"/>
-       <TextBlock Grid.Column="1" Text="{Binding ChangeDuePiastres, Converter={StaticResource PiastresToDisplayConverter}}" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource BrandPrimaryBrush}"/>
       </Grid>
      </StackPanel></ScrollViewer>
     </Grid>

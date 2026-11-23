@@ -53,6 +53,9 @@ public sealed class UpdateSettingsHandler
         Check(r.CashDiscrepancyThresholdPiastres < 0, "حد فرق النقدية لا يمكن أن يكون بالسالب.");
         Check(r.AutoLockMinutes < 0, "مدة القفل التلقائي لا يمكن أن تكون بالسالب.");
         Check(r.NumberOfReceiptCopies < 1, "عدد نسخ الإيصال يجب أن يكون نسخة واحدة على الأقل.");
+        // QA-06 (audit 2026-11-23): printing honours at most 5 copies (PrintJobQueryService); a larger
+        // figure was saved and shown while 5 came out.
+        Check(r.NumberOfReceiptCopies > 5, "عدد نسخ الإيصال لا يزيد عن 5.");
         Check(r.StandardWorkdayHours < 1 || r.StandardWorkdayHours > 24, "ساعات يوم العمل يجب أن تكون بين 1 و 24.");
         Check(r.LateGraceMinutes < 0, "مهلة التأخير لا يمكن أن تكون بالسالب.");
         Check(r.MaxLatePenaltyHours < 0, "الحد الأقصى لساعات خصم التأخير لا يمكن أن يكون بالسالب.");

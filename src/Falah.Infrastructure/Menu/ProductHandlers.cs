@@ -33,6 +33,7 @@ public sealed class CreateProductHandler
         if (existing is not null) return new CreateProductResult(existing.Id, WasReplayed: true);
 
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم الصنف مطلوب.");
+        InputRules.AssertMaxLength(request.Name.Trim(), InputRules.MaxNameLength, "اسم الصنف");   // QA-11 (audit 2026-11-23)
         if (request.BasePricePiastres <= 0) throw new DomainException("السعر الأساسي يجب أن يكون أكبر من صفر.");
         if (request.Variants.Any(v => v.PricePiastres < 0)) throw new DomainException("سعر الحجم يجب ألا يكون سالبًا.");
         var station = MenuValidation.AssertValidStation(request.PreparationStation);
@@ -99,6 +100,7 @@ public sealed class UpdateProductHandler
         var receiptId = CommandReceipt.Id("product-update", request.RequestId);
         if (request.RequestId is not null && await CommandReceipt.FindAsync(_db, receiptId, request.ProductId, request.ActorUserId, ct) is not null) return;
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم الصنف مطلوب.");
+        InputRules.AssertMaxLength(request.Name.Trim(), InputRules.MaxNameLength, "اسم الصنف");   // QA-11 (audit 2026-11-23)
         if (request.BasePricePiastres <= 0) throw new DomainException("السعر الأساسي يجب أن يكون أكبر من صفر.");
         if (request.Variants.Any(v => v.PricePiastres < 0)) throw new DomainException("سعر الحجم يجب ألا يكون سالبًا.");
         var station = MenuValidation.AssertValidStation(request.PreparationStation);

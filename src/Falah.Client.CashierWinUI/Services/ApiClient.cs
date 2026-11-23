@@ -32,8 +32,12 @@ public sealed partial class ApiClient
 
     public ApiClient(string baseAddress = "http://localhost:5151")
     {
-        _http = new HttpClient { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
-        _exportHttp = new HttpClient { BaseAddress = _http.BaseAddress, Timeout = TimeSpan.FromMinutes(3) };
+        // Runtime logging audit 2026-11-23: every call carries a correlation id and failures are written
+        // to the station log (CorrelationLoggingHandler).
+        _http = new HttpClient(new Falah.Client.Diagnostics.CorrelationLoggingHandler(new HttpClientHandler()))
+        { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        _exportHttp = new HttpClient(new Falah.Client.Diagnostics.CorrelationLoggingHandler(new HttpClientHandler()))
+        { BaseAddress = _http.BaseAddress, Timeout = TimeSpan.FromMinutes(3) };
     }
 
     /// <summary>Where product photos are fetched from. Images are the one thing this client loads
@@ -77,6 +81,10 @@ public sealed partial class ApiClient
             var body = await response.Content.ReadFromJsonAsync<ErrorBody>(cancellationToken: ct);
             message = body?.error;
             retryable = body?.retryable;
+            // QA-01 (audit 2026-11-23): the server's message asks the employee to quote the reference -
+            // so it is shown. It is the same value the server logged and this station's log line carries.
+            if (message is not null && !string.IsNullOrWhiteSpace(body?.reference))
+                message = $"{message} (الرقم المرجعي: {body!.reference})";
         }
         catch
         {
@@ -164,7 +172,7 @@ public sealed partial class ApiClient
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
-    private sealed record ErrorBody(string? error, bool? retryable = null);
+    private sealed record ErrorBody(string? error, bool? retryable = null, string? reference = null);
 
     /// <summary>The session token this client presents on every later request. Set once at login
     /// and cleared at logout; without it the server refuses everything, which is the point - the
@@ -257,9 +265,14 @@ public sealed partial class ApiClient
 
     /// <summary>Scope is decided server-side: without orders_view_all the caller gets only the
     /// currently-open shift's orders.</summary>
-    public Task<ApiResult<IReadOnlyList<OrderDetailsDto>>> GetOrdersAsync(string actorUserId, CancellationToken ct = default) =>
+    /// <summary>Audit 2026-11-23, F-06: a Cairo date range and a row cap - the whole history in one call stopped
+    /// fitting in the call's timeout as the restaurant's history grew.</summary>
+    public Task<ApiResult<IReadOnlyList<OrderDetailsDto>>> GetOrdersAsync(string actorUserId, DateOnly? from = null, DateOnly? to = null,
+        int? limit = null, CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<OrderDetailsDto>>(() => _http.GetAsync(
-            $"/api/orders?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+            $"/api/orders?actorUserId={Uri.EscapeDataString(actorUserId)}"
+            + (from is { } f ? $"&from={f:yyyy-MM-dd}" : "") + (to is { } t ? $"&to={t:yyyy-MM-dd}" : "")
+            + (limit is { } l ? $"&limit={l}" : ""), ct), ct);
 
     // ---------------- Menu / tax / pricing ----------------
 

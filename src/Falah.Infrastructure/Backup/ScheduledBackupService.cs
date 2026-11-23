@@ -158,11 +158,17 @@ public sealed class ScheduledBackupService : BackgroundService
             try
             {
                 if (!protectedPaths.Contains(Path.GetFullPath(record.FilePath)) && File.Exists(record.FilePath))
+                {
                     File.Delete(record.FilePath);
+                    File.Delete(BackupSchemaStamp.PathFor(record.FilePath));   // F-03 stamp; no error if absent
+                }
                 var fileName = Path.GetFileName(record.FilePath);
                 if (!string.IsNullOrWhiteSpace(copyDirectory) && !protectedNames.Contains(fileName)
                     && Path.Combine(copyDirectory, fileName) is var copy && File.Exists(copy))
+                {
                     File.Delete(copy);
+                    File.Delete(BackupSchemaStamp.PathFor(copy));
+                }
                 // The row stays, with its file marked gone: the history of what was backed up and
                 // when outlives the .bak, which is what an audit of "were we taking backups in
                 // September" actually needs to read.

@@ -244,6 +244,32 @@ public class CashierCorrectnessTests
         if (!cardShown) Assert.True(vm.CanUseWorkspaceShortcuts);   // the next order can start at once
     }
 
+    // Independent audit 2026-11-23, F-07: with no card after a paid sale (owner, 2026-11-19) and the dialog's change
+    // row scrolled out of sight, the cashier never saw the change. The footer now keeps one quiet line - the order
+    // number and the change - until the next payment is opened.
+    [Fact]
+    public async Task After_a_paid_sale_the_footer_says_the_order_number_and_the_change_until_the_next_payment()
+    {
+        var (vm, _) = Create(r => Task.FromResult(r.RequestUri!.AbsolutePath == "/api/orders/checkout"
+            ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(
+                """{"orderId":"o1","orderNumber":"#0128","sequenceNumber":128,"totalPiastres":4500,"amountPaidPiastres":10000,"changeDuePiastres":5500,"status":"completed","isPaid":true,"electronicPaymentStatus":null,"wasReplayed":false,"printJobsQueued":true}""",
+                System.Text.Encoding.UTF8, "application/json") }
+            : new HttpResponseMessage(HttpStatusCode.NotFound)));
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 4500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        vm.AmountPaidText = "100";
+
+        await vm.SubmitPaymentCommand.ExecuteAsync(null);
+
+        Assert.False(vm.HasCheckoutResult);
+        Assert.Contains("#0128", vm.LastSaleNote);
+        Assert.Contains("55.00", vm.LastSaleNote);
+
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 4500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        Assert.Null(vm.LastSaleNote);
+    }
+
     private static (CashierViewModel, AppSession) Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)
     {
         var session = new AppSession(new ApiClient(new HttpClient(new Handler(send)) { BaseAddress = new Uri("http://test") })) {

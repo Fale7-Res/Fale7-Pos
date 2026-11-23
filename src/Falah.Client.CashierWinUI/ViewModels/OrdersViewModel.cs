@@ -24,6 +24,17 @@ public partial class OrdersViewModel : ObservableObject
     [ObservableProperty] private string _searchQuery = "";
     [ObservableProperty] private OrderDetailsDto? _selectedOrder;
 
+    /// <summary>Audit 2026-11-23, F-06: the most rows one load brings back; the screen says when it was reached.</summary>
+    public const int PageLimit = 500;
+
+    /// <summary>The Cairo dates shown, for a user who sees every order (today by default). Anyone else sees the
+    /// open shift's orders, which the server decides.</summary>
+    [ObservableProperty] private DateTimeOffset? _fromDate = CairoToday();
+    [ObservableProperty] private DateTimeOffset? _toDate = CairoToday();
+    private static DateTimeOffset CairoToday() => new(Falah.Domain.Common.BusinessClock.Today().ToDateTime(TimeOnly.MinValue));
+    [ObservableProperty] private bool _isTruncated;
+    public bool CanPickDates => _session.HasPermission("orders_view_all");
+
     private readonly List<OrderDetailsDto> _all = new();
 
     public bool HasNoOrders => !IsLoading && LoadError is null && Orders.Count == 0;
@@ -58,7 +69,14 @@ public partial class OrdersViewModel : ObservableObject
         LoadError = null;
         try
         {
-            var result = await _session.Api.GetOrdersAsync(_session.CurrentUser!.Id);
+            DateOnly? from = null, to = null;
+            if (CanPickDates)
+            {
+                from = DateOnly.FromDateTime((FromDate ?? CairoToday()).Date);
+                to = DateOnly.FromDateTime((ToDate ?? FromDate ?? CairoToday()).Date);
+                if (to < from) (from, to) = (to, from);
+            }
+            var result = await _session.Api.GetOrdersAsync(_session.CurrentUser!.Id, from, to, PageLimit);
             if (!result.Success || result.Value is null)
             {
                 LoadError = result.Error ?? "تعذر تحميل الطلبات.";
@@ -66,6 +84,7 @@ public partial class OrdersViewModel : ObservableObject
             }
             _all.Clear();
             _all.AddRange(result.Value);
+            IsTruncated = result.Value.Count >= PageLimit;
             ApplyFilter();
         }
         finally
