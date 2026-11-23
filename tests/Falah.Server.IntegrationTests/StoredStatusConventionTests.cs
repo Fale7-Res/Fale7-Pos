@@ -13,7 +13,7 @@ public class StoredStatusConventionTests
     [Fact]
     public void The_cancelled_constant_is_the_stored_form()
     {
-        Assert.Equal(OrderStatus.Cancelled.ToWireString(), OrderEnumMapping.CancelledWire);
+        Assert.Equal(OrderEnumMapping.CancelledWire, OrderStatus.Cancelled.ToWireString());
     }
 
     [Fact]

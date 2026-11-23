@@ -35,7 +35,26 @@ public sealed class AppSession
     /// <summary>Blocks locking the screen while a financial command's outcome is still unknown -
     /// same rule the Cashier station enforces, for the same reason: walking away from an
     /// unresolved checkout is how a duplicate order gets created by the next person.</summary>
-    public bool HasUnresolvedOperation => RetainedRequestStorage.Current?.RecoveryError is not null || _drafts.Values.Any(draft => !draft.CanEditOperation);
+    public bool HasUnresolvedOperation => RetainedRequestStorage.Current?.RecoveryError is not null
+        || _pendingOperations.Count > 0 || _drafts.Values.Any(draft => !draft.CanEditOperation);
+
+    /// <summary>Screens other than the order desk (the delivery board) that are sending a command or hold one
+    /// whose answer never came back.</summary>
+    private readonly HashSet<object> _pendingOperations = new();
+
+    public void SetOperationPending(object owner, bool pending)
+    {
+        if (pending) _pendingOperations.Add(owner);
+        else _pendingOperations.Remove(owner);
+    }
+
+    private ViewModels.DeliveryViewModel? _deliveryBoard;
+    private ViewModels.OrdersViewModel? _orderHistory;
+
+    /// <summary>One board and one history per station, whoever is logged in: the board's retained delivery
+    /// commands belong to the station's disk, not to one operator.</summary>
+    public ViewModels.DeliveryViewModel DeliveryBoard => _deliveryBoard ??= new ViewModels.DeliveryViewModel(this);
+    public ViewModels.OrdersViewModel OrderHistory => _orderHistory ??= new ViewModels.OrdersViewModel(this);
 
     public bool HasPermission(string permission) =>
         CurrentUser is not null && (CurrentUser.Permissions.Contains("all") || CurrentUser.Permissions.Contains(permission));

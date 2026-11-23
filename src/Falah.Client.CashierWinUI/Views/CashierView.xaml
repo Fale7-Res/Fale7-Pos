@@ -86,7 +86,8 @@
                         <Button.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
                                 <MenuFlyoutItem AutomationProperties.AutomationId="Op_Expense" Text="تسجيل مصروف من الدرج" Command="{Binding OpenAddExpenseCommand}"/>
-                                <MenuFlyoutItem AutomationProperties.AutomationId="Op_SafeDrop" Text="إيداع بالخزنة (Safe Drop)" Command="{Binding OpenSafeDropCommand}"/>
+                                <!-- Owner 2026-11-23: «إيداع بالخزنة (Safe Drop)» removed from the cashier's menu. The dialog stays so a safe drop
+                                     left unresolved by a crash still reopens and can be settled (CashierViewModel.Durability). -->
                                 <MenuFlyoutItem AutomationProperties.AutomationId="Op_CashIn" Text="إيداع نقدي في الدرج" Command="{Binding OpenCashMovementCommand}" CommandParameter="cash_in"/>
                                 <MenuFlyoutItem AutomationProperties.AutomationId="Op_CashOut" Text="سحب نقدي من الدرج" Command="{Binding OpenCashMovementCommand}" CommandParameter="cash_out"/>
                                 <MenuFlyoutItem AutomationProperties.AutomationId="Op_CashCount" Text="رصيد الدرج المسجل" IsEnabled="{Binding CanViewDrawerBalance}" Command="{Binding OpenCashCountCommand}"/>

@@ -20,7 +20,7 @@ namespace Falah.Client.CallCenterWinUI.Services;
 /// idempotency, OrderNumber, inventory) even when this client happens to run on the same physical
 /// machine as the Host.
 /// </summary>
-public sealed class ApiClient
+public sealed partial class ApiClient
 {
     private readonly HttpClient _http;
     public ApiClient(HttpClient http) => _http = http;

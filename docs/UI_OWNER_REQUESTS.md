@@ -458,3 +458,56 @@ Charcoal-station XP-D200N to be integrated. Spec (with Amendments 1 and 2):
 - **Evidence:** `CashierCorrectnessTests.After_payment_the_confirmation_card_shows_only_when_something_is_left_to_do`
   (red first, then green); Client 441/441; Cashier x64 builds; relaunched on the trial server for the owner.
 - **Not changed:** the Call Center desk's own post-order card.
+
+## Real-server trial requests — Claude, 2026-11-23/24
+
+- **Call Center manages deliveries (owner choice "1-ب").** The Call Center station now has three
+  sections in a bar under its header: تسجيل طلب (the order desk, unchanged), الطلبات (order
+  history, the cashier's screen: open shift only without `orders_view_all`, dates with it) and
+  التوصيل والسائقون (the cashier's dispatch board: mark ready, assign a driver, record the result,
+  cancel before dispatch, driver account and settlement, driver statistics, the driver daily
+  statement and its paper). The delivery section is offered only with `delivery_manage`; the server
+  checks every action as before. Adding or retiring drivers and delivery services stays in the
+  cashier's Control Center. The screens are ported from `Falah.Client.CashierWinUI`
+  (same view models, same endpoints, same request ids); a delivery command left unanswered by an
+  earlier run is kept on the station's disk, blocks the lock, and is retried from a banner on the
+  board with its own request id.
+  Evidence: `CallCenterDeliverySectionTests` (4: tab needs `delivery_manage`; dispatcher reaches the
+  board; a retained assignment blocks the lock until retried with its original id; the next operator
+  does not see the last one's orders); Client 482/482; Call Center x64 builds; run on the trial server
+  2026-11-24: board, driver account and statistics, driver statement and order history all loaded
+  as the manager. No delivery write was made on the real database from this check.
+- **Call Center desk: delivery or pickup, and payment that says who is paid (2026-11-24).** The owner
+  read the cash button "عند الاستلام" as "pickup" and could not find pickup at all: the desk only
+  ever sent deliveries. Now the first choice on the desk is the order type, "توصيل للبيت" or
+  "استلام من المطعم"; the title, the customer form and the submit button follow it. A pickup asks
+  only the name and phone, plus an optional day and time; it carries no delivery fee. Payment is
+  "كاش مع الطيار" (delivery) or "يدفع في المطعم" (pickup, sent as `PayOnCollection`: the order goes to
+  the kitchen now and the cashier takes the money when the customer comes, UI-0025), "تحويل
+  إنستاباي" or "محفظة إلكترونية"; one line under the buttons says what happens to the money. The
+  totals show the items, the delivery fee (delivery only) and the total. The desk's panel was
+  tightened so the items keep their room. The pickup pickers are set from code-behind, not bound
+  (bound, they showed "1/1/1926" and "12:00 AM", as the cashier's did on 2026-11-08).
+  Evidence: `CallCenterPickupOrderTests` (4, red first: pickup paid at the counter is sent as an
+  unpaid pickup with no address and no fee; pickup by InstaPay is a claimed transfer; delivery still
+  needs its address and says "كاش مع الطيار"; the pickers are not bound); Client 486/486; Call Center
+  x64 builds; both modes and the pickup form checked on the trial server. No order was placed on the
+  real database from this check.
+- **Call Center: no payment buttons, and the till's look (2026-11-24, later the same night).** The owner
+  found the three payment buttons clutter: the desk now shows one line instead ("الدفع: كاش مع الطيار
+  لما الأكل يوصل" / "الدفع: في المطعم لما العميل ييجي ياخد الطلب"), and every phone order is cash to the
+  driver or paid at the counter. InstaPay and wallet are no longer taken by phone (the view model still
+  sends them if set; nothing on screen sets them). The owner also asked for one look across both
+  stations: the Call Center's order panel was rewritten in the shape of the till's `CartPanelView` -
+  same header and count badge, same order-type segments ("استلام من المطعم" / "توصيل"), same
+  details button, same two-row items, same footer rows (الأصناف, التوصيل, الإجمالي) and buttons.
+  Client 486/486; Call Center x64 builds; checked on the trial server with two items in the cart
+  (removed again; nothing was sent).
+- **Cashier cart reorganised (request 2).** Two rows per item instead of four (name, line total and ×;
+  then quantity, a "ملاحظات" button holding the kitchen notes, and the unit price), a smaller title
+  and empty state, a tighter footer, and the last sale's number and change beside "إلغاء الطلب".
+  Every touch target stays 44 px. Built; not yet confirmed by the owner on the till.
+- **Safe drop removed from عمليات الكاشير (request 4).** The menu item is gone; the dialog and its
+  view model stay so a safe drop left in flight by an earlier run can still be resolved.
+- **Printing after a permission change.** Fixed server-side (`IsolationLevelResetInterceptor`); see
+  `IsolationLevelLeakTests`.

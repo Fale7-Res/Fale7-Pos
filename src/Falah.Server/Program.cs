@@ -74,6 +74,8 @@ builder.Services.AddDbContext<FalahDbContext>((sp, options) =>
     var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("Falah")
         ?? @"Server=.\SQLEXPRESS;Database=Falah;Trusted_Connection=True;TrustServerCertificate=True;";
     options.UseSqlServer(connectionString);
+    // 2026-11-23: a pooled connection must not carry another request's SERIALIZABLE (IsolationLevelResetInterceptor).
+    options.AddInterceptors(new Falah.Infrastructure.Persistence.IsolationLevelResetInterceptor());
 });
 
 // EF Core-backed and persisted: issuing (a manager approves) and consuming (a cashier's later

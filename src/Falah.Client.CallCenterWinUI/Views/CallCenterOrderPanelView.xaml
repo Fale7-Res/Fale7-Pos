@@ -1,224 +1,117 @@
-﻿<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView"
-             x:Name="Root"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FlowDirection="RightToLeft">
-    <!--
-        Order-intake workspace: caller details (top), order lines (the only scrolling region), then
-        payment + submit pinned to the bottom. Kept in its own file, split from CallCenterView.xaml's
-        GridView-based sibling views - see CashierView.xaml.cs's documented WinUI 3 XamlCompiler crash
-        and CartPanelView.xaml's identical split for why.
-
-        A phone order is entered while a customer is waiting on the line, so the caller fields sit
-        ABOVE the item list: the operator captures who is calling first, then builds the order while
-        talking, rather than discovering a required address field only at checkout.
-    -->
-    <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="18" Margin="12,14,0,14">
-        <Border.Shadow><ThemeShadow/></Border.Shadow>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- CALLER DETAILS (compact) -->
-            <Grid Grid.Row="0" IsHitTestVisible="{Binding CanEditOperation}">
-                <StackPanel Padding="16,16,16,12" Spacing="10">
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="طلب توصيل هاتفي" FontSize="22" FontWeight="SemiBold"
-                                   Foreground="{ThemeResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                        <Border Grid.Column="1" Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="10" Padding="10,4" VerticalAlignment="Center">
-                            <TextBlock Foreground="{ThemeResource BrandPrimaryBrush}" FontSize="13">
-                                <Run Text="{Binding CartItemCount}"/><Run Text=" صنف"/>
-                            </TextBlock>
-                        </Border>
-                    </Grid>
-
-                    <!-- Phone stays inline: it is the very first thing typed when the call connects,
-                         and it is the customer's identity for lookup. Everything else lives one tap
-                         away so the order lines below keep their vertical space. -->
-                    <TextBox MaxLength="30" PlaceholderText="رقم هاتف العميل" InputScope="TelephoneNumber" MinHeight="44"
-                             Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Text="{Binding CustomerLookupNote}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"
-                               Foreground="{ThemeResource BrandPrimaryBrush}"
-                               Visibility="{Binding CustomerLookupNote, Converter={StaticResource NullToCollapsedConverter}}"/>
-
-                    <!-- The icon is state, not decoration: a checkmark once every field the server
-                         will demand at checkout is present, a warning while something is still
-                         missing - so the operator learns the order is incomplete while the customer
-                         is still on the line, not at submit. -->
-                    <Button AutomationProperties.Name="{Binding DeliverySummary}" Command="{Binding OpenDeliveryEditorCommand}" HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}">
-                        <Grid ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding DeliverySummary}" TextWrapping="Wrap" FontSize="12" MaxLines="3"
-                                       VerticalAlignment="Center"/>
-                            <FontIcon Grid.Column="1" Glyph="&#xE73E;" FontSize="14" VerticalAlignment="Center"
-                                      Foreground="{ThemeResource SuccessBrush}"
-                                      Visibility="{Binding HasDeliveryDetails, Converter={StaticResource BoolToVisibleConverter}}"/>
-                            <FontIcon Grid.Column="1" Glyph="&#xE7BA;" FontSize="14" VerticalAlignment="Center"
-                                      Foreground="{ThemeResource WarningBrush}"
-                                      Visibility="{Binding HasDeliveryDetails, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
-                        </Grid>
-                    </Button>
-                </StackPanel>
-            </Grid>
-
-            <!-- ORDER LINES -->
-            <Grid Grid.Row="1" IsHitTestVisible="{Binding CanEditOperation}">
-                <StackPanel x:Name="EmptyCartHint" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" Margin="24">
-                    <Border Width="64" Height="64" CornerRadius="22" Background="{ThemeResource InfoBackgroundBrush}" HorizontalAlignment="Center">
-                        <FontIcon Glyph="&#xE717;" FontSize="26" Foreground="{ThemeResource BrandPrimaryBrush}"/>
-                    </Border>
-                    <TextBlock Text="لا توجد أصناف بعد" FontSize="18" FontWeight="SemiBold" TextAlignment="Center"
-                               Foreground="{ThemeResource TextPrimaryBrush}"/>
-                    <TextBlock Text="اختر الأصناف من القائمة أثناء المكالمة" TextWrapping="Wrap" TextAlignment="Center"
-                               FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
-                </StackPanel>
-                <ScrollViewer x:Name="CartScrollViewer" VerticalScrollBarVisibility="Auto">
-                    <!-- Margin, not Padding: the default ItemsControl template ignores Padding, so cart
-                         lines ran to both panel edges (the + button and "ملاحظات التحضير" were clipped). -->
-                    <ItemsControl ItemsSource="{Binding Cart}" Margin="16,0">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,12">
-                                    <StackPanel Spacing="8">
-                                        <Grid ColumnSpacing="8">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="44"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Spacing="3">
-                                                <TextBlock Text="{Binding ProductName}" Style="{StaticResource CartItemNameText}" TextWrapping="Wrap"/>
-                                                <TextBlock Text="{Binding VariantName}" FontSize="12" Foreground="{ThemeResource TextMutedBrush}"
-                                                           Visibility="{Binding VariantName, Converter={StaticResource NullToCollapsedConverter}}"/>
-                                                <TextBlock Text="{Binding AppliedOfferName}" FontSize="12" Foreground="{ThemeResource BrandPrimaryBrush}"
-                                                           Visibility="{Binding AppliedOfferName, Converter={StaticResource NullToCollapsedConverter}}"/>
-                                            </StackPanel>
-                                            <Button Grid.Column="1" Content="×" AutomationProperties.Name="حذف الصنف"
-                                                    Style="{StaticResource GhostButtonStyle}" MinHeight="44" Padding="0" FontSize="22" VerticalAlignment="Top"
-                                                    Command="{Binding ElementName=Root, Path=DataContext.RemoveLineCommand}" CommandParameter="{Binding}"/>
-                                        </Grid>
-                                        <Grid ColumnSpacing="8">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <Button Content="+" AutomationProperties.Name="زيادة الكمية" Style="{StaticResource QuantityButtonStyle}"
-                                                        Command="{Binding ElementName=Root, Path=DataContext.IncreaseQuantityCommand}" CommandParameter="{Binding}"/>
-                                                <TextBlock Text="{Binding Quantity}" Width="30" TextAlignment="Center" VerticalAlignment="Center"
-                                                           FontSize="17" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                                <Button Content="−" AutomationProperties.Name="تقليل الكمية" Style="{StaticResource QuantityButtonStyle}"
-                                                        Command="{Binding ElementName=Root, Path=DataContext.DecreaseQuantityCommand}" CommandParameter="{Binding}"/>
-                                            </StackPanel>
-                                            <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding LineTotalDisplay}" FontSize="17" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/>
-                                                <TextBlock Text="{Binding UnitPriceDisplay}" FontSize="11" Foreground="{ThemeResource TextMutedBrush}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                        <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextMutedBrush}"
-                                                   Visibility="{Binding Notes, Converter={StaticResource NullToCollapsedConverter}}"/>
-                                        <Button Content="ملاحظات التحضير" Style="{StaticResource GhostButtonStyle}" FontSize="12" Padding="0"
-                                                MinHeight="44" HorizontalAlignment="Right">
-                                            <Button.Flyout>
-                                                <Flyout>
-                                                    <StackPanel Width="260" Spacing="8">
-                                                        <TextBox MaxLength="500" Header="ملاحظات للمطبخ" TextWrapping="Wrap" AcceptsReturn="True"
-                                                                 Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                                        <Button Content="بدون بصل" Tag="بدون بصل" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
-                                                        <Button Content="حار" Tag="حار" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-
-            <!-- PAYMENT + SUBMIT -->
-            <Border Grid.Row="2" Background="{ThemeResource CartFooterBrush}" CornerRadius="0,0,18,18" BorderBrush="{ThemeResource CardBorderBrush}"
-                    BorderThickness="0,1,0,0" Padding="16,12">
-                <StackPanel Spacing="10">
-                    <Grid ColumnSpacing="4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="4"
-                          IsHitTestVisible="{Binding CanEditOperation}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="عند الاستلام" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
-                                Command="{Binding SetPaymentMethodCommand}" CommandParameter="cash"
-                                Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|CardBackgroundBrush|TransparentBrush}"
-                                Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|TextMutedBrush}"/>
-                        <Button Grid.Column="1" Content="إنستاباي" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
-                                Command="{Binding SetPaymentMethodCommand}" CommandParameter="instapay"
-                                Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|CardBackgroundBrush|TransparentBrush}"
-                                Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=instapay|BrandPrimaryBrush|TextMutedBrush}"/>
-                        <Button Grid.Column="2" Content="محفظة" FontSize="12" Style="{StaticResource SegmentButtonStyle}"
-                                Command="{Binding SetPaymentMethodCommand}" CommandParameter="wallet"
-                                Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|CardBackgroundBrush|TransparentBrush}"
-                                Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|BrandPrimaryBrush|TextMutedBrush}"/>
-                    </Grid>
-                    <TextBox PlaceholderText="اسم المحفظة (فودافون كاش، إلخ)" MinHeight="44"
-                             Text="{Binding WalletProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Visibility="{Binding PaymentMethod, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=wallet}"/>
-
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="المجموع الفرعي" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding CartSubtotalDisplay}" FontSize="13" FontWeight="SemiBold"
-                                   Foreground="{ThemeResource TextMutedBrush}" HorizontalAlignment="Left"/>
-                    </Grid>
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="الإجمالي شامل التوصيل" FontSize="14" FontWeight="Bold"
-                                   Foreground="{ThemeResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{Binding GrandTotalDisplay}" Style="{StaticResource TotalAmountText}"
-                                   Foreground="{ThemeResource TextPrimaryBrush}" HorizontalAlignment="Left"/>
-                    </Grid>
-
-                    <TextBlock Text="{Binding CheckoutError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold" FontSize="12"
-                               TextAlignment="Center" TextWrapping="Wrap"
-                               Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
-
-                    <Button Content="تأكدت - تجاهل الطلب السابق" HorizontalAlignment="Stretch" MinHeight="44"
-                            Command="{Binding DiscardRefusedCheckoutCommand}"
-                            Visibility="{Binding HasRefusedCheckoutRetry, Converter={StaticResource BoolToVisibleConverter}}"
-                            AutomationProperties.Name="تجاهل الطلب السابق المرفوض"
-                            AutomationProperties.AutomationId="DiscardRefusedCheckoutButton"/>
-
-                    <Button AutomationProperties.Name="تسجيل الطلب" AutomationProperties.AutomationId="SubmitCallCenterOrderButton" Style="{StaticResource CtaButtonStyle}"
-                            HorizontalAlignment="Stretch" MinHeight="52" Command="{Binding SubmitOrderCommand}"
-                            IsEnabled="{Binding IsShiftOpen}">
-                        <TextBlock FontWeight="Bold" FontSize="16" Foreground="{ThemeResource AccentTextBrush}">
-                            <Run Text="تسجيل الطلب"/><Run Text=" • "/><Run Text="{Binding GrandTotalDisplay}"/>
-                        </TextBlock>
-                    </Button>
-
-                    <Button Content="إلغاء الطلب" Style="{StaticResource GhostButtonStyle}" FontSize="12"
-                            HorizontalAlignment="Center" MinHeight="44"
-                            IsEnabled="{Binding CanEditOperation}" Command="{Binding RequestClearOrderCommand}"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-    </Border>
-</UserControl>
+﻿<UserControl x:Class="Falah.Client.CallCenterWinUI.Views.CallCenterOrderPanelView" x:Name="Root"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ FlowDirection="RightToLeft">
+<!-- Owner 2026-11-24: the Call Center's order panel has the till's shape - CashierWinUI/Views/CartPanelView.xaml:
+     same header, order-type segments, details button, two-row items, footer rows and buttons - so one look serves
+     both stations. What differs is only what this station does: delivery or pickup (no takeaway), the caller's
+     phone typed first, no payment choice (a delivery is paid in cash to the driver, a pickup at the counter), and
+     the order is registered from here instead of going on to a payment screen. Kept in its own file for the
+     WinUI XamlCompiler crash documented in CashierView.xaml.cs. -->
+<Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="18" Margin="12,14,0,14">
+ <Border.Shadow><ThemeShadow/></Border.Shadow>
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <StackPanel Padding="14,10" Spacing="8" IsHitTestVisible="{Binding CanEditOperation}">
+   <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <TextBlock Text="{Binding OrderTitle}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{ThemeResource TextPrimaryBrush}"
+               AutomationProperties.AutomationId="CallCenter_OrderTitle"/>
+    <Border Grid.Column="1" VerticalAlignment="Center" Background="{ThemeResource InfoBackgroundBrush}" CornerRadius="10" Padding="10,4"><TextBlock Foreground="{ThemeResource BrandPrimaryBrush}" FontSize="13"><Run Text="{Binding CartItemCount}"/><Run Text=" صنف"/></TextBlock></Border></Grid>
+   <Grid ColumnSpacing="4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="4" AutomationProperties.Name="نوع الطلب">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Button Grid.Column="0" Content="استلام من المطعم" Style="{StaticResource SegmentButtonStyle}" AutomationProperties.AutomationId="CallCenter_TypePickup"
+     Command="{Binding SetOrderTypeCommand}" CommandParameter="pickup"
+     Background="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=pickup|CardBackgroundBrush|TransparentBrush}"
+     Foreground="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=pickup|BrandPrimaryBrush|TextMutedBrush}"/><Button Grid.Column="1" Content="توصيل" Style="{StaticResource SegmentButtonStyle}" AutomationProperties.AutomationId="CallCenter_TypeDelivery"
+     Command="{Binding SetOrderTypeCommand}" CommandParameter="delivery"
+     Background="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivery|CardBackgroundBrush|TransparentBrush}"
+     Foreground="{Binding OrderType, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=delivery|BrandPrimaryBrush|TextMutedBrush}"/>
+   </Grid>
+   <!-- The caller's phone is typed the moment the call connects: it finds a known customer and their addresses. -->
+   <TextBox MaxLength="30" PlaceholderText="رقم هاتف العميل" InputScope="TelephoneNumber" MinHeight="44"
+            AutomationProperties.Name="رقم هاتف العميل" Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+   <TextBlock Text="{Binding CustomerLookupNote}" FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource BrandPrimaryBrush}"
+              Visibility="{Binding CustomerLookupNote, Converter={StaticResource NullToCollapsedConverter}}"/>
+   <!-- Same "tap to fill in, see what you filled in" button as the till's delivery and pickup details. -->
+   <Button AutomationProperties.Name="{Binding DeliverySummary}" Command="{Binding OpenDeliveryEditorCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}">
+    <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <TextBlock Text="{Binding DeliverySummary}" TextWrapping="Wrap" FontSize="13" MaxLines="2" VerticalAlignment="Center"/>
+     <FontIcon Grid.Column="1" Glyph="&#xE73E;" FontSize="14" VerticalAlignment="Center" Foreground="{ThemeResource SuccessBrush}"
+               Visibility="{Binding HasDeliveryDetails, Converter={StaticResource BoolToVisibleConverter}}"/>
+     <FontIcon Grid.Column="1" Glyph="&#xE7BA;" FontSize="14" VerticalAlignment="Center" Foreground="{ThemeResource WarningBrush}"
+               Visibility="{Binding HasDeliveryDetails, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+    </Grid>
+   </Button>
+  </StackPanel>
+  <Grid Grid.Row="1" IsHitTestVisible="{Binding CanEditOperation}">
+   <StackPanel x:Name="EmptyCartHint" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" Margin="12">
+    <Border Width="52" Height="52" CornerRadius="18" Background="{ThemeResource InfoBackgroundBrush}" HorizontalAlignment="Center"><FontIcon Glyph="&#xE7BF;" FontSize="22" Foreground="{ThemeResource BrandPrimaryBrush}"/></Border>
+    <TextBlock Text="ابدأ طلباً جديداً" FontSize="17" FontWeight="SemiBold" TextAlignment="Center" Foreground="{ThemeResource TextPrimaryBrush}"/>
+    <TextBlock Text="اختر الأصناف من القائمة؛ سيظهر طلبك هنا" TextWrapping="Wrap" TextAlignment="Center" FontSize="14" Foreground="{ThemeResource TextMutedBrush}"/>
+   </StackPanel>
+   <ScrollViewer x:Name="CartScrollViewer" VerticalScrollBarVisibility="Auto">
+    <ItemsControl ItemsSource="{Binding Cart}" Margin="14,0"><ItemsControl.ItemTemplate><DataTemplate>
+     <!-- Two rows per item, as at the till. Row 1: name, line total, remove. Row 2: quantity, kitchen notes,
+          unit price. Every touch target stays 44 px. -->
+     <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="0,6">
+      <Grid ColumnSpacing="8" RowSpacing="2">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+       <StackPanel Spacing="1" VerticalAlignment="Center">
+        <TextBlock Text="{Binding ProductName}" Style="{StaticResource CartItemNameText}" TextWrapping="Wrap"/>
+        <TextBlock Text="{Binding VariantName}" FontSize="12" Foreground="{ThemeResource TextMutedBrush}" Visibility="{Binding VariantName, Converter={StaticResource NullToCollapsedConverter}}"/>
+        <TextBlock Text="{Binding AppliedOfferName}" FontSize="12" Foreground="{ThemeResource BrandPrimaryBrush}" Visibility="{Binding AppliedOfferName, Converter={StaticResource NullToCollapsedConverter}}"/>
+       </StackPanel>
+       <TextBlock Grid.Column="1" Text="{Binding LineTotalDisplay}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Foreground="{ThemeResource TextPrimaryBrush}"/>
+       <Button Grid.Column="2" Content="×" AutomationProperties.Name="حذف الصنف" Style="{StaticResource GhostButtonStyle}" MinHeight="44" MinWidth="44" Padding="0" FontSize="22" VerticalAlignment="Center"
+        Command="{Binding ElementName=Root, Path=DataContext.RemoveLineCommand}" CommandParameter="{Binding}"/>
+       <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+        <Button Content="+" AutomationProperties.Name="زيادة الكمية" Style="{StaticResource QuantityButtonStyle}" Command="{Binding ElementName=Root, Path=DataContext.IncreaseQuantityCommand}" CommandParameter="{Binding}"/>
+        <TextBlock Text="{Binding Quantity}" Width="28" TextAlignment="Center" VerticalAlignment="Center" FontSize="17" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+        <Button Content="−" AutomationProperties.Name="تقليل الكمية" Style="{StaticResource QuantityButtonStyle}" Command="{Binding ElementName=Root, Path=DataContext.DecreaseQuantityCommand}" CommandParameter="{Binding}"/>
+        <Button Content="ملاحظات" AutomationProperties.Name="ملاحظات التحضير" Style="{StaticResource GhostButtonStyle}" FontSize="12" Padding="8,0" MinHeight="44" Margin="6,0,0,0">
+         <Button.Flyout><Flyout><StackPanel Width="260" Spacing="8">
+          <TextBox MaxLength="500" Header="ملاحظات للمطبخ" Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True"/>
+          <Button Content="بدون بصل" Tag="بدون بصل" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
+          <Button Content="حار" Tag="حار" Click="OnNoteChipClicked" Style="{StaticResource SecondaryButtonStyle}"/>
+         </StackPanel></Flyout></Button.Flyout>
+        </Button>
+       </StackPanel>
+       <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding UnitPriceDisplay}" FontSize="11" VerticalAlignment="Center" Foreground="{ThemeResource TextMutedBrush}"/>
+       <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Text="{Binding Notes}" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextMutedBrush}" Visibility="{Binding Notes, Converter={StaticResource NullToCollapsedConverter}}"/>
+      </Grid>
+     </Border>
+    </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+   </ScrollViewer>
+  </Grid>
+  <Border Grid.Row="2" Background="{ThemeResource CartFooterBrush}" CornerRadius="0,0,18,18" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="14,8">
+   <Grid ColumnSpacing="12">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="3*"/></Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="8"/><RowDefinition Height="1"/>
+     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="الأصناف" MinHeight="26" FontSize="13" VerticalAlignment="Center" Foreground="{ThemeResource TextMutedBrush}"/>
+    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CartSubtotalDisplay}" MinHeight="26" FontSize="14" TextAlignment="Left" VerticalAlignment="Center" Foreground="{ThemeResource TextPrimaryBrush}"/>
+    <TextBlock Grid.Row="1" Grid.Column="0" Text="التوصيل" MinHeight="26" FontSize="13" VerticalAlignment="Center" Foreground="{ThemeResource TextMutedBrush}" Visibility="{Binding IsDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
+    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DeliveryFeeDisplay}" MinHeight="26" FontSize="14" TextAlignment="Left" VerticalAlignment="Center" Foreground="{ThemeResource TextPrimaryBrush}" Visibility="{Binding IsDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
+    <Border Grid.Row="3" Grid.ColumnSpan="2" Height="1" Background="{ThemeResource CardBorderBrush}"/>
+    <TextBlock Grid.Row="4" Grid.Column="0" Text="الإجمالي" MinHeight="44" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding GrandTotalDisplay}" MinHeight="44" VerticalAlignment="Center" TextAlignment="Left" FontSize="24" FontWeight="Bold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+    <!-- How this order is paid - one line instead of a choice (owner 2026-11-24: the buttons were clutter). -->
+    <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding PaymentHint}" FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
+               AutomationProperties.AutomationId="CallCenter_PaymentHint"/>
+    <TextBlock Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CheckoutError}" TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource DangerBrush}" Margin="0,4,0,0"
+               Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+    <Button Grid.Row="7" Grid.ColumnSpan="2" Content="تأكدت - تجاهل الطلب السابق" HorizontalAlignment="Stretch" MinHeight="44" Margin="0,6,0,0"
+            Command="{Binding DiscardRefusedCheckoutCommand}"
+            Visibility="{Binding HasRefusedCheckoutRetry, Converter={StaticResource BoolToVisibleConverter}}"
+            AutomationProperties.Name="تجاهل الطلب السابق المرفوض" AutomationProperties.AutomationId="DiscardRefusedCheckoutButton"/>
+    <Button Grid.Row="8" Grid.ColumnSpan="2" Margin="0,6,0,0" AutomationProperties.Name="{Binding SubmitLabel}" AutomationProperties.AutomationId="SubmitCallCenterOrderButton"
+            Content="{Binding SubmitLabel}" MinHeight="52" Height="Auto" FontSize="18" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
+            Command="{Binding SubmitOrderCommand}" IsEnabled="{Binding IsShiftOpen}"/>
+    <Button Grid.Row="9" Grid.ColumnSpan="2" Margin="0,6,0,0" Content="إلغاء الطلب" Style="{StaticResource GhostButtonStyle}" Foreground="{ThemeResource TextMutedBrush}" FontSize="13" MinHeight="44"
+            HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditOperation}" Command="{Binding RequestClearOrderCommand}"/>
+   </Grid>
+  </Border>
+ </Grid>
+</Border></UserControl>

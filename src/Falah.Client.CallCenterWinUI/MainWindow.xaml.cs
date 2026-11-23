@@ -62,11 +62,46 @@ public partial class MainWindow : Window
             case nameof(MainViewModel.CurrentView):
                 ApplyCurrentView();
                 break;
+            case nameof(MainViewModel.Section):
+                ApplySection();
+                break;
+            case nameof(MainViewModel.CanSeeDelivery):
+                ApplyDeliveryTab();
+                break;
         }
     }
 
-    private void ApplyIsLoggedIn() =>
+    private void ApplyIsLoggedIn()
+    {
         HeaderHost.Visibility = _viewModel.IsLoggedIn ? Visibility.Visible : Visibility.Collapsed;
+        SectionBar.Visibility = HeaderHost.Visibility;
+        ApplyDeliveryTab();
+        ApplySection();
+    }
+
+    /// <summary>The delivery tab is taken out of the bar for a user without delivery_manage rather than collapsed,
+    /// so the bar's selection and keyboard order never land on an item that is not there.</summary>
+    private void ApplyDeliveryTab()
+    {
+        var shown = Sections.Items.Contains(DeliverySection);
+        if (_viewModel.CanSeeDelivery && !shown) Sections.Items.Add(DeliverySection);
+        else if (!_viewModel.CanSeeDelivery && shown) Sections.Items.Remove(DeliverySection);
+    }
+
+    /// <summary>The bar follows the view model (a lock returns to the order desk); a click on the bar asks the
+    /// view model to navigate, which may refuse (the delivery tab without delivery_manage).</summary>
+    private void ApplySection()
+    {
+        var item = Sections.Items.FirstOrDefault(i => (string)i.Tag == _viewModel.Section);
+        if (item is not null && !ReferenceEquals(Sections.SelectedItem, item)) Sections.SelectedItem = item;
+    }
+
+    private void OnSectionChanged(Microsoft.UI.Xaml.Controls.SelectorBar sender, Microsoft.UI.Xaml.Controls.SelectorBarSelectionChangedEventArgs args)
+    {
+        if (sender.SelectedItem?.Tag is string section && section != _viewModel.Section)
+            _viewModel.NavigateCommand.Execute(section);
+        ApplySection();
+    }
 
     private void ApplyIsOnline() =>
         OfflineBanner.Visibility = _viewModel.IsOnline ? Visibility.Collapsed : Visibility.Visible;
@@ -77,6 +112,8 @@ public partial class MainWindow : Window
         {
             LoginViewModel vm => new LoginView { DataContext = vm },
             CallCenterViewModel vm => new CallCenterView { DataContext = vm },
+            DeliveryViewModel vm => new DeliveryView { DataContext = vm },
+            OrdersViewModel vm => new OrdersView { DataContext = vm },
             _ => null,
         };
     }

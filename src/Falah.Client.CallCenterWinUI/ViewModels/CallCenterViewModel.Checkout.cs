@@ -131,9 +131,17 @@ public partial class CallCenterViewModel
             if (Cart.Count == 0) { CheckoutError = "السلة فارغة."; return; }
             if (string.IsNullOrWhiteSpace(CustomerPhone)) { CheckoutError = "أدخل رقم هاتف العميل."; return; }
             if (string.IsNullOrWhiteSpace(CustomerName)) { CheckoutError = "أدخل اسم العميل."; return; }
-            if (SelectedDeliveryService is null) { CheckoutError = "اختر خدمة التوصيل."; return; }
-            if (string.IsNullOrWhiteSpace(DeliveryArea)) { CheckoutError = "أدخل المنطقة."; return; }
-            if (string.IsNullOrWhiteSpace(DeliveryStreet)) { CheckoutError = "أدخل الشارع."; return; }
+            if (IsDelivery)
+            {
+                if (SelectedDeliveryService is null) { CheckoutError = "اختر خدمة التوصيل."; return; }
+                if (string.IsNullOrWhiteSpace(DeliveryArea)) { CheckoutError = "أدخل المنطقة."; return; }
+                if (string.IsNullOrWhiteSpace(DeliveryStreet)) { CheckoutError = "أدخل الشارع."; return; }
+            }
+            else if (PickupDate is not null && PickupTime is not null && RequestedPickupAtUtc is null)
+            {
+                CheckoutError = "موعد الاستلام المختار غير موجود بسبب التوقيت الصيفي. اختر وقتًا آخر.";
+                return;
+            }
 
             // Re-check right before committing money to an order - the shift this station has no
             // control over may have closed since the screen loaded.
@@ -147,6 +155,9 @@ public partial class CallCenterViewModel
 
             var isElectronic = PaymentMethod is "instapay" or "wallet";
             var amountPaidPiastres = isElectronic ? GrandTotalPiastres : 0;
+            // A pickup paid in cash is paid at the counter on collection (UI-0025); this station takes no cash.
+            var payOnCollection = IsPickup && PaymentMethod == "cash";
+            var delivery = IsDelivery;
 
             CurrentCheckoutRequestId ??= $"req-{Guid.NewGuid():N}";
 
@@ -154,11 +165,11 @@ public partial class CallCenterViewModel
                 CheckoutRequestId: CurrentCheckoutRequestId,
                 CashierId: _session.CurrentUser!.Id,
                 ShiftId: _session.ShiftId!,
-                OrderType: "delivery",
+                OrderType: OrderType,
                 PaymentMethod: PaymentMethod,
                 Items: Cart.Select(l => new CheckoutItemRequest(l.ProductId, l.VariantId, l.Quantity, l.AppliedOfferId, l.Notes)).ToList(),
                 DiscountPiastres: 0,
-                DeliveryFeePiastres: SelectedDeliveryService.FeePiastres ?? 0,
+                DeliveryFeePiastres: DeliveryFeePiastres,
                 CompAmountPiastres: 0,
                 CompApprovalId: null,
                 CompApproverUserId: null,
@@ -166,23 +177,25 @@ public partial class CallCenterViewModel
                 AmountPaidPiastres: amountPaidPiastres,
                 SplitPayments: null,
                 WalletProvider: PaymentMethod == "wallet" ? WalletProvider : null,
-                TableNumber: null,   // the Call Center takes delivery orders; there is no table
+                TableNumber: null,   // phone orders have no table
                 CustomerName: CustomerName,
                 CustomerPhone: CustomerPhone,
                 DeliveryAddress: null,
-                DeliveryArea: DeliveryArea,
+                DeliveryArea: delivery ? DeliveryArea : null,
                 BusinessDayId: null,
-                DeliveryStreet: DeliveryStreet,
-                DeliveryBuilding: NullIfEmpty(DeliveryBuilding),
-                DeliveryFloor: NullIfEmpty(DeliveryFloor),
-                DeliveryApartment: NullIfEmpty(DeliveryApartment),
-                DeliveryLandmark: NullIfEmpty(DeliveryLandmark),
-                DeliveryNotes: NullIfEmpty(DeliveryNotes),
-                DeliveryServiceId: SelectedDeliveryService.Id,
-                DeliveryServiceName: SelectedDeliveryService.Name,
+                DeliveryStreet: delivery ? DeliveryStreet : null,
+                DeliveryBuilding: delivery ? NullIfEmpty(DeliveryBuilding) : null,
+                DeliveryFloor: delivery ? NullIfEmpty(DeliveryFloor) : null,
+                DeliveryApartment: delivery ? NullIfEmpty(DeliveryApartment) : null,
+                DeliveryLandmark: delivery ? NullIfEmpty(DeliveryLandmark) : null,
+                DeliveryNotes: delivery ? NullIfEmpty(DeliveryNotes) : null,
+                DeliveryServiceId: delivery ? SelectedDeliveryService!.Id : null,
+                DeliveryServiceName: delivery ? SelectedDeliveryService!.Name : null,
                 CompReasonCode: null,
                 // This station's customer copy is the phoned-in confirmation, not a till receipt.
-                CustomerPrintRoute: "CallCenter");
+                CustomerPrintRoute: "CallCenter",
+                RequestedPickupAtUtc: IsPickup ? RequestedPickupAtUtc : null,
+                PayOnCollection: payOnCollection);
 
             await SendCheckoutAsync(request);
         }

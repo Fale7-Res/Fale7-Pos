@@ -33,10 +33,10 @@ public sealed partial class CartPanelView : UserControl
         OrderTypeSegments.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         CompactOrderTypeButton.Visibility = compact ? Visibility.Visible : Visibility.Collapsed;
         foreach (var child in FooterGrid.Children.OfType<TextBlock>())
-            if (Grid.GetRow(child) < 5) child.MinHeight = compact ? 24 : 26;
-        FooterTotalLabel.MinHeight = FooterTotalAmount.MinHeight = compact ? 44 : 52;
-        FooterTotalAmount.FontSize = compact ? 24 : 26;
-        FooterCheckoutButton.MinHeight = compact ? 48 : 56;
+            if (Grid.GetRow(child) < 5) child.MinHeight = compact ? 20 : 22;
+        FooterTotalLabel.MinHeight = FooterTotalAmount.MinHeight = compact ? 38 : 44;   // owner 2026-11-23: more room for items
+        FooterTotalAmount.FontSize = compact ? 22 : 24;
+        FooterCheckoutButton.MinHeight = compact ? 46 : 52;
         FooterCheckoutButton.Content = compact ? "الدفع ←" : "متابعة إلى الدفع  ←";
         // The hold / cancel pair keeps its own row under checkout in both densities (owner 2026-11-17
         // added «تعليق الأوردر» beside cancel); compact only tightens the gap above it.
