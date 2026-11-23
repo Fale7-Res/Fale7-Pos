@@ -185,7 +185,7 @@ public sealed class OwnerDashboardQueryService
         DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
     {
         var sales = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
+            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && !o.AwaitingCollection && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
             .Select(o => new { o.CreatedAtUtc, o.TotalPiastres })
             .ToListAsync(ct);
         var refunds = await _db.OrderRefunds.AsNoTracking()
@@ -280,6 +280,8 @@ public sealed class OwnerDashboardQueryService
             nameof(LedgerEntryType.Overtime), nameof(LedgerEntryType.ExtraShift),
             nameof(LedgerEntryType.Bonus), nameof(LedgerEntryType.OtherEarning),
             nameof(LedgerEntryType.Deduction),
+            // PAYR-0021 (owner decision 2026-11-22): attendance-correction adjustments, as payroll counts them.
+            nameof(LedgerEntryType.Adjustment),
         };
         var rows = await _db.EmployeeLedgerEntries.AsNoTracking()
             .ForDays(range.From, range.To)

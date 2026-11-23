@@ -57,9 +57,13 @@ public static class SalaryAccrual
                 : new DateOnly(throughDate.Year, throughDate.Month, 1);
             if (employee.HireDate > start) start = employee.HireDate;
 
-            var salary = Money.FromPiastres(employee.MonthlySalaryPiastres!.Value);
+            // PAYR-0006 (owner decision 2026-11-22): a day caught up late is paid at the salary in effect
+            // on that day (EmployeeWages), not at today's.
+            var history = await EmployeeWages.LoadAsync(db, employee.Id, ct);
             for (var day = start; day <= throughDate; day = day.AddDays(1))
             {
+                var salary = Money.FromPiastres(EmployeeWages.At(history, employee, day).MonthlySalary ?? 0);
+                if (!salary.IsPositive) continue;
                 var entry = await EmployeeLedgerPoster.PostIfNewAsync(db, EntryId(employee.Id, day), employee.Id,
                     nameof(LedgerEntryType.Salary), $"استحقاق راتب يوم {day:yyyy-MM-dd}",
                     Money.Zero, PayrollRules.DailySalaryAccrual(salary, day), recordedBy, null, null,

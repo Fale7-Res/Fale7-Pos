@@ -27,7 +27,33 @@ public static class CheckoutRules
         ElectronicPayment? ElectronicLeg,
         bool CashOnDelivery,
         bool DefersAllMoney,
-        bool IsPaid);
+        bool IsPaid,
+        /// <summary>UI-0025 (owner decision 2026-11-22): a pickup registered and sent to the kitchen
+        /// unpaid; the customer pays on collection (BuildCollectionPlan). Until then it is no sale.</summary>
+        bool PayOnCollection = false);
+
+    /// <summary>How an awaiting pickup is paid when the customer collects it.</summary>
+    public readonly record struct CollectionPlan(
+        PaymentMethod PaymentMethod, Money AmountPaid, Money ChangeDue, IReadOnlyList<PaymentSplit>? SplitPayments,
+        ElectronicPayment? ElectronicLeg, bool DefersAllMoney, bool IsPaid);
+
+    /// <summary>UI-0025: the payment of a pickup at collection, by any method, under the same rules as a
+    /// checkout - enough money, a split that adds up, one transfer at most, a transfer only a claim until
+    /// confirmed. The order's total was fixed when it was registered.</summary>
+    public static CollectionPlan BuildCollectionPlan(Money payableTotal, PaymentMethod paymentMethod, Money amountPaid,
+        IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider)
+    {
+        if (paymentMethod == PaymentMethod.Multi && (splitPayments is null || splitPayments.Count == 0))
+            throw new DomainException("يجب تحديد تفاصيل الدفع المتعدد.");
+        var electronicLeg = SelectElectronicLeg(paymentMethod, payableTotal, splitPayments, walletProvider);
+        if (amountPaid < payableTotal) throw new DomainException("المبلغ المدفوع أقل من إجمالي الطلب.");
+        if (paymentMethod == PaymentMethod.Multi && splitPayments is not null)
+            FinancialRules.AssertSplitPaymentAllocation(splitPayments, payableTotal);
+        var changeDue = amountPaid - payableTotal;
+        return new CollectionPlan(paymentMethod, amountPaid, changeDue.IsNegative ? Money.Zero : changeDue,
+            paymentMethod == PaymentMethod.Multi ? splitPayments : null, electronicLeg,
+            DefersAllMoney(payableTotal, false, electronicLeg, paymentMethod), ComputeIsPaid(false, electronicLeg));
+    }
 
     public static Money ComputeSubtotal(IReadOnlyList<OrderItem> items) =>
         Money.FromPiastres(items.Sum(i => i.TotalPrice.Piastres));
@@ -89,8 +115,10 @@ public static class CheckoutRules
     public static CheckoutPlan BuildPlan(
         OrderType orderType, PaymentMethod paymentMethod, IReadOnlyList<OrderItem> items,
         Money discount, TaxRule? taxRule, Money deliveryFee, Money compAmount, Money amountPaid,
-        IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider)
+        IReadOnlyList<PaymentSplit>? splitPayments, string? walletProvider, bool payOnCollection = false)
     {
+        if (payOnCollection && orderType != OrderType.Pickup)
+            throw new DomainException("الدفع عند الاستلام متاح لطلبات الاستلام بس.");
         if (discount.IsNegative || deliveryFee.IsNegative || compAmount.IsNegative)
             throw new DomainException("الخصم ورسوم التوصيل والمجانيات يجب ألا تكون سالبة.");
 
@@ -107,6 +135,11 @@ public static class CheckoutRules
         var tax = TaxEngine.Calculate(taxableBase, taxRule);
         var cartTotal = tax.Final;
         var payableTotal = ComputePayableTotal(cartTotal, deliveryFee, compAmount);
+
+        // UI-0025: nothing is taken now. The method is a placeholder until the customer pays at collection.
+        if (payOnCollection && payableTotal.IsPositive)
+            return new CheckoutPlan(orderType, PaymentMethod.Cash, subtotal, deliveryFee, compAmount, tax, payableTotal,
+                Money.Zero, Money.Zero, null, null, CashOnDelivery: false, DefersAllMoney: true, IsPaid: false, PayOnCollection: true);
 
         var cashOnDelivery = IsCashOnDelivery(orderType, paymentMethod, payableTotal);
         var electronicLeg = SelectElectronicLeg(paymentMethod, payableTotal, splitPayments, walletProvider);

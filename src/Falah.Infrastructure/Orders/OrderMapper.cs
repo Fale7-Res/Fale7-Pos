@@ -201,4 +201,8 @@ public static class OrderMapper
     };
 
     private sealed record WireSplit(string method, long amountPiastres);
+
+    /// <summary>The stored form of a split payment, as checkout writes it (used when a pickup is paid on collection).</summary>
+    public static string? SerializeSplits(IReadOnlyList<PaymentSplit>? splits) => splits is null ? null :
+        System.Text.Json.JsonSerializer.Serialize(splits.Select(s => new WireSplit(s.Method.ToWireString(), s.Amount.Piastres)));
 }

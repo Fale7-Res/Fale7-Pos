@@ -114,7 +114,19 @@ public sealed class RefundOrderHandler
             // money-out handler in this codebase (expenses, purchasing, treasury, shift-open) calls
             // this same guard; RefundOrderHandler alone skipped it, so a refund could silently drive
             // an account negative.
-            var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(order.PaymentMethod);
+            // FIN-0005 (owner decision 2026-11-22): a split-paid order goes back through the ONE method
+            // chosen, which must be one it was paid with (Order.ApplyRefund checks that too); any other
+            // order through its own method. Everything below - account, shift rule, movement - uses it.
+            var refundMethod = order.PaymentMethod;
+            if (order.PaymentMethod == PaymentMethod.Multi)
+            {
+                if (string.IsNullOrWhiteSpace(request.RefundMethod))
+                    throw new DomainException("الطلب ده اتدفع بأكتر من طريقة؛ اختار الطريقة اللي الفلوس هترجع بيها.");
+                refundMethod = OrderEnumMapping.ParsePaymentMethod(request.RefundMethod.Trim());
+                if (refundMethod == PaymentMethod.Multi || order.SplitPayments?.Any(s => s.Method == refundMethod) != true)
+                    throw new DomainException("اختار طريقة استرجاع من الطرق اللي اتدفع بيها الطلب.");
+            }
+            var refundSourceAccount = TreasuryMovementFactory.PaymentAccountFor(refundMethod);
             var refundSourceMovements = await TreasuryBalanceQuery.LockAndReadBalanceAsync(_db, refundSourceAccount, ct);
             FinancialRules.AssertProtectedSourceBalance(refundSourceMovements, refundSourceAccount, safeAmount);
 
@@ -123,7 +135,7 @@ public sealed class RefundOrderHandler
             var activeShiftEntity = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == nameof(ShiftStatus.Open), ct);
 
             var shiftPolicy = RefundRules.ResolveOperationalShift(
-                order.ShiftId, Enum.Parse<ShiftStatus>(originalShiftEntity.Status), activeShiftEntity?.Id, order.PaymentMethod);
+                order.ShiftId, Enum.Parse<ShiftStatus>(originalShiftEntity.Status), activeShiftEntity?.Id, refundMethod);
             // A refund of a closed shift's card/InstaPay/wallet order is allowed with no shift open
             // (no drawer is touched), but every refund row records the shift that processed it, and
             // there is none. That used to reach the database as a NOT NULL violation and come back as
@@ -139,11 +151,11 @@ public sealed class RefundOrderHandler
             var now = DateTimeOffset.UtcNow;
             var movement = TreasuryMovementFactory.BuildRefundMovement(
                 $"tm-{Guid.NewGuid():N}", $"op-{Guid.NewGuid():N}", request.RefundRequestId, order.Id,
-                order.PaymentMethod, safeAmount, businessDayId, operationalShiftId,
+                refundMethod, safeAmount, businessDayId, operationalShiftId,
                 cashierUser.Name, authorizedByName, request.Reason, now);
 
             var refund = new OrderRefund($"order-refund-{Guid.NewGuid():N}", movement.OperationId, refundKey,
-                safeAmount, order.PaymentMethod, movement.Id, now, cashierUser.Name, authorizedByName,
+                safeAmount, refundMethod, movement.Id, now, cashierUser.Name, authorizedByName,
                 request.Reason, order.ShiftId, operationalShiftId);
 
             // Domain invariants enforced here too (cancelled/multi guard, amount<=refundable,

@@ -45,6 +45,7 @@ public sealed class CreatePayrollHandler
         var periodEntries = await _db.EmployeeLedgerEntries.AsNoTracking()
             .ForDays(periodStart, periodEnd)
             .ToListAsync(ct);
+        var wageHistory = await EmployeeWages.LoadAllAsync(_db, ct);
 
         // Advance-deduction-during-payroll (legacy's optional per-employee advanceDeductions map)
         // is deliberately not wired up yet: no evidenced caller in the reference app ever supplies a
@@ -58,7 +59,12 @@ public sealed class CreatePayrollHandler
                 .ToList();
             return new PayrollRules.PayrollLineInput(
                 emp.Id, emp.IsActive, Enum.TryParse<CompensationType>(emp.CompensationType, true, out var savedType) && savedType == CompensationType.Monthly,
-                emp.MonthlySalaryPiastres is null ? null : Money.FromPiastres(emp.MonthlySalaryPiastres.Value),
+                // PAYR-0007 (owner decision 2026-11-22): the period's share of the salary - the days from
+                // the hire date to the period's end - matching what SalaryAccrual posts day by day.
+                // PAYR-0006: each day at the salary in effect that day (EmployeeWages).
+                emp.MonthlySalaryPiastres is null ? null
+                    : PayrollRules.MonthlyBaseForPeriod(day => Money.FromPiastres(EmployeeWages.At(wageHistory[emp.Id], emp, day).MonthlySalary ?? 0),
+                        periodStart, periodEnd, emp.HireDate),
                 empEntries, Money.Zero, Money.Zero);
         }).ToList();
 

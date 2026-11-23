@@ -99,6 +99,71 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         return dayId;
     }
 
+    // ---- INV-0011 / FIN-0044, owner decision 2026-11-22: a closed day's food cost and profit are frozen ----
+
+    private Task AddPurchasePriceAsync(string inventoryItemId, long unitCostPiastres) => _factory.QueryAsync(async db =>
+    {
+        db.StockMovements.Add(new Falah.Infrastructure.Persistence.Entities.StockMovementEntity
+        {
+            IdempotencyKey = $"seed-{Guid.NewGuid():N}", InventoryItemId = inventoryItemId, Type = "PurchaseReceipt",
+            Direction = "In", QuantityMilliUnits = 10000, UnitCostPiastres = unitCostPiastres, ReferenceType = "seed",
+            ReferenceId = "seed", Reason = "seed", CreatedBy = "seed", CreatedAtUtc = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+        return 0;
+    });
+
+    private async Task SellOneAsync(string shiftId, string productId) =>
+        (await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: shiftId,
+            OrderType: "takeaway", PaymentMethod: "cash",
+            Items: new[] { new CheckoutItemRequest(productId, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 5000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null, DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null))).EnsureSuccessStatusCode();
+
+    private async Task<long> FoodCostAsync() =>
+        (await (await _client.GetAsync($"/api/reports/food-cost?actorUserId={_managerId}")).Content
+            .ReadFromJsonAsync<Falah.Application.Reports.FoodCostReportDto>())!.TotalFoodCostPiastres;
+
+    [Fact]
+    public async Task A_closed_day_keeps_the_food_cost_it_closed_with_when_prices_change_later()
+    {
+        var (productId, _, inventoryItemId) = await _factory.SeedProductWithRecipeAsync(5000, quantityMilliUnitsPerUnit: 200);
+        await AddPurchasePriceAsync(inventoryItemId, 1000);
+        var dayId = await OpenBusinessDayAsync();
+        var shiftId = await OpenShiftAsync();
+        await SellOneAsync(shiftId, productId);
+        (await CloseShiftAsync(shiftId, 55000)).EnsureSuccessStatusCode();
+        await CompleteRequiredClosingChecklistAsync(dayId);
+        Assert.Equal(200, await FoodCostAsync());   // 200 milliUnits x 1000 piastres / 1000
+
+        (await CloseBusinessDayAsync(dayId)).EnsureSuccessStatusCode();
+        await Task.Delay(20);
+        await AddPurchasePriceAsync(inventoryItemId, 3000);   // the ingredient is dearer from now on
+
+        Assert.Equal(200, await FoodCostAsync());
+        var today = Falah.Domain.Common.BusinessClock.Today().ToString("yyyy-MM-dd");
+        var dashboard = await (await _client.GetAsync($"/api/reports/owner-dashboard?from={today}&to={today}&actorUserId={_managerId}"))
+            .Content.ReadFromJsonAsync<Falah.Application.Reports.OwnerDashboardDto>();
+        Assert.Equal(200, dashboard!.Profitability.KnownFoodCostPiastres);
+    }
+
+    [Fact]
+    public async Task A_day_still_open_follows_the_latest_price()
+    {
+        var (productId, _, inventoryItemId) = await _factory.SeedProductWithRecipeAsync(5000, quantityMilliUnitsPerUnit: 200);
+        await AddPurchasePriceAsync(inventoryItemId, 1000);
+        await OpenBusinessDayAsync();
+        var shiftId = await OpenShiftAsync();
+        await SellOneAsync(shiftId, productId);
+        await Task.Delay(20);
+        await AddPurchasePriceAsync(inventoryItemId, 3000);
+
+        Assert.Equal(600, await FoodCostAsync());
+    }
+
     // ---- Open: the real permission gap found while wiring close/reopen next to it ----
 
     [Fact]
@@ -594,6 +659,7 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     public async Task Saving_a_cash_count_computes_totals_and_is_idempotent_by_id()
     {
         var dayId = await OpenBusinessDayAsync();
+        await OpenShiftAsync(openingCashPiastres: 41500);   // FIN-0020: a count is a shift's drawer
         var countId = $"count-{Guid.NewGuid():N}";
         var request = new Falah.Application.BusinessDay.SaveCashCountRequest(
             countId, dayId, null,
@@ -612,6 +678,29 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
 
         var listed = await (await _client.GetAsync($"/api/business-day/{dayId}/cash-counts")).Content.ReadFromJsonAsync<List<Falah.Application.BusinessDay.CashDenominationCountDto>>();
         Assert.Single(listed!, c => c.Id == countId);
+    }
+
+    // FIN-0020, owner decision 2026-11-22: a cash count is the shift's drawer, and the system says what
+    // that drawer should hold (ShiftReconciliation) - the figure typed into the form is not used.
+    [Fact]
+    public async Task A_cash_count_is_compared_with_the_shifts_expected_drawer_cash_not_a_typed_figure()
+    {
+        var dayId = await OpenBusinessDayAsync();
+        var shiftId = await OpenShiftAsync(openingCashPiastres: 41500);
+
+        var exact = await (await _client.PostAsJsonAsync($"/api/business-day/{dayId}/cash-counts", new Falah.Application.BusinessDay.SaveCashCountRequest(
+            $"count-{Guid.NewGuid():N}", dayId, shiftId,
+            new[] { new Falah.Application.BusinessDay.DenominationRowInput(20000, 2), new Falah.Application.BusinessDay.DenominationRowInput(500, 3) },
+            999, _managerId))).Content.ReadFromJsonAsync<Falah.Application.BusinessDay.CashDenominationCountDto>();
+        Assert.Equal(41500, exact!.ExpectedPiastres);
+        Assert.Equal(0, exact.DifferencePiastres);
+
+        var short_ = await (await _client.PostAsJsonAsync($"/api/business-day/{dayId}/cash-counts", new Falah.Application.BusinessDay.SaveCashCountRequest(
+            $"count-{Guid.NewGuid():N}", dayId, null,
+            new[] { new Falah.Application.BusinessDay.DenominationRowInput(20000, 2) },
+            40000, _managerId))).Content.ReadFromJsonAsync<Falah.Application.BusinessDay.CashDenominationCountDto>();
+        Assert.Equal(41500, short_!.ExpectedPiastres);   // no shift named: the open shift's drawer
+        Assert.Equal(-1500, short_.DifferencePiastres);
     }
 
     [Fact]

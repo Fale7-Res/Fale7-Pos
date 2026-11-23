@@ -48,7 +48,7 @@ public sealed class SessionService
         if (session is null || session.RevokedAtUtc is not null) return null;
 
         var now = DateTimeOffset.UtcNow;
-        if (SessionToken.IsExpired(session.LastSeenAtUtc, now)) return null;
+        if (SessionToken.IsExpired(session.CreatedAtUtc, session.LastSeenAtUtc, now)) return null;
 
         var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == session.UserId, ct);
         // A deactivated account stops working immediately rather than waiting for its session to

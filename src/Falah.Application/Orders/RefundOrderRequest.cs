@@ -9,7 +9,10 @@ public sealed record RefundOrderRequest(
     string Reason,
     string CashierId,
     string? ManagerApprovalId,
-    string? ManagerApproverUserId);
+    string? ManagerApproverUserId,
+    /// <summary>FIN-0005 (owner decision 2026-11-22): for an order paid by more than one method, the ONE
+    /// method the money goes back through - one the order was paid with. Ignored for any other order.</summary>
+    string? RefundMethod = null);
 
 public sealed record RefundOrderResult(
     string RefundId,

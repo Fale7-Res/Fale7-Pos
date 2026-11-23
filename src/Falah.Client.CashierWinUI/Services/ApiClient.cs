@@ -158,6 +158,9 @@ public sealed partial class ApiClient
         ReadAsync<Falah.Application.Settings.SettingsDto>(() => _http.GetAsync("/api/settings", ct), ct);
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> LookupCustomerAsync(string phone, CancellationToken ct = default) =>
         ReadAsync<Falah.Application.Customers.CustomerDto>(() => _http.GetAsync($"/api/customers/lookup?phone={Uri.EscapeDataString(phone)}", ct), ct);
+    /// <summary>CUS-0002: owner only; the server hides the customer from staff and keeps the record.</summary>
+    public Task<ApiResult<bool>> HideCustomerAsync(Falah.Application.Customers.HideCustomerRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/customers/{Uri.EscapeDataString(request.CustomerId)}/hide", request, ct), ct);
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
@@ -219,6 +222,18 @@ public sealed partial class ApiClient
     {
         return await SendAsync<CheckoutOrderResult>(() => _http.PostAsJsonAsync("/api/orders/checkout", request, ct), ct);
     }
+
+    /// <summary>UI-0025: the customer pays for an awaiting pickup at collection.</summary>
+    public Task<ApiResult<CheckoutOrderResult>> CollectPickupAsync(CollectPickupPaymentRequest request, CancellationToken ct = default) =>
+        SendAsync<CheckoutOrderResult>(() => _http.PostAsJsonAsync("/api/orders/collect-pickup", request, ct), ct);
+
+    /// <summary>UI-0025: a manager cancels a pickup whose customer never came (nothing to refund).</summary>
+    public Task<ApiResult<bool>> CancelUncollectedPickupAsync(CancelUncollectedPickupRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync("/api/orders/cancel-uncollected-pickup", request, ct), ct);
+
+    /// <summary>UI-0025: the pickups waiting at the counter to be paid and collected.</summary>
+    public Task<ApiResult<List<AwaitingPickupDto>>> GetAwaitingPickupsAsync(CancellationToken ct = default) =>
+        ReadAsync<List<AwaitingPickupDto>>(() => _http.GetAsync("/api/orders/awaiting-collection", ct), ct);
 
     public async Task<ApiResult<RefundOrderResult>> RefundAsync(RefundOrderRequest request, CancellationToken ct = default)
     {

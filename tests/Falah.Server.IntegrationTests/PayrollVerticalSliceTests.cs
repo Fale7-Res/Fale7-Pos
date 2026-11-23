@@ -207,6 +207,28 @@ public class PayrollVerticalSliceTests : IAsyncLifetime
         Assert.Equal(1, movementCount);
     }
 
+    // PAYR-0007, owner decision 2026-11-22: a monthly employee hired during the period is paid for the
+    // days employed, the same daily shares the salary accrual posts.
+    [Fact]
+    public async Task A_monthly_employee_hired_mid_period_is_paid_for_the_days_employed()
+    {
+        var periodStart = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        var periodEnd = periodStart.AddMonths(1).AddDays(-1);
+        var hired = periodStart.AddDays(10);
+        var request = new CreateEmployeeRequest(
+            $"req-{Guid.NewGuid():N}", "محاسب", $"EMP-{Guid.NewGuid():N}", "محاسب", "01000000000", hired,
+            "Monthly", 0, 0, 600000, false, "cashier", null, null, null, null, null, null, null, null, _hrUserId);
+        var employee = (await (await _client.PostAsJsonAsync("/api/employees", request)).Content.ReadFromJsonAsync<EmployeeDto>())!;
+
+        var runId = await CreateDraftRunAsync(CurrentPeriod());
+        var line = Assert.Single((await (await _client.GetAsync($"/api/payroll-runs/{runId}/lines")).Content.ReadFromJsonAsync<List<PayrollLineDto>>())!,
+            l => l.EmployeeId == employee.Id);
+        var expected = Enumerable.Range(0, periodEnd.DayNumber - hired.DayNumber + 1)
+            .Sum(i => Falah.Domain.Payroll.PayrollRules.DailySalaryAccrual(Falah.Domain.Common.Money.FromPiastres(600000), hired.AddDays(i)).Piastres);
+        Assert.Equal(expected, line.BasePiastres);
+        Assert.True(line.BasePiastres < 600000);
+    }
+
     private async Task PayOutsideTheRunAsync(string employeeId, long amountPiastres) =>
         (await _client.PostAsJsonAsync($"/api/employees/{employeeId}/pay",
             new PayEmployeeRequest($"pay-{Guid.NewGuid():N}", employeeId, amountPiastres, "tre-main", _managerId, "دفعة من المستحقات", null, null)))

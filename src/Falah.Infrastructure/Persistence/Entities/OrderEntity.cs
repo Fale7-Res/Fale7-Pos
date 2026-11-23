@@ -81,6 +81,27 @@ public class OrderEntity
     public string? CancelReason { get; set; }
     public string? CancelledBy { get; set; }
 
+    /// <summary>UI-0025 (owner decision 2026-11-22): a pickup registered and sent to the kitchen unpaid,
+    /// waiting for its customer to pay at collection. While true it is in no sales figure; collecting it
+    /// moves the sale to the moment and the shift that took the money (CreatedAtUtc / ShiftId), keeping
+    /// the registration in RegisteredAtUtc / RegisteredShiftId. An unpaid one blocks the day close.</summary>
+    public bool AwaitingCollection { get; set; }
+    public DateTimeOffset? RegisteredAtUtc { get; set; }
+    public string? RegisteredShiftId { get; set; }
+    /// <summary>The collect request that paid it - its replay key.</summary>
+    public string? CollectionRequestId { get; set; }
+    public string? CollectedBy { get; set; }
+
+    /// <summary>INV-0011 / FIN-0044 (owner decision 2026-11-22): when the order's business day closed,
+    /// its food cost was frozen - each line's FrozenUnitFoodCostPiastres and this order's packaging -
+    /// so a later recipe or purchase-price change never moves a closed day's food cost or profit.
+    /// Null = not frozen yet (its day is still open): the food cost is the live estimate.</summary>
+    public DateTimeOffset? FoodCostFrozenAtUtc { get; set; }
+    /// <summary>The order's packaging cost at the freeze; null with FoodCostFrozenAtUtc set = unknown then.</summary>
+    public long? FrozenPackagingCostPiastres { get; set; }
+    /// <summary>The packaging named as unpriced at the freeze, when FrozenPackagingCostPiastres is null.</summary>
+    public string? FrozenPackagingMissing { get; set; }
+
     public List<OrderItemEntity> Items { get; set; } = new();
     public List<OrderRefundEntity> Refunds { get; set; } = new();
 
@@ -111,6 +132,10 @@ public class OrderItemEntity
     /// UnitPrice - never overwritten by a later change to ProductEntity.PreparationStation, which only
     /// governs future orders.</summary>
     public string? PreparationStation { get; set; }
+
+    /// <summary>INV-0011 / FIN-0044: one unit's food cost frozen at business-day close (see
+    /// OrderEntity.FoodCostFrozenAtUtc); null on a frozen order = the cost was unknown then.</summary>
+    public long? FrozenUnitFoodCostPiastres { get; set; }
 }
 
 public class OrderRefundEntity

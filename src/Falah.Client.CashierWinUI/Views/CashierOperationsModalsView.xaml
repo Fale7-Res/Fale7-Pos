@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.CashierOperationsModalsView"
+﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.CashierOperationsModalsView" x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="using:Falah.Client.CashierWinUI.Controls"
@@ -115,6 +115,27 @@
                     <TextBlock Text="{Binding OrderLookupError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                TextAlignment="Center" TextWrapping="Wrap" Visibility="{Binding OrderLookupError, Converter={StaticResource NullToCollapsedConverter}}"/>
 
+                    <!-- UI-0025: the pickups waiting for their customer to pay and collect. -->
+                    <Button AutomationProperties.AutomationId="OrderLookup_AwaitingPickups" Content="طلبات الاستلام اللي مستنية الدفع"
+                            Command="{Binding LoadAwaitingPickupsCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                    <ItemsControl ItemsSource="{Binding AwaitingPickups}" MaxHeight="200"
+                                  Visibility="{Binding HasAwaitingPickups, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,6" Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding DataContext.OpenAwaitingPickupCommand, ElementName=Root}" CommandParameter="{Binding}"
+                                        AutomationProperties.Name="{Binding OrderNumber}">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding OrderNumber}" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding CustomerName}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                     <StackPanel Spacing="10" Visibility="{Binding OrderLookupResult, Converter={StaticResource NullToCollapsedConverter}}">
                         <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="14">
                             <StackPanel Spacing="6">
@@ -174,6 +195,40 @@
 
                         <TextBlock Text="{Binding ReprintStatusMessage}" Style="{StaticResource MutedText}" TextAlignment="Center" TextWrapping="Wrap"
                                    Visibility="{Binding ReprintStatusMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                        <!-- UI-0025: collect an awaiting pickup, or a manager cancels one nobody came for. -->
+                        <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource BrandPrimaryBrush}" BorderThickness="1" CornerRadius="16" Padding="14"
+                                Visibility="{Binding CanCollectPickup, Converter={StaticResource BoolToVisibleConverter}}">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="الطلب ده لسه ما اتدفعش - العميل بيدفع وهو بيستلم" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <ComboBox AutomationProperties.AutomationId="Collect_Method" AutomationProperties.Name="طريقة الدفع عند الاستلام" Header="طريقة الدفع"
+                                          HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditOperation}" SelectedValue="{Binding CollectMethod, Mode=TwoWay}" SelectedValuePath="Tag">
+                                    <ComboBoxItem Content="نقدي" Tag="cash"/><ComboBoxItem Content="بطاقة" Tag="card"/><ComboBoxItem Content="إنستاباي" Tag="instapay"/><ComboBoxItem Content="محفظة" Tag="wallet"/>
+                                </ComboBox>
+                                <TextBox AutomationProperties.AutomationId="Collect_Amount" AutomationProperties.Name="المبلغ المستلم بالجنيه" Header="المبلغ المستلم بالجنيه (للنقدي)"
+                                         FlowDirection="LeftToRight" InputScope="Number" IsEnabled="{Binding CanEditOperation}"
+                                         Text="{Binding CollectAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="{Binding CollectError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                           Visibility="{Binding CollectError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                <Button AutomationProperties.AutomationId="Collect_Submit" Content="تحصيل وتسليم الطلب" Command="{Binding CollectPickupCommand}"
+                                        Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"/>
+                                <Expander Header="العميل ما جاش - إلغاء الطلب (بموافقة مدير)" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                    <StackPanel Spacing="8">
+                                        <TextBox AutomationProperties.AutomationId="CancelPickup_Reason" Header="سبب الإلغاء" IsEnabled="{Binding CanEditOperation}"
+                                                 Text="{Binding CancelPickupReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ToggleSwitch AutomationProperties.AutomationId="CancelPickup_Prepared" AutomationProperties.Name="الأكل اتعمل؟" Header="الأكل اتعمل؟"
+                                                      IsOn="{Binding CancelPickupPrepared, Mode=TwoWay}" OnContent="اتعمل - يتسجل هالك" OffContent="ما اتعملش - يرجع المخزون"/>
+                                        <PasswordBox AutomationProperties.AutomationId="CancelPickup_ManagerPin" AutomationProperties.Name="رمز المدير لإلغاء الطلب"
+                                                     Header="رمز المدير" Password="{Binding CancelPickupManagerPin, Mode=TwoWay}"
+                                                     Visibility="{Binding CancelPickupNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                        <TextBlock Text="{Binding CancelPickupError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
+                                                   Visibility="{Binding CancelPickupError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                        <Button AutomationProperties.AutomationId="CancelPickup_Submit" Content="إلغاء الطلب" Command="{Binding CancelUncollectedPickupCommand}"
+                                                Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Stretch"/>
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </Border>
 
                         <Button Content="مراجعة التحويل المعلق" Command="{Binding ReviewPendingOrderCommand}" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Stretch" Visibility="{Binding LookupHasPendingPayment, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <Button Content="استرداد مبلغ" Command="{Binding OpenRefundCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch" Visibility="{Binding CanRefundOrder, Converter={StaticResource BoolToVisibleConverter}}"/>

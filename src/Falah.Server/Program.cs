@@ -92,6 +92,8 @@ builder.Services.AddScoped<RefundOrderHandler>();
 builder.Services.AddScoped<ConfirmElectronicPaymentHandler>();
 builder.Services.AddScoped<CancelPendingElectronicPaymentHandler>();
 builder.Services.AddScoped<CancelUndispatchedDeliveryHandler>();
+builder.Services.AddScoped<CollectPickupPaymentHandler>();
+builder.Services.AddScoped<CancelUncollectedPickupHandler>();
 builder.Services.AddScoped<IssueManagerApprovalHandler>();
 // One per process: the PIN guessing allowance must be shared by every request, or it limits nothing.
 builder.Services.AddSingleton(sp => new ApprovalPinAttemptGuard(sp.GetRequiredService<IConfiguration>(), TimeProvider.System));
@@ -163,6 +165,7 @@ builder.Services.AddScoped<SavePrepRecipeHandler>();
 builder.Services.AddScoped<SaveOrderPackagingRuleHandler>();
 builder.Services.AddScoped<InventoryQueryService>();
 builder.Services.AddScoped<UpsertCustomerHandler>();
+builder.Services.AddScoped<HideCustomerHandler>();
 builder.Services.AddScoped<CustomerQueryService>();
 builder.Services.AddScoped<ReportingQueryService>();
 builder.Services.AddScoped<OwnerDashboardQueryService>();
@@ -1391,15 +1394,33 @@ app.MapPost("/api/customers/upsert", async (Falah.Application.Customers.UpsertCu
 app.MapGet("/api/customers/lookup", async (string phone, CustomerQueryService query, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية قراءة بيانات العملاء.", "pos", "delivery_manage") is { } refused) return refused;
-    var result = await query.FindByPhoneAsync(phone, ct);
+    var result = await query.FindByPhoneAsync(phone, ct, includeHidden: RequireOwner(http) is null);
     return result is null ? Results.NotFound() : Results.Ok(result);
 });
 
 app.MapGet("/api/customers/{id}", async (string id, CustomerQueryService query, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية قراءة بيانات العملاء.", "pos", "delivery_manage") is { } refused) return refused;
-    var result = await query.GetByIdAsync(id, ct);
+    var result = await query.GetByIdAsync(id, ct, includeHidden: RequireOwner(http) is null);
     return result is null ? Results.NotFound() : Results.Ok(result);
+});
+
+// CUS-0002 (owner decision 2026-11-22): the owner deletes a customer from staff screens; the record
+// stays stored and the owner still finds it. The handler checks the owner permission too.
+app.MapPost("/api/customers/{id}/hide", async (string id, Falah.Application.Customers.HideCustomerRequest request, HideCustomerHandler handler, HttpContext http, CancellationToken ct) =>
+{
+    if (RequireAnyPermission(http, "مسح العميل متاح للمالك فقط.") is { } refused) return refused;
+    if (!string.Equals(id, request.CustomerId, StringComparison.Ordinal))
+        return Results.UnprocessableEntity(new { error = "رقم العميل في الطلب غير مطابق." });
+    try
+    {
+        await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.Actor(http).Id }, ct);
+        return Results.Ok();
+    }
+    catch (Falah.Domain.Common.DomainException ex)
+    {
+        return Results.UnprocessableEntity(new { error = ex.Message });
+    }
 });
 
 app.MapPost("/api/delivery/drivers", async (Falah.Application.Delivery.CreateDriverRequest request, CreateDriverHandler handler, CancellationToken ct) =>
@@ -1685,11 +1706,13 @@ app.MapPost("/api/orders/refund", async (Falah.Application.Orders.RefundOrderReq
     }
 });
 
-app.MapPost("/api/orders/confirm-electronic-payment", async (Falah.Application.Orders.ConfirmElectronicPaymentRequest request, ConfirmElectronicPaymentHandler handler, CancellationToken ct) =>
+app.MapPost("/api/orders/confirm-electronic-payment", async (Falah.Application.Orders.ConfirmElectronicPaymentRequest request, ConfirmElectronicPaymentHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
 {
     try
     {
         var result = await handler.HandleAsync(request, ct);
+        // PRT-0016 (owner decision 2026-11-22): the kitchen ticket held for this transfer prints now.
+        await autoPrint.TryReleaseHeldKitchenTicketsAsync(request.OrderId, request.CashierId, ct);
         return Results.Ok(result);
     }
     catch (Falah.Application.Orders.ConfirmConflictException ex)
@@ -1712,6 +1735,43 @@ app.MapPost("/api/orders/cancel-undispatched-delivery", async (Falah.Application
     try { return Results.Ok(await handler.HandleAsync(request, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// UI-0025 (owner decision 2026-11-22): a pickup registered unpaid is paid when its customer collects it.
+app.MapPost("/api/orders/collect-pickup", async (Falah.Application.Orders.CollectPickupPaymentRequest request, CollectPickupPaymentHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
+{
+    try
+    {
+        var result = await handler.HandleAsync(request, ct);
+        // After the payment is committed, never inside it - the same rule as checkout's receipt.
+        var printed = result.WasReplayed || await autoPrint.TryPrintCollectionReceiptAsync(result.OrderId, request.CashierId, ct);
+        return Results.Ok(result with { PrintJobsQueued = printed });
+    }
+    catch (Falah.Application.Orders.ShiftNotOpenException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Application.Orders.CheckoutConflictException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// UI-0025: a manager cancels a pickup whose customer never came; nothing was paid, so nothing is refunded.
+app.MapPost("/api/orders/cancel-uncollected-pickup", async (Falah.Application.Orders.CancelUncollectedPickupRequest request, CancelUncollectedPickupHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(new { orderId = request.OrderId, status = await handler.HandleAsync(request, ct) }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// UI-0025: the pickups waiting at the counter for their customer to pay and collect.
+app.MapGet("/api/orders/awaiting-collection", async (FalahDbContext db, HttpContext http, CancellationToken ct) =>
+{
+    if (RequireAnyPermission(http, "ليس لديك صلاحية عرض الطلبات.", "pos") is { } refused) return refused;
+    var rows = await db.Orders.AsNoTracking()
+        .Where(o => o.AwaitingCollection && o.Status != "cancelled")
+        .OrderBy(o => o.CreatedAtUtc)
+        .Select(o => new Falah.Application.Orders.AwaitingPickupDto(o.Id, o.OrderNumber, o.CustomerName, o.CustomerPhone,
+            o.TotalPiastres, o.CreatedAtUtc, o.RequestedPickupAtUtc))
+        .ToListAsync(ct);
+    return Results.Ok(rows);
 });
 
 app.MapPost("/api/orders/cancel-pending-electronic-payment", async (Falah.Application.Orders.CancelPendingElectronicPaymentRequest request, CancelPendingElectronicPaymentHandler handler, CancellationToken ct) =>

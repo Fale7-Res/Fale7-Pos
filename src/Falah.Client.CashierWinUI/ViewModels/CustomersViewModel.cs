@@ -30,6 +30,43 @@ public partial class CustomersViewModel : ObservableObject
     [ObservableProperty] private bool _hasSearched;
 
     public bool HasCustomer => Customer is not null;
+
+    // CUS-0002 (owner decision 2026-11-22): the owner deletes a customer from staff screens; the
+    // record stays stored and the owner still finds it here, marked as deleted.
+    [ObservableProperty] private bool _isDeleteConfirmOpen;
+    [ObservableProperty] private bool _isDeleting;
+    [ObservableProperty] private string? _deleteMessage;
+    public bool IsOwner => _session.HasPermission("all");
+    public bool IsHiddenCustomer => Customer?.IsHidden == true;
+    public bool CanDeleteCustomer => IsOwner && Customer is { IsHidden: false };
+
+    [RelayCommand]
+    private void RequestDelete()
+    {
+        if (!CanDeleteCustomer) return;
+        DeleteMessage = null;
+        IsDeleteConfirmOpen = true;
+    }
+
+    [RelayCommand]
+    private void CancelDelete() => IsDeleteConfirmOpen = false;
+
+    [RelayCommand]
+    private async Task ConfirmDeleteAsync()
+    {
+        if (IsDeleting || !CanDeleteCustomer || Customer is not { } customer || _session.CurrentUser is not { } user) return;
+        IsDeleting = true;
+        try
+        {
+            var result = await _session.Api.HideCustomerAsync(new HideCustomerRequest(customer.Id, user.Id));
+            if (!result.Success) { DeleteMessage = result.Error ?? "تعذر مسح العميل."; return; }
+            IsDeleteConfirmOpen = false;
+            Customer = null;
+            Addresses.Clear();
+            DeleteMessage = $"اتمسح العميل {customer.Name} من شاشات الموظفين. بياناته لسه محفوظة وتقدر تلاقيه بالبحث برقمه.";
+        }
+        finally { IsDeleting = false; }
+    }
     public bool NotFound => HasSearched && !IsSearching && Customer is null && SearchError is null;
 
     /// <summary>Nothing has been searched for yet. The screen opened on a blank page with a search
@@ -40,6 +77,8 @@ public partial class CustomersViewModel : ObservableObject
     partial void OnCustomerChanged(CustomerDto? value)
     {
         OnPropertyChanged(nameof(HasCustomer));
+        OnPropertyChanged(nameof(IsHiddenCustomer));
+        OnPropertyChanged(nameof(CanDeleteCustomer));
         OnPropertyChanged(nameof(NotFound));
         OnPropertyChanged(nameof(AwaitingFirstSearch));
     }
@@ -60,6 +99,8 @@ public partial class CustomersViewModel : ObservableObject
 
         IsSearching = true;
         SearchError = null;
+        DeleteMessage = null;
+        IsDeleteConfirmOpen = false;
         Customer = null;
         Addresses.Clear();
         try

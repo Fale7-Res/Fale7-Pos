@@ -51,7 +51,7 @@ public static class PayrollRules
     {
         var rate = NormalHourlyRate(dailyWage, workdayHours);
         var hours = CalculateLatePenaltyHours(lateMinutes, graceMinutes, maxPenaltyHours);
-        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * hours * latePenaltyMultiplier));
+        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * hours * latePenaltyMultiplier, MidpointRounding.AwayFromZero)); // PAYR-0019: half a piastre up
         return new LateDeductionResult(hours, rate, amount);
     }
 
@@ -61,7 +61,7 @@ public static class PayrollRules
     {
         var rate = NormalHourlyRate(dailyWage, workdayHours);
         if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);
-        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier));
+        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier, MidpointRounding.AwayFromZero)); // PAYR-0019
         return new OvertimeAmountResult(rate, amount);
     }
 
@@ -100,6 +100,22 @@ public static class PayrollRules
         var days = DateTime.DaysInMonth(date.Year, date.Month);
         var share = monthlySalary.Piastres / days;
         return Money.FromPiastres(date.Day == days ? monthlySalary.Piastres - share * (days - 1) : share);
+    }
+
+    /// <summary>PAYR-0007 (owner decision 2026-11-22): the part of a monthly salary a payroll period owes -
+    /// the daily shares (<see cref="DailySalaryAccrual"/>) of the days from the hire date (or the period's
+    /// first day) to the period's last day. A whole month adds up to exactly the salary.</summary>
+    public static Money MonthlyBaseForPeriod(Money monthlySalary, DateOnly periodStart, DateOnly periodEnd, DateOnly hireDate) =>
+        MonthlyBaseForPeriod(_ => monthlySalary, periodStart, periodEnd, hireDate);
+
+    /// <summary>The same, with the salary in effect on each day (PAYR-0006: a raise mid-period counts
+    /// from its own day), so the base equals the accrual posted day by day.</summary>
+    public static Money MonthlyBaseForPeriod(Func<DateOnly, Money> salaryOn, DateOnly periodStart, DateOnly periodEnd, DateOnly hireDate)
+    {
+        var first = hireDate > periodStart ? hireDate : periodStart;
+        long total = 0;
+        for (var day = first; day <= periodEnd; day = day.AddDays(1)) total += DailySalaryAccrual(salaryOn(day), day).Piastres;
+        return Money.FromPiastres(total);
     }
 
     public static IReadOnlyList<PayrollLine> CalculatePayrollLines(IEnumerable<PayrollLineInput> inputs)

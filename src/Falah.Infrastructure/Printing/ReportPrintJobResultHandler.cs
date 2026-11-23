@@ -17,7 +17,15 @@ using Microsoft.EntityFrameworkCore;
 public sealed class ReportPrintJobResultHandler
 {
     private readonly FalahDbContext _db;
-    public ReportPrintJobResultHandler(FalahDbContext db) => _db = db;
+    private readonly Microsoft.Extensions.Configuration.IConfiguration? _configuration;
+    public ReportPrintJobResultHandler(FalahDbContext db, Microsoft.Extensions.Configuration.IConfiguration? configuration = null)
+    { _db = db; _configuration = configuration; }
+
+    /// <summary>Who holds a job that failed and waits for its automatic retry (PRT-0013). No agent id
+    /// contains "|", so no agent's own-claim pickup ever matches it; the pause is ClaimedUntilUtc.</summary>
+    public const string AutomaticRetryHolder = "automatic-retry|";
+
+    private int Setting(string key, int fallback) => int.TryParse(_configuration?[key], out var value) ? value : fallback;
 
     public async Task<PrintJobDto> HandleAsync(ReportPrintJobResultRequest request, CancellationToken ct = default)
     {
@@ -55,6 +63,19 @@ public sealed class ReportPrintJobResultHandler
                 job.LastError = request.Succeeded ? null : request.Error;
                 job.ClaimedBy = null;
                 job.ClaimedUntilUtc = null;
+
+                // PRT-0013 (owner decision 2026-11-22): a failed ticket is queued again by itself, after a
+                // pause, up to PrintJobs:AutomaticRetries more times (default 2: three attempts in all).
+                // The paper it then produces says "إعادة طباعة" (PrintJobQueryService.MarkIfReprint), since
+                // the failed one may still come out of the Windows queue. Only the last failure stays Failed.
+                var retries = Math.Max(0, Setting("PrintJobs:AutomaticRetries", 2));
+                if (!request.Succeeded && job.AttemptCount <= retries)
+                {
+                    var pause = TimeSpan.FromSeconds(Math.Max(0, Setting("PrintJobs:RetryDelaySeconds", 30)));
+                    job.Status = nameof(PrintJobStatus.Pending);
+                    job.ClaimedBy = AutomaticRetryHolder;
+                    job.ClaimedUntilUtc = now + pause;
+                }
             }
 
             _db.PrintJobAttempts.Add(new PrintJobAttemptEntity

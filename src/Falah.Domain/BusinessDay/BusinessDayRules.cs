@@ -67,7 +67,9 @@ public static class BusinessDayRules
         IReadOnlyList<(string Code, bool Critical)> ReconciliationChecks,
         // A partial driver settlement carries a balance forward (owed by or to the driver). It is restaurant money
         // outside the drawer exactly like open custody, so it gates the close the same way.
-        IReadOnlyList<(string DriverId, long CarriedPiastres)>? DriverBalances = null);
+        IReadOnlyList<(string DriverId, long CarriedPiastres)>? DriverBalances = null,
+        /// <summary>UI-0025: pickups registered unpaid whose customer has not paid and collected yet.</summary>
+        IReadOnlyList<(string OrderId, string OrderNumber)>? UncollectedPickups = null);
 
     /// <summary>Every one of these gates a close - there is no "close with warnings" path. An
     /// unconfirmed InstaPay/wallet transfer in particular is real customer money that has neither
@@ -95,6 +97,12 @@ public static class BusinessDayRules
 
         foreach (var order in input.Orders.Where(o => o.ElectronicPaymentPending))
             blockers.Add(new CloseBlocker("PENDING_ELECTRONIC_PAYMENT", "order", order.Id, "يوجد طلب بانتظار تأكيد تحويل إلكتروني (إنستاباي/محفظة) لم يُحسم بعد."));
+
+        // UI-0025 (owner decision 2026-11-22): the day does not close over a pickup nobody paid for - it is
+        // collected (and becomes a sale) or a manager cancels it first.
+        foreach (var pickup in input.UncollectedPickups ?? Array.Empty<(string, string)>())
+            blockers.Add(new CloseBlocker("UNCOLLECTED_PICKUP", "order", pickup.OrderId,
+                $"طلب الاستلام {pickup.OrderNumber} لسه ما اتدفعش. حصّله من العميل أو خلّي المدير يلغيه."));
 
         if (!input.PersistenceHealthy)
             blockers.Add(new CloseBlocker("PERSISTENCE_UNHEALTHY", "system", "persistence", "التخزين المحلي غير سليم."));

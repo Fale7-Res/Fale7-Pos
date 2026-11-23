@@ -83,6 +83,11 @@
           clipped one. -->
      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Visible"><StackPanel Spacing="12" Padding="0,0,0,8">
       <TextBlock Text="تحصيل عند التوصيل — لا يُضاف المبلغ للدرج الآن" TextWrapping="Wrap" Foreground="{ThemeResource BrandPrimaryBrush}" Visibility="{Binding IsCashOnDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
+      <!-- UI-0025: registered now, paid at collection - the tender below is not used. -->
+      <TextBlock Text="الدفع عند الاستلام — الطلب هيتسجل ويروح المطبخ من غير فلوس، والعميل يدفع وهو بيستلم. المبلغ اللي تحت مش هيتسجل."
+                 TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{ThemeResource BrandPrimaryBrush}"
+                 AutomationProperties.AutomationId="Checkout_PayOnCollectionNote"
+                 Visibility="{Binding IsPayOnCollection, Converter={StaticResource BoolToVisibleConverter}}"/>
       <TextBox IsEnabled="{Binding CanEnterTender}" Header="{Binding TenderLabel}" AutomationProperties.AutomationId="Checkout_Amount" FontSize="26" FlowDirection="LeftToRight"
        Text="{Binding AmountPaidText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"/>
       <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

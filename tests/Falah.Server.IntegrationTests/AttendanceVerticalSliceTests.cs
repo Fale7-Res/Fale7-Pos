@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Falah.Application.Employees;
 using Falah.Application.Shifts;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 /// <summary>
@@ -249,6 +250,38 @@ public class AttendanceVerticalSliceTests : IAsyncLifetime
 
         var entries = await (await _client.GetAsync($"/api/employees/{employee.Id}/ledger")).Content.ReadFromJsonAsync<List<EmployeeLedgerEntryDto>>();
         Assert.Contains(entries!, e => e.Type == "Adjustment" && e.CreditPiastres > 0);
+    }
+
+    // PAYR-0005, owner decision 2026-11-22: correcting an old attendance record values it at the daily
+    // wage of that day, not at a raise that came later.
+    [Fact]
+    public async Task Correcting_an_old_record_uses_the_daily_wage_of_that_day()
+    {
+        var employee = await CreateDailyEmployeeAsync(dailyWagePiastres: 20000);
+        var record = (await (await _client.PostAsJsonAsync("/api/attendance/check-in",
+            new BiometricCheckInRequest(employee.Id, NewEventId(), _hrUserId))).Content.ReadFromJsonAsync<AttendanceRecordDto>())!;
+        var lastWeek = record.Date.AddDays(-7);
+        await _factory.QueryAsync(async db =>
+        {
+            await db.AttendanceRecords.Where(a => a.Id == record.Id).ExecuteUpdateAsync(s => s.SetProperty(a => a.Date, lastWeek));
+            db.EmployeeWageHistory.Add(new Falah.Infrastructure.Persistence.Entities.EmployeeWageHistoryEntity { Id = $"wh-{Guid.NewGuid():N}",
+                EmployeeId = employee.Id, EffectiveFrom = new DateOnly(2024, 1, 1), DailyWagePiastres = 20000, RecordedAtUtc = DateTimeOffset.UtcNow, RecordedBy = "test" });
+            db.EmployeeWageHistory.Add(new Falah.Infrastructure.Persistence.Entities.EmployeeWageHistoryEntity { Id = $"wh-{Guid.NewGuid():N}",
+                EmployeeId = employee.Id, EffectiveFrom = record.Date, DailyWagePiastres = 40000, RecordedAtUtc = DateTimeOffset.UtcNow, RecordedBy = "test" });
+            await db.Employees.Where(e => e.Id == employee.Id).ExecuteUpdateAsync(s => s.SetProperty(e => e.DailyWagePiastres, 40000));
+            await db.SaveChangesAsync();
+            return true;
+        });
+
+        var requestId = $"req-{Guid.NewGuid():N}";
+        (await _client.PostAsJsonAsync($"/api/attendance/{record.Id}/correct",
+            new CorrectAttendanceRequest(requestId, record.Id, "Present", 0, 12, 2, 0, "ساعتين إضافي اتنسوا", _hrUserId, null, null))).EnsureSuccessStatusCode();
+
+        var settings = await _factory.QueryAsync(db => new Falah.Infrastructure.Settings.SettingsQueryService(db).GetAsync());
+        var atThatDay = Falah.Domain.Payroll.PayrollRules.CalculateOvertimeAmount(Falah.Domain.Common.Money.FromPiastres(20000),
+            settings.StandardWorkdayHours, 2, settings.OvertimeMultiplier).Amount.Piastres;
+        var credit = await _factory.QueryAsync(db => db.EmployeeLedgerEntries.Where(e => e.Id == $"led-correction-overtime-{requestId}").Select(e => e.CreditPiastres).SingleAsync());
+        Assert.Equal(atThatDay, credit);
     }
 
     [Fact]

@@ -48,7 +48,8 @@ public partial class CashierViewModel
         if (value == "takeaway") { CustomerName = ""; CustomerPhone = ""; }
         // A collection time belongs to a pickup and to nothing else - it must not ride along on a
         // delivery or a walk-in.
-        if (value != "pickup") ClearRequestedPickupTime();
+        if (value != "pickup") { ClearRequestedPickupTime(); PayOnCollection = false; }
+        OnPropertyChanged(nameof(IsPayOnCollection));
         if (value == "delivery") OpenDeliveryEditor();
         if (value == "pickup") OpenPickupEditor();
     }
@@ -133,7 +134,7 @@ public partial class CashierViewModel
         CustomerName = CustomerPhone = DeliveryArea = DeliveryStreet = DeliveryBuilding = DeliveryFloor =
             DeliveryApartment = DeliveryLandmark = DeliveryNotes = "";
         SelectedDeliveryService = null; DeliveryError = null;
-        PickupDate = null; PickupTime = null; PickupError = null;
+        PickupDate = null; PickupTime = null; PickupError = null; PayOnCollection = false;
         SavedAddresses.Clear(); SelectedSavedAddress = null; CustomerLookupMessage = null;
         OnPropertyChanged(nameof(DeliverySummary));
     }

@@ -35,6 +35,8 @@ public static class BusinessDayCloseEvaluator
             .Select(j => new { j.IdempotencyKey, j.Status }).ToListAsync(ct);
         var pendingElectronicOrderIds = await db.Orders.AsNoTracking()
             .Where(o => o.ElectronicPaymentStatus == "pending").Select(o => o.Id).ToListAsync(ct);   // stored lower-case (OrderEnumMapping.ToWireString)
+        var uncollectedPickups = await db.Orders.AsNoTracking()
+            .Where(o => o.AwaitingCollection && o.Status != "cancelled").Select(o => new { o.Id, o.OrderNumber }).ToListAsync(ct);
 
         var closingItems = await db.ChecklistItems.AsNoTracking()
             .Where(i => i.Phase == "Closing" && i.Active && i.Required).ToListAsync(ct);
@@ -56,7 +58,8 @@ public static class BusinessDayCloseEvaluator
             RequiredChecklist: requiredChecklist,
             ReconciliationChecks: reconciliationChecks,
             DriverBalances: (await Falah.Infrastructure.Delivery.DriverBalances.OpenAsync(db, ct))
-                .Select(b => (b.DriverId, b.CarriedPiastres)).ToList());
+                .Select(b => (b.DriverId, b.CarriedPiastres)).ToList(),
+            UncollectedPickups: uncollectedPickups.Select(p => (p.Id, p.OrderNumber)).ToList());
 
         return BusinessDayRules.EvaluateCloseBlockers(inputs);
     }

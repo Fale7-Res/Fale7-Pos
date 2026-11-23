@@ -32,26 +32,26 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 
 | ID | Title | Category | Severity | Priority | Implementation Status | Verification Level | Confidence | Issue File |
 |---|---|---|---|---|---|---|---|---|
-| UI-0025 | Two-stage pickup (prepare first, pay at collection) is not supported | Workflow / requirement | High | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/UI-0025.md](ISSUES/UI-0025.md) |
+| UI-0025 | Two-stage pickup (prepare first, pay at collection) is not supported | Workflow / requirement | High | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/UI-0025.md](ISSUES/UI-0025.md) |
 | API-0004 | Fixed 10-second client timeout versus growing full-history server work | API / availability | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/API-0004.md](ISSUES/API-0004.md) |
 | DOC-0002 | Backlog statuses lag the code | Documentation | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0002.md](ISSUES/DOC-0002.md) |
-| FIN-0005 | Split (multi-payment) orders cannot be refunded | Financial / refunds | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/FIN-0005.md](ISSUES/FIN-0005.md) |
-| FIN-0020 | Business-day cash count is compared against a typed "expected" figure, not the system's expected cash | Financial / controls | Medium | P2 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/FIN-0020.md](ISSUES/FIN-0020.md) |
+| FIN-0005 | Split (multi-payment) orders cannot be refunded | Financial / refunds | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/FIN-0005.md](ISSUES/FIN-0005.md) |
+| FIN-0020 | Business-day cash count is compared against a typed "expected" figure, not the system's expected cash | Financial / controls | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/FIN-0020.md](ISSUES/FIN-0020.md) |
 | FIN-0030 | Tax computed before comp is subtracted (VAT on comped orders) | Financial / tax policy | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/FIN-0030.md](ISSUES/FIN-0030.md) |
-| FIN-0042 | Failed delivery of an already-paid order: refund requirement not surfaced | Financial / delivery | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/FIN-0042.md](ISSUES/FIN-0042.md) |
+| FIN-0042 | Failed delivery of an already-paid order: refund requirement not surfaced | Financial / delivery | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/FIN-0042.md](ISSUES/FIN-0042.md) |
 | FIN-0051 | A cash-on-delivery order that has not been dispatched cannot be cancelled or voided | Financial / delivery workflow | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/FIN-0051.md](ISSUES/FIN-0051.md) |
 | OPS-0002 | Backups stay on the same machine; off-machine copy is manual | Operations / backup | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/OPS-0002.md](ISSUES/OPS-0002.md) |
 | OPS-0005 | End-to-end operating scenarios A–F as integration tests | Testing / operations | Medium | P2 | PARTIALLY_FIXED | NOT_VERIFIED | High | [ISSUES/OPS-0005.md](ISSUES/OPS-0005.md) |
-| PAYR-0005 | Attendance corrections revalue old effects at today's wage and settings | Payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0005.md](ISSUES/PAYR-0005.md) |
-| PAYR-0006 | Salary catch-up accrual uses the current salary for past days | Payroll | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0006.md](ISSUES/PAYR-0006.md) |
-| PAYR-0007 | Part-month payroll pays the full profile salary while accrual covers employed days only | Payroll / policy | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0007.md](ISSUES/PAYR-0007.md) |
+| PAYR-0005 | Attendance corrections revalue old effects at today's wage and settings | Payroll | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PAYR-0005.md](ISSUES/PAYR-0005.md) |
+| PAYR-0006 | Salary catch-up accrual uses the current salary for past days | Payroll | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/PAYR-0006.md](ISSUES/PAYR-0006.md) |
+| PAYR-0007 | Part-month payroll pays the full profile salary while accrual covers employed days only | Payroll / policy | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PAYR-0007.md](ISSUES/PAYR-0007.md) |
 | PAYR-0017 | Monthly salary accrual and its dating in reports | Payroll | Medium | P2 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/PAYR-0017.md](ISSUES/PAYR-0017.md) |
 | PERF-0001 | Treasury balance re-sums all history under UPDLOCK/HOLDLOCK with no account index | Performance / database | Medium | P2 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0001.md](ISSUES/PERF-0001.md) |
 | PERF-0003 | Business-day close evaluator loads all shifts, custodies, journal rows and movements | Performance | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PERF-0003.md](ISSUES/PERF-0003.md) |
 | PRT-0004 | "Succeeded" means the transport accepted bytes; paper-out and cover-open are invisible; uncertain outcomes look like failures | Printing / hardware | Medium | P2 | PARTIALLY_FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0004.md](ISSUES/PRT-0004.md) |
 | PRT-0005 | Spooler submission is synchronous and ignores cancellation | Printing | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PRT-0005.md](ISSUES/PRT-0005.md) |
-| PRT-0013 | Failed print jobs are never retried automatically | Printing / recovery | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0013.md](ISSUES/PRT-0013.md) |
-| PRT-0016 | Held kitchen ticket is not released automatically when the transfer is confirmed | Printing / workflow | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0016.md](ISSUES/PRT-0016.md) |
+| PRT-0013 | Failed print jobs are never retried automatically | Printing / recovery | Medium | P2 | FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0013.md](ISSUES/PRT-0013.md) |
+| PRT-0016 | Held kitchen ticket is not released automatically when the transfer is confirmed | Printing / workflow | Medium | P2 | FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0016.md](ISSUES/PRT-0016.md) |
 | RPT-0003 | Owner financial screens (cash flow, pending electronic, voids, refunds, payroll accruals) built but not run on the desktop | Reporting / UI verification | Medium | P2 | PARTIALLY_FIXED | EXISTING_TEST_EVIDENCE | Medium | [ISSUES/RPT-0003.md](ISSUES/RPT-0003.md) |
 | UI-0027 | Reconciliation screen, period filters and a desktop UI automation run are missing | UI / features and verification | Medium | P2 | NOT_FIXED_YET | NOT_VERIFIED | High | [ISSUES/UI-0027.md](ISSUES/UI-0027.md) |
 
@@ -66,19 +66,19 @@ One row per canonical issue, rebuilt from the issue files in `ISSUES/` (the sour
 | API-0002 | actorUserId repeated in query strings on reads | API / design | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/API-0002.md](ISSUES/API-0002.md) |
 | ARCH-0002 | Two parallel WinUI client code bases plus a legacy WPF client | Architecture | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/ARCH-0002.md](ISSUES/ARCH-0002.md) |
 | ARCH-0004 | Treasury account ids hard-coded in clients | Code quality | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/ARCH-0004.md](ISSUES/ARCH-0004.md) |
-| CUS-0002 | No way to erase or anonymise a customer record | Privacy / feature | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/CUS-0002.md](ISSUES/CUS-0002.md) |
+| CUS-0002 | No way to erase or anonymise a customer record | Privacy / feature | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/CUS-0002.md](ISSUES/CUS-0002.md) |
 | DB-0003 | Queries rely on a case-insensitive database collation | Database / portability | Low | P3 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | Medium | [ISSUES/DB-0003.md](ISSUES/DB-0003.md) |
 | DB-0009 | Financial journal states Failed and RecoveryRequired are never used | Database / dead state | Low | P3 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DB-0009.md](ISSUES/DB-0009.md) |
 | DOC-0001 | Documentation places the exposed demo PIN in the wrong file | Documentation | Low | P3 | FIXED | STATIC_CODE_REVIEW | High | [ISSUES/DOC-0001.md](ISSUES/DOC-0001.md) |
-| FIN-0044 | Business-day P&L missing from the close snapshot | Reporting / feature | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/FIN-0044.md](ISSUES/FIN-0044.md) |
-| INV-0011 | Historical food-cost reports use today's recipes and costs | Reporting / costing | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/INV-0011.md](ISSUES/INV-0011.md) |
+| FIN-0044 | Business-day P&L missing from the close snapshot | Reporting / feature | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/FIN-0044.md](ISSUES/FIN-0044.md) |
+| INV-0011 | Historical food-cost reports use today's recipes and costs | Reporting / costing | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | Medium | [ISSUES/INV-0011.md](ISSUES/INV-0011.md) |
 | OPS-0006 | No disk-space monitoring for database or backups | Operations / monitoring | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/OPS-0006.md](ISSUES/OPS-0006.md) |
 | PAYR-0015 | PayrollRules.OutstandingAdvance compares lowercase types and is never called | Payroll / latent | Low | P3 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0015.md](ISSUES/PAYR-0015.md) |
-| PAYR-0019 | Payroll multipliers are doubles rounded with banker's rounding | Payroll / arithmetic | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PAYR-0019.md](ISSUES/PAYR-0019.md) |
+| PAYR-0019 | Payroll multipliers are doubles rounded with banker's rounding | Payroll / arithmetic | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/PAYR-0019.md](ISSUES/PAYR-0019.md) |
 | PERF-0002 | ControlAuditEvents queried by Action with only a time index | Performance / database | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PERF-0002.md](ISSUES/PERF-0002.md) |
-| PRT-0008 | Saved printer width and receipt copy count do not affect printing | Printing / settings | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/PRT-0008.md](ISSUES/PRT-0008.md) |
+| PRT-0008 | Saved printer width and receipt copy count do not affect printing | Printing / settings | Low | P3 | FIXED | CODE_TEST_VERIFIED_ONSITE_PENDING | High | [ISSUES/PRT-0008.md](ISSUES/PRT-0008.md) |
 | RPT-0001 | Product/food-cost reports neither normalise reversed ranges nor bound missing ranges | Reporting | Low | P3 | PARTIALLY_FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/RPT-0001.md](ISSUES/RPT-0001.md) |
-| SEC-0007 | Sessions have only a 16-hour idle lifetime, no absolute lifetime | Security / sessions | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0007.md](ISSUES/SEC-0007.md) |
+| SEC-0007 | Sessions have only a 16-hour idle lifetime, no absolute lifetime | Security / sessions | Low | P3 | FIXED | CURRENT_TEST_VERIFIED | High | [ISSUES/SEC-0007.md](ISSUES/SEC-0007.md) |
 | SEC-0011 | PIN uniqueness check runs PBKDF2 over every active user | Security / performance | Low | P3 | PARTIALLY_FIXED | STATIC_CODE_REVIEW | High | [ISSUES/SEC-0011.md](ISSUES/SEC-0011.md) |
 | UI-0011 | Legacy WPF client: change display parses EGP as piastres; cash boundary and rounding divergences | UI / legacy client | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [ISSUES/UI-0011.md](ISSUES/UI-0011.md) |
 | UI-0021 | Disabled text at 2.3–2.6:1 without an explanation of why controls are disabled | UI / usability | Low | P3 | NOT_FIXED_YET | STATIC_CODE_REVIEW | High | [ISSUES/UI-0021.md](ISSUES/UI-0021.md) |
@@ -299,7 +299,7 @@ in the totals below.
 | UI-0052 | Menu photos never showed (image control sends no token); photo GET made public - owner may reverse | UI / menu | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
 | TEST-0004 | Read-gate coverage test did not know the report-export routes | Testing | Low | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
 | SEC-0037 | Attendance check-in/out needs no permission and has an optional request id (owner question) | Security / payroll | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | High | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
-| PAYR-0021 | Dashboard wage cost excludes attendance-correction adjustments that payroll counts (accountant question) | Payroll / reports | Medium | P2 | NOT_FIXED_YET | STATIC_CODE_REVIEW | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
+| PAYR-0021 | Dashboard wage cost excludes attendance-correction adjustments that payroll counts (accountant question) | Payroll / reports | Medium | P2 | FIXED | CURRENT_TEST_VERIFIED | Medium | [review](REVIEW_20261117_WHOLE_PROJECT.md) |
 
 ## 10. Code check 2026-11-22
 

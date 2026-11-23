@@ -63,15 +63,32 @@ public class OrderRefundTests
         Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(100m))));
     }
 
-    [Fact]
-    public void Multi_payment_orders_cannot_be_refunded_through_this_path()
+    private static Order SplitOrder()
     {
         var items = new[] { Item(200m) };
         var splits = new[] { new PaymentSplit(PaymentMethod.Cash, Money.FromEgp(100m)), new PaymentSplit(PaymentMethod.Card, Money.FromEgp(100m)) };
         var plan = CheckoutRules.BuildPlan(OrderType.Takeaway, PaymentMethod.Multi, items, Money.Zero, null, Money.Zero, Money.Zero, Money.FromEgp(200m), splits, null);
-        var order = Order.Create(plan, "ord-2", "#0129", 129, "cashier-1", "shift-1", items, "req-2", "day-1", Now);
+        return Order.Create(plan, "ord-2", "#0129", 129, "cashier-1", "shift-1", items, "req-2", "day-1", Now);
+    }
 
-        Assert.Throws<DomainException>(() => order.ApplyRefund(MakeRefund(Money.FromEgp(50m))));
+    private static OrderRefund RefundThrough(PaymentMethod method, Money amount) => MakeRefund(amount) with { PaymentMethod = method };
+
+    // FIN-0005, owner decision 2026-11-22: a split-paid order is refunded through ONE of the methods it
+    // was paid with, chosen at the refund - up to what remains refundable on the order.
+    [Fact]
+    public void A_split_order_is_refunded_through_one_of_its_own_payment_methods()
+    {
+        var order = SplitOrder();
+        order.ApplyRefund(RefundThrough(PaymentMethod.Card, Money.FromEgp(150m)));
+        Assert.Equal(Money.FromEgp(150m), order.RefundAmount);
+    }
+
+    [Theory]
+    [InlineData(PaymentMethod.InstaPay)]
+    [InlineData(PaymentMethod.Multi)]
+    public void A_split_order_is_never_refunded_through_a_method_it_was_not_paid_with(PaymentMethod method)
+    {
+        Assert.Throws<DomainException>(() => SplitOrder().ApplyRefund(RefundThrough(method, Money.FromEgp(50m))));
     }
 
     [Theory]

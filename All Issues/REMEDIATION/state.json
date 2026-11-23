@@ -560,8 +560,6 @@
     "B17: who may void a cash-on-delivery order before dispatch (FIN-0051)",
     "B07 Q1: tighten the already reports_view-gated cost/employee reads (inventory cost/overview/detail/loss/variance, recipe costs, food-cost, employees financial-report) to owner/all? (permission grant)",
     "B07 Q4: payroll-rule settings (overtime rate, late grace, penalty multipliers) visible to every session - acceptable?",
-    "FIN-0020: which system balance a business-day cash count is compared with (drawer / main treasury cash / shift expected)",
-    "FIN-0042: should a paid-but-undelivered order block the business-day close; how is the money returned",
     "DRV-FEE-01: delivered then refunded - does the driver keep the fee? (today: fee recognised once at settlement on delivered outcome; refund after settlement does not claw back)",
     "DRV-FEE-02: waived/reduced delivery charge - driver gets the recorded charge (today) or the area rate?",
     "DRV-FEE-03: reassigned delivery - fee to the driver who delivered it (today) or split?",
@@ -581,11 +579,11 @@
     "HANDOVER-BLOCK",
     "CORR-CLOSED",
     "SEC-0037 (review 2026-11-17): should attendance check-in/out (the biometric path) require a station permission and a mandatory request id? Today any logged-in session can clock in an employee and post a day's wage (unchanged)",
-    "PAYR-0021 (review 2026-11-17): should the dashboard wage cost include attendance-correction Adjustment entries, as payroll does? (accountant; unchanged)",
     "UI-0052 (review 2026-11-17): menu photos are now readable without a login (GET /api/products/{id}/image only) so the tills can show them - keep, or load them through the session instead?",
     "Audit 2026-11-18: should confirming an InstaPay/wallet transfer require the bank or wallet reference to be typed (none is captured today; the confirmation is now audited)?",
     "Audit 2026-11-18: backup encryption (needs a SQL Server certificate kept off the machine) and the acceptable data loss window (automatic backup every 20 h today; MaxAgeHours lower or full recovery with log backups?).",
-    "Audit 2026-11-18 (PERF-0001 follow-up): narrow TreasuryMovements SourceAccountId/DestinationAccountId/ShiftId/Status from nvarchar(max) so they can be indexed? Not additive - needs a reviewed migration."
+    "Audit 2026-11-18 (PERF-0001 follow-up): narrow TreasuryMovements SourceAccountId/DestinationAccountId/ShiftId/Status from nvarchar(max) so they can be indexed? Not additive - needs a reviewed migration.",
+    "FIN-0030 (owner 2026-11-22: ask the accountant): is VAT computed before or after the comp is subtracted? (unchanged until the accountant answers)"
   ],
   "last_codex_update_utc": "2026-11-07T23:30:51.242Z",
   "handoff_document": "docs/CODEX_TAKEOVER_20261108.md",
@@ -759,8 +757,17 @@
     "tests": "Domain 564/564; Client 441/441; Integration critical classes 140/140 on this source; last full integration run 1051/1053 (2 non-code failures: stale test DLL, laptop sleep) then 49/49; all builds 0 errors",
     "release_candidate": "artifacts/release-candidate/68BA663DBB1D7804 (not installed); migrations-idempotent.sql (43 migrations) sha256 1F5B1213F2E9FB8C3265AE978759C16B6AFD19C2FCDF67781CDBA3A8A0BE0CEC; MANIFEST 731 files",
     "rehearsal": "empty db x2 = 43; previous script (42) then new (43) then again; copy of trial db with data: orders/shifts/movements/users identical; published server in Production: health 200, bootstrap owner login 200, demo PINs 1234/4321 = 401; all rehearsal dbs dropped",
-    "registry_corrections": ["UI-0006 fixed in code: a kept transfer confirm/cancel is surfaced after restart and discarded after review (CashierViewModel.Durability.cs RecoverUnresolvedOperations; CashierDurabilityTests)", "PAYR-0004 confirmed present: payroll does not net standalone Pay Employee settlements - interim rule: one payout path per employee per month until the owner decides"],
-    "accepted_risks": ["OPS-0001 .NET 8 end of support 2026-11-10 (LAN only; upgrade to .NET 10 after go-live)", "OPS-0002 backups on the same machine until Backup:CopyToDirectory is set", "DB-0005 restore with the system stopped", "FIN-0005 split-paid orders not refundable in the app", "PRT-0013 failed print jobs re-sent by hand"],
+    "registry_corrections": [
+      "UI-0006 fixed in code: a kept transfer confirm/cancel is surfaced after restart and discarded after review (CashierViewModel.Durability.cs RecoverUnresolvedOperations; CashierDurabilityTests)",
+      "PAYR-0004 confirmed present: payroll does not net standalone Pay Employee settlements - interim rule: one payout path per employee per month until the owner decides"
+    ],
+    "accepted_risks": [
+      "OPS-0001 .NET 8 end of support 2026-11-10 (LAN only; upgrade to .NET 10 after go-live)",
+      "OPS-0002 backups on the same machine until Backup:CopyToDirectory is set",
+      "DB-0005 restore with the system stopped",
+      "FIN-0005 split-paid orders not refundable in the app",
+      "PRT-0013 failed print jobs re-sent by hand"
+    ],
     "acceptance_doc": "docs/GO_LIVE_ACCEPTANCE_20261114.md section 6"
   },
   "claude_code_check_20261122": {
@@ -772,7 +779,15 @@
       "SEC-0030": "reprints (order receipt and slips) need print_reprint (new permission) or a manager approval; first prints unchanged"
     },
     "full_suite_20261122": "1062/1066 in 2h09m; the 4 failures were reprint tests whose cashier lacked print_reprint (expected after SEC-0030); test users given the permission, AuditWiringCoverageTests + PrintingVerticalSliceTests 40/40; Domain 566/566, Client 449/449",
-    "engineering_fixes": ["OPS-0002 copy-directory retention", "OPS-0006 backup disk free space on the owner dashboard", "PERF-0003 close evaluator reads only blocking rows", "PERF-0004 supplier totals aggregated in SQL", "PERF-0006 one balances request for the employees screen", "PRT-0005 spooler submit off the agent loop and cancellable", "DOC-0001 two outdated docs corrected"],
+    "engineering_fixes": [
+      "OPS-0002 copy-directory retention",
+      "OPS-0006 backup disk free space on the owner dashboard",
+      "PERF-0003 close evaluator reads only blocking rows",
+      "PERF-0004 supplier totals aggregated in SQL",
+      "PERF-0006 one balances request for the employees screen",
+      "PRT-0005 spooler submit off the agent loop and cancellable",
+      "DOC-0001 two outdated docs corrected"
+    ],
     "owner_questions_pending_new": [
       "PRT-0013: retry failed print jobs automatically (risk of double print, since a failed job may still print from the Windows queue) or keep manual reprint?",
       "PRT-0016: print the held kitchen ticket automatically when the transfer is confirmed?",
@@ -781,6 +796,32 @@
       "INV-0011 / FIN-0044: freeze food cost and the day's P&L at close?",
       "SEC-0007: add an absolute session lifetime (may log a cashier out mid-shift)?",
       "PRT-0008: implement or hide the printer-width and receipt-copies settings (needs an on-site printer test)?"
-    ]
+    ],
+    "owner_decisions_20261122_round2": {
+      "FIN-0005": "split-paid order refunded through ONE of its payment methods, chosen at the till",
+      "FIN-0020": "business-day cash count compared with the shift drawer's expected cash; needs an open shift",
+      "FIN-0030": "ask the accountant - unchanged",
+      "FIN-0042": "warning only - unchanged (dashboard shows it; close not blocked)",
+      "PAYR-0005/0006": "attendance corrections and late accrual at the wage of the event day (EmployeeWageHistory, migration AddEmployeeWageHistory)",
+      "PAYR-0007": "part-month salary pro rata by days",
+      "PAYR-0019": "normal rounding (half away from zero)",
+      "PAYR-0021": "dashboard wage cost includes attendance-correction adjustments",
+      "PRT-0013": "automatic retry (2 x 30 s by default); every paper printed again marked reprint",
+      "PRT-0016": "held kitchen ticket prints on transfer confirmation",
+      "PRT-0008": "receipt copy count works (1-5); paper width not on the screen",
+      "UI-0025": "two-stage pickup: registered and prepared unpaid, paid at collection (sale at payment, in the paying shift), unpaid blocks the day close until a manager cancels (migration AddPickupPayOnCollection)",
+      "CUS-0002": "owner deletes = hidden from staff, kept for the owner (migration AddCustomerHidden)",
+      "INV-0011/FIN-0044": "food cost frozen onto the day's orders at business-day close (migration AddFrozenFoodCost)",
+      "SEC-0007": "24-hour absolute session lifetime",
+      "UI-0025 cancel": "owner 2026-11-23: always a manager - a manager at the till or a manager's PIN (approval action pickup_cancel), no permission bypass"
+    },
+    "round2_migrations": [
+      "AddEmployeeWageHistory",
+      "AddCustomerHidden",
+      "AddFrozenFoodCost",
+      "AddPickupPayOnCollection"
+    ],
+    "round2_screens": "built, not run on a screen: refund method, cash count, customer delete, pickup pay-on-collection / collect / cancel",
+    "round2_tests": "Domain 579/579, Client 457/457; integration: decision-14 group (close, reporting, dashboard, profitability, inventory) 126/126; neighbour run (checkout, voids, shift close, reporting, daily statement, business day, cash flow, refunds, electronic confirm, printing, owner dashboard/financial, customers, pickups, audit wiring) 312/312 in 35 m; earlier per-decision classes green (payroll/accrual 30, close 32, printing/confirm 52, retry/claim/printing/dashboard 100, refunds 59, wage history 22, profitability 4). Full suite not run for this round."
   }
 }

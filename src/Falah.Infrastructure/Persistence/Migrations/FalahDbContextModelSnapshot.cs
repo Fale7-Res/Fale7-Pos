@@ -791,6 +791,12 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset?>("HiddenAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("HiddenBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1337,6 +1343,38 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.ToTable("EmployeeLedgerEntries");
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.EmployeeWageHistoryEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("DailyWagePiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long?>("MonthlySalaryPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("RecordedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RecordedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId", "EffectiveFrom");
+
+                    b.ToTable("EmployeeWageHistory");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.ExpenseEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -1512,6 +1550,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<long>("AmountPaidPiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("AwaitingCollection")
+                        .HasColumnType("bit");
+
                     b.Property<string>("BusinessDayId")
                         .HasColumnType("nvarchar(max)");
 
@@ -1533,6 +1574,12 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("CheckoutRequestId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CollectedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CollectionRequestId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("CompAmountPiastres")
@@ -1604,6 +1651,15 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("ElectronicPaymentStatus")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTimeOffset?>("FoodCostFrozenAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("FrozenPackagingCostPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FrozenPackagingMissing")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
@@ -1621,6 +1677,12 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
                     b.Property<long>("RefundAmountPiastres")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("RegisteredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RegisteredShiftId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset?>("RequestedPickupAtUtc")
                         .HasColumnType("datetimeoffset");
@@ -1674,6 +1736,10 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.HasIndex("CheckoutRequestId")
                         .IsUnique();
 
+                    b.HasIndex("CollectionRequestId")
+                        .IsUnique()
+                        .HasFilter("[CollectionRequestId] IS NOT NULL");
+
                     b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("SequenceNumber")
@@ -1691,6 +1757,9 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<long?>("FrozenUnitFoodCostPiastres")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("ListUnitPricePiastres")
                         .HasColumnType("bigint");

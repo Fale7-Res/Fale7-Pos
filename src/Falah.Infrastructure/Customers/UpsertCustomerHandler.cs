@@ -56,6 +56,9 @@ public sealed class UpsertCustomerHandler
             .FirstAsync(ct);
         customer.Name = trimmedName;
         customer.UpdatedAtUtc = now;
+        // CUS-0002: a customer the owner deleted who orders again is a customer again.
+        customer.HiddenAtUtc = null;
+        customer.HiddenBy = null;
 
         if (hasAddress)
         {
@@ -101,5 +104,5 @@ public sealed class UpsertCustomerHandler
         customer.Id, customer.Phone, customer.Name,
         addresses.Select(a => new CustomerAddressDto(a.Id, a.Area, a.Street, a.Building, a.Floor, a.Apartment,
             a.Landmark, a.ServiceId, a.ServiceName, a.CreatedAtUtc, a.LastUsedAtUtc)).ToList(),
-        customer.CreatedAtUtc, customer.UpdatedAtUtc);
+        customer.CreatedAtUtc, customer.UpdatedAtUtc, customer.HiddenAtUtc is not null);
 }

@@ -80,3 +80,18 @@ public class AttendanceRecordEntity
     public string? Source { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
 }
+
+/// <summary>PAYR-0005 / PAYR-0006 (owner decision 2026-11-22): an employee's daily wage and monthly
+/// salary as they were from EffectiveFrom on, so a correction or an accrual for a past day uses that
+/// day's pay, not today's. The newest row with EffectiveFrom on or before a date is that date's pay; an
+/// employee with no rows is paid at the values on the employee itself.</summary>
+public class EmployeeWageHistoryEntity
+{
+    public string Id { get; set; } = default!;
+    public string EmployeeId { get; set; } = default!;
+    public DateOnly EffectiveFrom { get; set; }
+    public long DailyWagePiastres { get; set; }
+    public long? MonthlySalaryPiastres { get; set; }
+    public DateTimeOffset RecordedAtUtc { get; set; }
+    public string RecordedBy { get; set; } = default!;
+}

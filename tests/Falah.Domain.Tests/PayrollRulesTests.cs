@@ -36,6 +36,15 @@ public class PayrollRulesTests
         Assert.Equal(4000, result.Amount.Piastres);
     }
 
+    // PAYR-0019, owner decision 2026-11-22: ordinary rounding (half a piastre goes up), not banker's
+    // rounding, so the employee can check the figure by hand. Rate 50 / 10 h = 5 piastres an hour.
+    [Fact]
+    public void Overtime_and_late_amounts_round_half_a_piastre_up()
+    {
+        Assert.Equal(3, PayrollRules.CalculateOvertimeAmount(Money.FromPiastres(50), 10, 0.5, 1.0).Amount.Piastres);   // 2.5 -> 3
+        Assert.Equal(3, PayrollRules.CalculateLateDeduction(Money.FromPiastres(50), 10, 30, 15, 2, 0.5).Amount.Piastres); // 1 h x 5 x 0.5 = 2.5 -> 3
+    }
+
     [Fact]
     public void CalculateLateDeduction_is_zero_within_grace()
     {
@@ -171,6 +180,21 @@ public class PayrollRulesTests
         };
         var line = Assert.Single(PayrollRules.CalculatePayrollLines(new[] { DailyEmployee("emp-1", true, entries) }));
         Assert.Equal(0, line.NetPayable.Piastres);
+    }
+
+    // PAYR-0007, owner decision 2026-11-22: a monthly employee who joined mid-month is paid for the days
+    // employed - the same daily shares SalaryAccrual posts, so payroll and the ledger agree to the piastre.
+    [Fact]
+    public void A_monthly_base_covers_only_the_days_employed_in_the_period()
+    {
+        var salary = Money.FromPiastres(600000);   // 6000 ج; November has 30 days = 20000 a day
+        var november = (new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 30));
+
+        Assert.Equal(600000, PayrollRules.MonthlyBaseForPeriod(salary, november.Item1, november.Item2, hireDate: new DateOnly(2024, 1, 1)).Piastres);
+        Assert.Equal(220000, PayrollRules.MonthlyBaseForPeriod(salary, november.Item1, november.Item2, hireDate: new DateOnly(2026, 11, 20)).Piastres); // 11 days
+        Assert.Equal(0, PayrollRules.MonthlyBaseForPeriod(salary, november.Item1, november.Item2, hireDate: new DateOnly(2026, 12, 3)).Piastres);
+        var expected = Enumerable.Range(20, 11).Sum(d => PayrollRules.DailySalaryAccrual(salary, new DateOnly(2026, 11, d)).Piastres);
+        Assert.Equal(expected, PayrollRules.MonthlyBaseForPeriod(salary, november.Item1, november.Item2, new DateOnly(2026, 11, 20)).Piastres);
     }
 
     [Fact]

@@ -24,6 +24,13 @@
      <TimePicker x:Name="PickupTimePicker" Grid.Column="1" AutomationProperties.AutomationId="Pickup_Time" Header="الوقت" HorizontalAlignment="Stretch"
                  ClockIdentifier="24HourClock" IsEnabled="{Binding CanEditOperation}" SelectedTimeChanged="OnPickupTimeChanged"/>
     </Grid>
+    <!-- UI-0025 (owner decision 2026-11-22): register now, the customer pays when collecting. -->
+    <ToggleSwitch AutomationProperties.AutomationId="Pickup_PayOnCollection" AutomationProperties.Name="العميل يدفع وهو بيستلم"
+                  IsEnabled="{Binding CanEditOperation}" Header="الدفع" IsOn="{Binding PayOnCollection, Mode=TwoWay}"
+                  OnContent="العميل يدفع وهو بيستلم" OffContent="يدفع دلوقتي"/>
+    <TextBlock Text="الطلب هيروح المطبخ دلوقتي، ومش هيتحسب مبيعات غير لما العميل يدفع. لو ما جاش، اليوم مش هيتقفل غير لما المدير يلغيه."
+               TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"
+               Visibility="{Binding PayOnCollection, Converter={StaticResource BoolToVisibleConverter}}"/>
     <TextBlock Text="{Binding PickupError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
                Visibility="{Binding PickupError, Converter={StaticResource NullToCollapsedConverter}}"/>
    </StackPanel>

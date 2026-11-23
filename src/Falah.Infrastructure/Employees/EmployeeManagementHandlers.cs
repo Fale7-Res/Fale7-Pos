@@ -51,6 +51,7 @@ public sealed class CreateEmployeeHandler
         try
         {
             _db.Employees.Add(entity);
+            EmployeeWages.RecordInitial(_db, entity, actorUser.Name, entity.CreatedAtUtc);   // PAYR-0005/0006
             await _db.SaveChangesAsync(ct);
         }
         catch (DbUpdateException)
@@ -89,6 +90,7 @@ public sealed class UpdateEmployeeHandler
         var entity = await _db.Employees.FirstOrDefaultAsync(e => e.Id == request.EmployeeId, ct)
             ?? throw new InvalidOperationException("الموظف غير موجود.");
 
+        var (oldDailyWage, oldMonthlySalary) = (entity.DailyWagePiastres, entity.MonthlySalaryPiastres);
         entity.Name = request.Name.Trim();
         entity.EmployeeNumber = request.EmployeeNumber.Trim();
         entity.JobTitle = request.JobTitle.Trim();
@@ -109,6 +111,8 @@ public sealed class UpdateEmployeeHandler
         entity.FingerprintId = request.FingerprintId;
         entity.LifecycleStatus = request.LifecycleStatus;
         entity.OvertimeRatePiastres = request.OvertimeRatePiastres;
+        // PAYR-0005/0006: past days keep the pay they had; the new pay counts from today.
+        await EmployeeWages.RecordChangeAsync(_db, entity, oldDailyWage, oldMonthlySalary, actorUser.Name, DateTimeOffset.UtcNow, ct);
 
         await _db.SaveChangesAsync(ct);
         return EmployeeQueryService.ToDto(entity);

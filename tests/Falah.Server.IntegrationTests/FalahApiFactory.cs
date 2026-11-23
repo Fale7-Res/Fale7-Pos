@@ -73,6 +73,10 @@ public sealed class FalahApiFactory : WebApplicationFactory<Program>
                 // (appsettings.json). A test host must never do that; a test that exercises the
                 // worker itself can still turn it back on through configOverrides.
                 ["Backup:Automatic:Enabled"] = "false",
+                // PRT-0013: a failed print is queued again automatically in production. Most tests here
+                // assert the Failed state straight after one failure, so the host starts with retries off;
+                // PrintJobAutomaticRetryTests turns them back on through configOverrides.
+                ["PrintJobs:AutomaticRetries"] = "0",
                 // Explicitly provision only this uniquely named test database, including Production-mode fixtures.
                 ["Database:MigrateOnStartup"] = "true",
             });

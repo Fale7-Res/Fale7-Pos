@@ -186,7 +186,7 @@ public sealed class CheckoutOrderHandler
         }
 
         var plan = CheckoutRules.BuildPlan(orderType, paymentMethod, items, discount, taxRule,
-            deliveryFee, compAmount, amountPaid, splits, request.WalletProvider);
+            deliveryFee, compAmount, amountPaid, splits, request.WalletProvider, request.PayOnCollection);
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
@@ -241,6 +241,8 @@ public sealed class CheckoutOrderHandler
             // back with the table they were served at; nothing new is ever written into it.
             orderEntity.TableNumber = null;
             orderEntity.RequestedPickupAtUtc = orderType == OrderType.Pickup ? request.RequestedPickupAtUtc : null;
+            // UI-0025: registered and sent to the kitchen now; paid, and only then a sale, at collection.
+            orderEntity.AwaitingCollection = plan.PayOnCollection;
 
             _db.Orders.Add(orderEntity);
 
@@ -345,5 +347,6 @@ public sealed class CheckoutOrderHandler
 
     private static CheckoutOrderResult ToResult(OrderEntity entity, bool wasReplayed) => new(
         entity.Id, entity.OrderNumber, entity.SequenceNumber, entity.TotalPiastres, entity.AmountPaidPiastres,
-        entity.ChangeDuePiastres, entity.Status, entity.IsPaid, entity.ElectronicPaymentStatus, wasReplayed);
+        entity.ChangeDuePiastres, entity.Status, entity.IsPaid, entity.ElectronicPaymentStatus, wasReplayed,
+        AwaitingCollection: entity.AwaitingCollection);
 }
