@@ -100,9 +100,11 @@ behaviour are the owner's or the accountant's decisions. Record the question in
 
 ## Current checkpoint
 
-Release candidate `68BA663DBB1D7804` (commit `14f1726`) is certified in
-`docs/GO_LIVE_ACCEPTANCE_20261114.md` §6: software GO (conditional), production NO-GO until the
-on-site gates and the owner's pre-go-live decisions. Read that section, `docs/UI_OWNER_REQUESTS.md`
+Release candidate `68BA663DBB1D7804` (commit `a18556c`, was `14f1726` before the 2026-11-24 history
+rewrite) is certified in `docs/GO_LIVE_ACCEPTANCE_20261114.md` §6: software GO (conditional),
+production NO-GO until the on-site gates and the owner's pre-go-live decisions. Latest (2026-11-24):
+GitHub `main` = this project (merge `961ce29`); full suite 1140/1140 on `25eec06`; installer
+`Falah-Setup-8D86E5EB054CFE52.exe` (old→new commit IDs in `docs/UI_OWNER_REQUESTS.md`). Read that section, `docs/UI_OWNER_REQUESTS.md`
 and `state.json` before resuming. SQL/DPAPI capability depends on the execution account:
 owner-account passes do not establish sandbox-account access. Preserve the evidence limits.
 
