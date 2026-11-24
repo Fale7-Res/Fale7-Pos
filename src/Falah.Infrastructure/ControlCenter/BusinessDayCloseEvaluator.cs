@@ -37,6 +37,14 @@ public static class BusinessDayCloseEvaluator
             .Where(o => o.ElectronicPaymentStatus == "pending").Select(o => o.Id).ToListAsync(ct);   // stored lower-case (OrderEnumMapping.ToWireString)
         var uncollectedPickups = await db.Orders.AsNoTracking()
             .Where(o => o.AwaitingCollection && o.Status != "cancelled").Select(o => new { o.Id, o.OrderNumber }).ToListAsync(ct);
+        // D4 (owner, 2026-11-24). A delivery of a cancelled order that never left with a driver is no longer anyone's
+        // work (one left on the board by a transfer cancelled before D2 would otherwise hold every day shut).
+        var unfinishedDeliveries = await (from d in db.Deliveries.AsNoTracking()
+                                          join o in db.Orders.AsNoTracking() on d.OrderId equals o.Id
+                                          where d.Status != nameof(DeliveryStatus.Settled) && d.Status != nameof(DeliveryStatus.Cancelled)
+                                                && !(o.Status == "cancelled" && d.DriverId == null)
+                                          orderby o.SequenceNumber
+                                          select new { d.Id, o.OrderNumber, d.Status }).ToListAsync(ct);
 
         var closingItems = await db.ChecklistItems.AsNoTracking()
             .Where(i => i.Phase == "Closing" && i.Active && i.Required).ToListAsync(ct);
@@ -59,7 +67,8 @@ public static class BusinessDayCloseEvaluator
             ReconciliationChecks: reconciliationChecks,
             DriverBalances: (await Falah.Infrastructure.Delivery.DriverBalances.OpenAsync(db, ct))
                 .Select(b => (b.DriverId, b.CarriedPiastres)).ToList(),
-            UncollectedPickups: uncollectedPickups.Select(p => (p.Id, p.OrderNumber)).ToList());
+            UncollectedPickups: uncollectedPickups.Select(p => (p.Id, p.OrderNumber)).ToList(),
+            UnfinishedDeliveries: unfinishedDeliveries.Select(d => (d.Id, d.OrderNumber, d.Status)).ToList());
 
         return BusinessDayRules.EvaluateCloseBlockers(inputs);
     }

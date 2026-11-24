@@ -400,6 +400,7 @@ public partial class CashierViewModel
         }
 
         IsSafeDropOpen = false;
+        DrawerCashAlert = null;   // the drop is the answer to the warning; the next sale re-checks the drawer
     }
 
     private CashierCashMovementRequest? _pendingCashMovement;

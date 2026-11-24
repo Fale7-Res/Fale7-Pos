@@ -581,3 +581,58 @@ unpushed commits were rewritten without that one file (trees otherwise identical
 as tag `backup/closeout-before-rewrite-20261124`). Earlier documents and the installer's version stamp use
 the old IDs: `76a7d5f`→`81e5385`, `14f1726`→`a18556c`, `d386164`→`7e902ba`, `e0a097f`→`e731e8c`,
 `ebbe217`→`1657d0b`, `a023f7a`→`9c474cf`, `ffa0b09`→`a348366`, `b254c6a`→`25eec06`, `e80d963`→`14dc168`.
+
+### Delivery and pickup audit, and its four fixes — Claude, 2026-11-24
+
+A read-only audit of the delivery and pickup workflow (code, models, handlers, both clients, stock and money)
+found four defects where money or custody went wrong. The owner decided each one the same day:
+
+| # | Defect | Owner decision | Fix |
+|---|---|---|---|
+| D1 | A delivery whose InstaPay/wallet transfer was not confirmed opened a cash custody for the whole order on the driver; confirming the transfer later posted the same money to the bank as well | The driver cannot take it until the transfer is confirmed | `AssignDeliveryHandler` refuses a pending transfer (and a cancelled order) |
+| D2 | Cancelling that transfer cancelled the order but left its delivery on the board, assignable | (follows D1) | `CancelPendingElectronicPaymentHandler` cancels a delivery still at the restaurant (New/Preparing/Ready) with an event; refuses one already out ("record the outcome first") |
+| D3 | A split payment on a delivery posted its cash leg into the till's drawer at the sale, while the driver collects it; no custody | Refuse a split on a delivery | `CheckoutRules.BuildPlan` refuses `multi` on delivery; the till disables the split toggle for a delivery (`CanSplitPayment`) |
+| D4 | The day closed over a cash delivery that had not left (no custody yet); its failure the next day voided a sale of the closed day | Every delivery ends and its driver is settled before the day closes | New close blocker `UNFINISHED_DELIVERY` (`BusinessDayRules`, `BusinessDayCloseEvaluator`) for any delivery not Settled/Cancelled, except a cancelled order's delivery that never left |
+
+"Card" on a delivery means paid by card before it goes out (owner) - the existing behaviour, unchanged.
+
+Tests (RED first, then green): `DeliveryPaymentIntegrityTests` (7: 5 red for the right reason - assignment
+accepted, split accepted, no blocker, delivery not cancelled; 2 guards green before and after),
+`CheckoutRulesTests.A_split_payment_is_refused_on_a_delivery_order` (red, then green),
+`CashierCorrectnessTests.A_delivery_order_cannot_be_split_between_two_payment_methods` (written with the fix, not
+seen red). Domain 607/607, client 493/493.
+
+**Deployment note (D4).** Any delivery left unfinished or unsettled in the restaurant's database - trial orders
+included - now blocks the day close until it is assigned and resolved, cancelled, or its driver settled. Check
+the dispatch board and the drivers' accounts before the first close after installing this build; this is part
+of the trial-data decision (`docs/GO_LIVE_CLEANUP_CHECKLIST.md`).
+
+Audit findings not changed (owner's call or later work): the delivered-outcome dialog pre-fills the full total for
+a prepaid delivery (server expects 0 and asks for a reason); a cash delivery with an approved collection shortfall
+can never be refunded (`RefundOrderHandler` requires the full total collected - linked to AUD-03-CLS); order status
+never moves past checkout (the delivery row carries the real state); a pickup paid up front has no "collected"
+record; a collection receipt is not queued on a replayed collect; an overage on delivery needs a reason only;
+Call Center orders ride the open till shift (no shift open = no phone orders).
+
+Neighbours after D1-D4: the 33 integration classes that touch delivery, payments or the day close - 383/385; the
+two failures asserted the behaviour the owner changed (a never-ready delivery not blocking the close; a pending
+split delivery going out) and were rewritten to the decisions
+(`BusinessDayCloseVerticalSliceTests.A_delivery_never_made_ready_is_a_control_exception_and_blocks_the_close`,
+`ConfirmElectronicPaymentTests.A_split_delivery_from_before_the_rules_does_not_go_out_while_its_transfer_is_pending`).
+
+### Operating rules, group A — Claude, 2026-11-24
+
+Owner's "governed day" sheet, group A, as decided the same day. Limits live in the server's `appsettings.json`
+section `OperatingLimits` (piastres; 0 switches one off) - no schema change.
+
+| Rule | Behaviour | Where |
+|---|---|---|
+| Safe-drop warning, 3,000 ج | After a sale or a pickup collection, if the drawer holds more, the till shows a warning (the sale is never refused) and the crossing is recorded once in the audit log; a safe drop clears it, the next crossing is recorded again | `DrawerCashAlert`, `CheckoutOrderResult.DrawerCashAlert`, till `DrawerCashAlert` InfoBar |
+| Driver custody cap, 1,500 ج | Assigning a cash order that takes the driver past it is refused; a manager's PIN (approval `driver_custody_limit`) lets that one order go, recorded in the audit log; a prepaid order always goes | `AssignDeliveryHandler`; PIN field in both assign dialogs |
+| PIN changed every 90 days | Age read from the control audit trail (`pin_changed`, `user_created`; an account with neither starts its clock at its first login under the rule - `pin_age_baseline`). An expired PIN still logs in, the login screen asks for a new PIN twice, and the server refuses every other request of that session until it is changed. Print-agent-only accounts are never asked | `PinAge`, `AuthenticationMiddleware`, `LoginResultDto.PinChangeRequired`, both login screens |
+
+Not taken (owner): a second person to close the day, a witness at the shift close, a surprise drawer count.
+
+Tests: `OperatingLimitsTests` (5) - written with the code, not seen red. Run together with `DeliveryPaymentIntegrityTests`
+and the two rewritten tests: 14/14; domain 607/607, client 493/493. The full suite has not been run since group A
+(the PIN check runs on every request).

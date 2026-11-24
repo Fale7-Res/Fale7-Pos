@@ -55,7 +55,10 @@
       <TextBox IsEnabled="{Binding CanEditOperation}" Header="اسم مزود المحفظة" Text="{Binding WalletProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
        Visibility="{Binding UsesWallet, Converter={StaticResource BoolToVisibleConverter}}"/>
       <Expander Header="تقسيم المبلغ" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-       <StackPanel Spacing="10"><ToggleSwitch IsEnabled="{Binding CanEditOperation}" Header="الدفع بطريقتين" IsOn="{Binding IsSplitPaymentEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
+       <StackPanel Spacing="10"><ToggleSwitch IsEnabled="{Binding CanSplitPayment}" Header="الدفع بطريقتين" IsOn="{Binding IsSplitPaymentEnabled, Mode=TwoWay}" OnContent="مفعّل" OffContent="غير مفعّل"/>
+        <!-- D3 (owner, 2026-11-24): a delivery is all cash with the driver or all paid. -->
+        <TextBlock Text="الدفع بطريقتين مش متاح مع التوصيل." Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                   Visibility="{Binding IsDelivery, Converter={StaticResource BoolToVisibleConverter}}"/>
         <StackPanel Spacing="10" Visibility="{Binding IsSplitPaymentEnabled, Converter={StaticResource BoolToVisibleConverter}}">
          <ComboBox IsEnabled="{Binding CanEditOperation}" Header="الطريقة الأولى" HorizontalAlignment="Stretch" SelectedValue="{Binding SplitMethod1, Mode=TwoWay}" SelectedValuePath="Tag">
           <ComboBoxItem Content="نقدي" Tag="cash"/><ComboBoxItem Content="بطاقة" Tag="card"/><ComboBoxItem Content="إنستاباي" Tag="instapay"/><ComboBoxItem Content="محفظة" Tag="wallet"/>

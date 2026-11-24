@@ -119,6 +119,10 @@ public static class CheckoutRules
     {
         if (payOnCollection && orderType != OrderType.Pickup)
             throw new DomainException("الدفع عند الاستلام متاح لطلبات الاستلام بس.");
+        // Delivery audit, owner decision 2026-11-24 (D3): a delivery is either all cash with the driver or all paid.
+        // A split's cash leg used to post into the till's drawer at the sale, while the driver is the one who collects it.
+        if (orderType == OrderType.Delivery && paymentMethod == PaymentMethod.Multi)
+            throw new DomainException("الدفع المقسّم مش متاح مع طلبات التوصيل: يا الطلب كله كاش مع السائق، يا مدفوع كله ببطاقة أو تحويل.");
         if (discount.IsNegative || deliveryFee.IsNegative || compAmount.IsNegative)
             throw new DomainException("الخصم ورسوم التوصيل والمجانيات يجب ألا تكون سالبة.");
 

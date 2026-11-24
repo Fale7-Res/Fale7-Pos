@@ -122,7 +122,9 @@ public sealed record CheckoutOrderResult(
     /// never reached the kitchen looks exactly like one that did. Reprint from Order Lookup.</summary>
     bool PrintJobsQueued = true,
     /// <summary>UI-0025: registered unpaid, to be paid when the customer collects it.</summary>
-    bool AwaitingCollection = false);
+    bool AwaitingCollection = false,
+    /// <summary>Owner, 2026-11-24: set when the drawer holds more than the safe-drop limit - the till shows it.</summary>
+    string? DrawerCashAlert = null);
 
 /// <summary>Thrown when a write hits a genuine, unresolvable idempotency-key collision at the
 /// database's own constraint level that is NOT a legitimate replay (no matching Order exists to

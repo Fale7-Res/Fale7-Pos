@@ -29,6 +29,11 @@
                               ItemsSource="{Binding Drivers}" SelectedItem="{Binding AssignDriver, Mode=TwoWay}"
                               DisplayMemberPath="Name"/>
 
+                    <!-- Owner, 2026-11-24: a driver who already holds the custody limit takes a new cash order only
+                         with a manager's PIN. Left empty in the ordinary case. -->
+                    <PasswordBox IsEnabled="{Binding CanEditAction}" Header="رمز المدير (لو السائق عدّى حد العهدة بس)" MinHeight="44" FontSize="16"
+                                 Password="{Binding AssignManagerPin, Mode=TwoWay}" AutomationProperties.Name="رمز المدير لتعدي حد العهدة"/>
+
                     <TextBlock Text="{Binding AssignError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                TextWrapping="Wrap" TextAlignment="Center"
                                Visibility="{Binding AssignError, Converter={StaticResource NullToCollapsedConverter}}"/>

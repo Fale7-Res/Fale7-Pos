@@ -528,9 +528,10 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
     // during the legacy-parity audit: selectDeliveryExceptions' per-delivery types need no "trip"
     // concept at all, unlike the trip-scoped types this system genuinely cannot port) ----
 
-    // AUD-13: an order never even made ready is on the manager's review list too (a warning, never a blocker).
+    // AUD-13: an order never even made ready is on the manager's review list too. Owner decision 2026-11-24 (D4): it
+    // also blocks the close now - a cash delivery that had not left closed with the day and could be voided the next day.
     [Fact]
-    public async Task A_delivery_never_made_ready_is_a_control_exception_but_does_not_block_the_close()
+    public async Task A_delivery_never_made_ready_is_a_control_exception_and_blocks_the_close()
     {
         var dayId = await OpenBusinessDayAsync();
         var shiftId = await OpenShiftAsync();
@@ -553,7 +554,8 @@ public class BusinessDayCloseVerticalSliceTests : IAsyncLifetime
         Assert.Contains(exceptions!, e => e.EntityId == deliveryId && e.Category == "delivery" && e.Severity == "warning");
 
         var blockers = await (await _client.GetAsync($"/api/business-day/{dayId}/close-blockers")).Content.ReadAsStringAsync();
-        Assert.DoesNotContain(deliveryId, blockers);
+        Assert.Contains(deliveryId, blockers);
+        Assert.Contains("UNFINISHED_DELIVERY", blockers);
     }
 
     [Fact]

@@ -103,6 +103,7 @@ public partial class CashierViewModel
         RefreshOperationState();
         if (!result.Success || result.Value is not { } paid) { CollectError = result.Error; return; }
         _collectRequestId = Guid.NewGuid().ToString("N");
+        DrawerCashAlert = paid.DrawerCashAlert;
         if (OrderLookupResult is { } looked && looked.Id == paid.OrderId)
             OrderLookupResult = looked with { IsPaid = paid.IsPaid, PaymentMethod = request.PaymentMethod,
                 AmountPaidPiastres = paid.AmountPaidPiastres, ChangeDuePiastres = paid.ChangeDuePiastres,

@@ -49,6 +49,9 @@ public partial class CashierViewModel
         // A collection time belongs to a pickup and to nothing else - it must not ride along on a
         // delivery or a walk-in.
         if (value != "pickup") { ClearRequestedPickupTime(); PayOnCollection = false; }
+        // D3 (owner, 2026-11-24): a delivery is all cash with the driver or all paid; the server refuses a split on it.
+        if (value == "delivery") IsSplitPaymentEnabled = false;
+        OnPropertyChanged(nameof(CanSplitPayment));
         OnPropertyChanged(nameof(IsPayOnCollection));
         if (value == "delivery") OpenDeliveryEditor();
         if (value == "pickup") OpenPickupEditor();

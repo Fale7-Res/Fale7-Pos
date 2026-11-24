@@ -11,6 +11,17 @@ public class CheckoutRulesTests
         new("i1", "prod-1", null, "شاورما فراخ", null, Money.FromEgp(unitPrice), Money.FromEgp(unitPrice), qty,
             Money.FromEgp(unitPrice * qty), false, null, null, null);
 
+    // ---- Delivery audit, owner decision 2026-11-24 (D3): a delivery is all cash with the driver or all paid ----
+
+    [Fact]
+    public void A_split_payment_is_refused_on_a_delivery_order()
+    {
+        var splits = new[] { new PaymentSplit(PaymentMethod.Cash, Money.FromEgp(50m)), new PaymentSplit(PaymentMethod.Card, Money.FromEgp(50m)) };
+        var ex = Assert.Throws<DomainException>(() => CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.Multi, new[] { Item(100m) },
+            Money.Zero, taxRule: null, Money.Zero, Money.Zero, Money.FromEgp(100m), splits, null));
+        Assert.Contains("التوصيل", ex.Message);
+    }
+
     // ---- UI-0025, owner decision 2026-11-22: a pickup is registered and prepared, the customer pays on collection ----
 
     [Fact]

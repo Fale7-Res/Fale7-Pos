@@ -143,12 +143,17 @@
     <Button x:Name="FooterCheckoutButton" Grid.Row="10" Grid.ColumnSpan="2" Margin="0,6,0,0" AutomationProperties.AutomationId="OpenCheckoutButton" Content="متابعة إلى الدفع  ←" MinHeight="52" Height="Auto" FontSize="18" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding OpenCheckoutCommand}" IsEnabled="{Binding CanOpenCheckout}"/>
     <Grid x:Name="FooterActions" Grid.Row="11" Grid.ColumnSpan="2" ColumnSpacing="8" Margin="0,6,0,0">
      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
      <Button x:Name="FooterCancelButton" Content="إلغاء الطلب" Style="{StaticResource GhostButtonStyle}" Foreground="{ThemeResource TextMutedBrush}" FontSize="13" MinHeight="44" HorizontalAlignment="Stretch" Command="{Binding RequestClearCartCommand}" IsEnabled="{Binding CanEditOperation}"/>
      <!-- Audit 2026-11-23, F-07: the last paid sale's number and change, beside cancel, until the next payment opens. -->
      <TextBlock Grid.Column="1" Text="{Binding LastSaleNote}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"
                 TextAlignment="Left" TextWrapping="Wrap" Foreground="{ThemeResource BrandPrimaryBrush}"
                 AutomationProperties.AutomationId="Cart_LastSaleNote"
                 Visibility="{Binding LastSaleNote, Converter={StaticResource NullToCollapsedConverter}}"/>
+     <!-- Owner, 2026-11-24: the drawer passed the safe-drop limit - a warning, the sale went through. -->
+     <InfoBar Grid.Row="1" Grid.ColumnSpan="2" IsOpen="True" IsClosable="False" Severity="Warning" Message="{Binding DrawerCashAlert}"
+              AutomationProperties.AutomationId="Cart_DrawerCashAlert" AutomationProperties.Name="تحذير الدرج"
+              Visibility="{Binding DrawerCashAlert, Converter={StaticResource NullToCollapsedConverter}}"/>
     </Grid>
    </Grid>
   </Border>

@@ -41,6 +41,23 @@ public static class TreasuryBalanceQuery
     /// the lock is held cannot make the balance insufficient, so inflows need no lock. Nothing in the
     /// system flips a posted movement to Reversed; a correction is a new movement that takes this lock.
     /// </summary>
+    /// <summary>An account's posted balance for a WARNING or a display - no lock, no decision to spend. Owner,
+    /// 2026-11-24: the till warns when its drawer passes the safe-drop limit.</summary>
+    public static async Task<Money> ReadBalanceAsync(FalahDbContext db, string accountId, CancellationToken ct)
+    {
+        var posted = nameof(MovementStatus.Posted);
+        var totals = await db.TreasuryMovements.AsNoTracking()
+            .Where(m => m.Status == posted && (m.SourceAccountId == accountId || m.DestinationAccountId == accountId))
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                In = g.Sum(m => m.DestinationAccountId == accountId ? m.AmountPiastres : 0L),
+                Out = g.Sum(m => m.SourceAccountId == accountId ? m.AmountPiastres : 0L),
+            })
+            .FirstOrDefaultAsync(ct);
+        return totals is null ? Money.Zero : Money.FromPiastres(checked(totals.In - totals.Out));
+    }
+
     public static async Task<Money> LockAndReadBalanceAsync(FalahDbContext db, string accountId, CancellationToken ct)
     {
         if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("A balance check before spending requires a transaction.");

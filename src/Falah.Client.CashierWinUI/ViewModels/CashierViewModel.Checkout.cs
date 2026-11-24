@@ -282,6 +282,10 @@ public partial class CashierViewModel
     /// next payment is opened.</summary>
     [ObservableProperty] private string? _lastSaleNote;
 
+    /// <summary>Owner, 2026-11-24: the server's warning that the drawer passed the safe-drop limit (3,000 ج). Shown
+    /// until the next sale answers without it; a safe drop clears it at once.</summary>
+    [ObservableProperty] private string? _drawerCashAlert;
+
     [RelayCommand]
     private void OpenCheckout()
     {
@@ -491,6 +495,7 @@ public partial class CashierViewModel
         LastCheckoutResult = result.Value;
         LastSaleNote = $"آخر طلب {result.Value.OrderNumber}"
             + (result.Value.ChangeDuePiastres > 0 ? $" — الباقي للعميل {CashInput.Format(result.Value.ChangeDuePiastres)} ج" : "");
+        DrawerCashAlert = result.Value.DrawerCashAlert;
         IsCheckoutOpen = false;
         Cart.Clear();
         RecomputeCartTotals();

@@ -41,7 +41,8 @@ public sealed class AuthenticationMiddleware
 
     public const string ActorItemKey = "falah.actor";
 
-    public async Task InvokeAsync(HttpContext context, SessionService sessions)
+    public async Task InvokeAsync(HttpContext context, SessionService sessions,
+        Falah.Infrastructure.Persistence.FalahDbContext db, IConfiguration configuration)
     {
         var path = context.Request.Path.Value ?? string.Empty;
 
@@ -92,7 +93,31 @@ public sealed class AuthenticationMiddleware
             return;
         }
 
+        // Owner, 2026-11-24: a PIN past its age is changed before anything else this session does.
+        if (!IsPinChangePath(context.Request, user.Id)
+            && await PinAge.IsExpiredAsync(db, user, Falah.Infrastructure.Settings.OperatingLimits.PinMaxAgeDays(configuration),
+                DateTimeOffset.UtcNow, context.RequestAborted))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/json; charset=utf-8";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "رمز الدخول بتاعك عدّى المدة المسموحة. غيّره الأول من شاشة الدخول وبعدين كمّل.",
+                pinChangeRequired = true,
+            });
+            return;
+        }
+
         await _next(context);
+    }
+
+    /// <summary>What a session whose PIN expired may still do: change its own PIN, and log out.</summary>
+    private static bool IsPinChangePath(HttpRequest request, string userId)
+    {
+        if (!HttpMethods.IsPost(request.Method)) return false;
+        var path = request.Path.Value ?? "";
+        return path.Equals("/api/auth/logout", StringComparison.OrdinalIgnoreCase)
+               || path.Equals($"/api/users/{userId}/change-pin", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Field names that mean "the user performing this request". Every one of them used to

@@ -317,6 +317,8 @@ public partial class DeliveryViewModel : ObservableObject
 
     [ObservableProperty] private DeliveryDto? _assignTarget;
     [ObservableProperty] private DriverDto? _assignDriver;
+    /// <summary>Only needed when the driver already holds the custody limit (1,500 ج); empty otherwise.</summary>
+    [ObservableProperty] private string _assignManagerPin = "";
     [ObservableProperty] private string? _assignError;
     /// <summary>What the driver actually has to bring back - the same rule the server uses to open a
     /// custody (DeliveryRules.DeliveryCashResponsibility): cash on delivery always, any other method
@@ -340,6 +342,7 @@ public partial class DeliveryViewModel : ObservableObject
         if (!CanEditAction || !CanDispatch) return;
         AssignError = null;
         AssignDriver = null;
+        AssignManagerPin = "";
         _assignRequestId = $"asg-{Guid.NewGuid():N}";
         AssignTarget = delivery;
     }
@@ -364,8 +367,24 @@ public partial class DeliveryViewModel : ObservableObject
         AssignError = null;
         try
         {
+            // Owner, 2026-11-24: past the driver's custody limit a manager lets this one order through with a PIN.
+            string? approvalId = null, approverId = null;
+            var pin = AssignManagerPin.Trim();
+            if (pin.Length > 0)
+            {
+                if (pin.Length < 4) { AssignError = "رمز المدير ناقص."; return; }
+                var approval = await _session.Api.IssueManagerApprovalAsync(
+                    new Falah.Application.Approvals.IssueManagerApprovalRequest(pin, "driver_custody_limit", "تعدي حد عهدة السائق"));
+                if (!approval.Success || approval.Value is null)
+                {
+                    AssignError = approval.Error ?? "رمز المدير غير صحيح.";
+                    return;
+                }
+                (approvalId, approverId) = (approval.Value.ApprovalId, approval.Value.ApproverUserId);
+            }
             await CompleteAssignAsync(new AssignDeliveryRequest(
-                _assignRequestId!, AssignTarget.DeliveryId, AssignDriver.Id, _session.CurrentUser!.Id, null, null));
+                _assignRequestId!, AssignTarget.DeliveryId, AssignDriver.Id, _session.CurrentUser!.Id, approvalId, approverId));
+            AssignManagerPin = "";
         }
         finally { IsBusy = false; }
     }

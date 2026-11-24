@@ -45,7 +45,19 @@ public partial class CashierViewModel
     partial void OnPaymentMethodChanged(string value) => NotifyPaymentPresentation();
     partial void OnSplitMethod1Changed(string value) => OnPropertyChanged(nameof(UsesWallet));
     partial void OnSplitMethod2Changed(string value) => OnPropertyChanged(nameof(UsesWallet));
-    partial void OnIsSplitPaymentEnabledChanged(bool value) => NotifyPaymentPresentation();
+    partial void OnIsSplitPaymentEnabledChanged(bool value)
+    {
+        // D3 (owner, 2026-11-24): no split on a delivery. The toggle is disabled for one; this catches any other path.
+        if (value && IsDelivery)
+        {
+            IsSplitPaymentEnabled = false;
+            CheckoutError = "الدفع بطريقتين مش متاح مع التوصيل: يا الطلب كله كاش مع السائق، يا مدفوع كله.";
+            return;
+        }
+        NotifyPaymentPresentation();
+    }
+    /// <summary>D3: the split toggle is offered on every order type but delivery.</summary>
+    public bool CanSplitPayment => CanEditOperation && !IsDelivery;
     public bool CanOpenShift => _session.HasPermission("shifts_open_own") || _session.HasPermission("shifts_manage");
     public bool CanCloseShift => _session.HasPermission("shifts_blind_close");
     public bool CanCountCash => _session.HasPermission("cash_count");
@@ -77,7 +89,7 @@ public partial class CashierViewModel
 
     private void RefreshOperationState()
     {
-        OnPropertyChanged(nameof(CanEditOperation)); OnPropertyChanged(nameof(CanEnterTender));
+        OnPropertyChanged(nameof(CanEditOperation)); OnPropertyChanged(nameof(CanEnterTender)); OnPropertyChanged(nameof(CanSplitPayment));
         OnPropertyChanged(nameof(CanConfirmPendingPayment)); OnPropertyChanged(nameof(CanCancelPendingPayment));
         NotifyCheckoutAvailability();
         _header.Refresh();

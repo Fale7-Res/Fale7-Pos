@@ -22,15 +22,22 @@ using Microsoft.EntityFrameworkCore;
 /// </summary>
 public sealed class AssignDeliveryHandler
 {
+    /// <summary>Owner decision 2026-11-24: the cash one driver may hold before a new order is refused (1,500 ج).</summary>
+    /// <summary>The approval a manager gives at the dispatcher's screen to send one more order past the limit.</summary>
+    public const string CustodyLimitApprovalAction = "driver_custody_limit";
+
     private readonly FalahDbContext _db;
     private readonly IApprovalRegistry _approvalRegistry;
     private readonly IAuditLog _auditLog;
+    private readonly long _custodyLimitPiastres;
 
-    public AssignDeliveryHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog)
+    public AssignDeliveryHandler(FalahDbContext db, IApprovalRegistry approvalRegistry, IAuditLog auditLog,
+        Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
         _db = db;
         _approvalRegistry = approvalRegistry;
         _auditLog = auditLog;
+        _custodyLimitPiastres = Falah.Infrastructure.Settings.OperatingLimits.MaxDriverCustodyPiastres(configuration);
     }
 
     public async Task<AssignDeliveryResult> HandleAsync(AssignDeliveryRequest request, CancellationToken ct = default)
@@ -81,11 +88,45 @@ public sealed class AssignDeliveryHandler
 
             var order = await _db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == delivery.OrderId, ct)
                 ?? throw new InvalidOperationException("الطلب المرتبط بالدليفري غير موجود.");
+            // Delivery audit, owner decisions 2026-11-24. A cancelled order never leaves with a driver (D2), and an
+            // InstaPay/wallet transfer nobody confirmed is not handed out either (D1): the driver used to be made
+            // answerable for the whole order in cash, and the later confirmation counted the same money again.
+            if (order.Status == "cancelled")
+                throw new DomainException("الطلب ده اتلغى، ما ينفعش يتسند لسائق.");
+            if (order.ElectronicPaymentStatus == "pending")
+                throw new DomainException("التحويل الإلكتروني للطلب ده لسه ما اتأكدش. أكّد وصول التحويل الأول، وبعدين اسند الطلب للسائق.");
             var facts = DeliveryFactsComposer.Compose(delivery, order);
 
             var now = DateTimeOffset.UtcNow;
             var tripId = $"delivery-trip-auto-{request.RequestId}";
             var custody = DeliveryRules.CreateCashCustody($"custody-assign-{request.RequestId}", tripId, facts, driver!.Id, now);
+
+            // Owner decision 2026-11-24: past the custody cap a new cash order is refused, unless a manager lets this
+            // one through with their PIN (an approval for driver_custody_limit, spent here). Checked last, so a refused
+            // assignment never spends it. A prepaid order adds no cash and always goes.
+            string? capApprovedBy = null;
+            if (custody is not null && _custodyLimitPiastres > 0)
+            {
+                var open = await _db.DriverCustodies.AsNoTracking()
+                    .Where(c => c.DriverId == driver.Id && c.Status != nameof(CustodyStatus.Settled))
+                    .Select(c => new { c.ExpectedPiastres, c.CollectedPiastres }).ToListAsync(ct);
+                var carried = await DriverBalances.CarriedForDriverAsync(_db, driver.Id, ct);
+                var holding = open.Sum(c => c.CollectedPiastres > 0 ? c.CollectedPiastres : c.ExpectedPiastres) + Math.Max(0, carried);
+                var after = holding + custody.Expected.Piastres;
+                if (after > _custodyLimitPiastres)
+                {
+                    if (AuthorizationPolicy.CanIssueApproval(actor, CustodyLimitApprovalAction)) capApprovedBy = actorUser.Name;
+                    else if (approval is null)
+                        throw new DomainException(
+                            $"السائق {driver.Name} معاه {holding / 100m:0.##} ج، والطلب ده هيخليها {after / 100m:0.##} ج - أكتر من حد العهدة ({_custodyLimitPiastres / 100m:0.##} ج). سوّي السائق الأول، أو خلّي المدير يعتمد برمزه.");
+                    else capApprovedBy = AuthorizationPolicy.ValidateApproval(_approvalRegistry, CustodyLimitApprovalAction, approval, actorUser.Id).ApproverName;
+                    _auditLog.Append(new AuditEvent(
+                        $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
+                        "تعدي حد عهدة السائق", "cash",
+                        $"{driver.Name}: {holding} قرش + {custody.Expected.Piastres} لطلب {order.OrderNumber} - الحد {_custodyLimitPiastres}",
+                        "warning", now, AuthorizedBy: capApprovedBy, ReferenceId: delivery.Id));
+                }
+            }
 
             delivery.Status = nameof(DeliveryStatus.OutForDelivery);
             delivery.DriverId = driver.Id;

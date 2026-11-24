@@ -179,8 +179,12 @@ public sealed partial class ApiClient
     /// acting user is now something the server establishes rather than something we assert.</summary>
     private string? _sessionToken;
 
+    /// <summary>Owner, 2026-11-24: the last login's PIN was past its age; the login screen asks for a new one.</summary>
+    public bool LastLoginRequiresPinChange { get; private set; }
+
     public async Task<ApiResult<UserSummaryDto>> LoginByPinAsync(string pin, CancellationToken ct = default)
     {
+        LastLoginRequiresPinChange = false;
         var result = await SendAsync<LoginResultDto>(
             () => _http.PostAsJsonAsync("/api/auth/login-by-pin", new LoginByPinRequest(pin), ct), ct);
         if (!result.Success || result.Value is null)
@@ -189,6 +193,7 @@ public sealed partial class ApiClient
         _sessionToken = result.Value.Token;
         _http.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
+        LastLoginRequiresPinChange = result.Value.PinChangeRequired;
 
         return new ApiResult<UserSummaryDto>(true,
             new UserSummaryDto(result.Value.Id, result.Value.Name, result.Value.Role, result.Value.Permissions),

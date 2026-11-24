@@ -257,8 +257,11 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
     }
 
 
+    /// <summary>Owner decisions 2026-11-24: a split is refused on a new delivery (D3), and a delivery whose transfer is
+    /// not confirmed does not go out (D1). A split delivery written before those rules - its InstaPay leg still pending -
+    /// is therefore held at the restaurant until the transfer is confirmed, instead of going out with a custody.</summary>
     [Fact]
-    public async Task Delivery_custody_excludes_the_split_amount_already_collected_at_checkout()
+    public async Task A_split_delivery_from_before_the_rules_does_not_go_out_while_its_transfer_is_pending()
     {
         var order = await InstaPayOrderAsync(15000, new[] { new CheckoutSplitRequest("cash", 5000), new CheckoutSplitRequest("instapay", 10000) });
         // Reuse the actual checkout snapshot as a delivery order: the composer must not charge the cash twice.
@@ -273,9 +276,8 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
         var driver = (await driverResponse.Content.ReadFromJsonAsync<Falah.Application.Delivery.DriverDto>())!;
         var deliveryId = await _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == order.OrderId).Select(d => d.Id).FirstAsync());
         var response = await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/assign", new Falah.Application.Delivery.AssignDeliveryRequest($"req-{Guid.NewGuid():N}", deliveryId, driver.Id, dispatcher, null, null));
-        response.EnsureSuccessStatusCode();
-        var custody = await _factory.QueryAsync(db => db.DriverCustodies.SingleAsync(c => c.DeliveryId == deliveryId));
-        Assert.Equal(10000, custody.ExpectedPiastres);
+        Assert.Equal(System.Net.HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Equal(0, await _factory.QueryAsync(db => db.DriverCustodies.CountAsync(c => c.DeliveryId == deliveryId)));
     }
 
 }

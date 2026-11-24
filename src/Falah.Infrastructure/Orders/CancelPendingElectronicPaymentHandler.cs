@@ -59,6 +59,18 @@ public sealed class CancelPendingElectronicPaymentHandler
             return new CancelPendingElectronicPaymentResult(orderEntity.Id, orderEntity.Status, orderEntity.ElectronicPaymentStatus ?? "cancelled", true, returnedCash);
         }
         var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+
+        // Delivery audit, owner decision 2026-11-24 (D2): a delivery order's own delivery is cancelled with it while it
+        // is still at the restaurant - before this it stayed on the dispatch board and could still be sent out. One
+        // that already left (only possible before D1) is resolved by recording its outcome, not by this.
+        var delivery = await _db.Deliveries
+            .FromSqlRaw("SELECT * FROM Deliveries WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE OrderId = {0}", orderEntity.Id)
+            .FirstOrDefaultAsync(ct);
+        if (delivery is not null && delivery.Status is not (nameof(Falah.Domain.Delivery.DeliveryStatus.New)
+                or nameof(Falah.Domain.Delivery.DeliveryStatus.Preparing) or nameof(Falah.Domain.Delivery.DeliveryStatus.Ready)
+                or nameof(Falah.Domain.Delivery.DeliveryStatus.Cancelled)))
+            throw new DomainException("الطلب خرج مع السائق. سجّل نتيجة التوصيل الأول قبل إلغاء التحويل.");
+
         var wasAlreadyCancelled = false;
         var order = OrderMapper.ToDomain(orderEntity);
         var now = DateTimeOffset.UtcNow;
@@ -102,6 +114,16 @@ public sealed class CancelPendingElectronicPaymentHandler
                 }
             }
             await OrderStockDisposition.ApplyAsync(_db, orderEntity.Id, disposition, request.Reason.Trim(), cashierUser.Name, now, ct);
+            if (delivery is not null && delivery.Status != nameof(Falah.Domain.Delivery.DeliveryStatus.Cancelled))
+            {
+                delivery.Status = nameof(Falah.Domain.Delivery.DeliveryStatus.Cancelled);
+                delivery.Version++;
+                _db.DeliveryEvents.Add(new Falah.Infrastructure.Persistence.Entities.DeliveryEventEntity
+                {
+                    Id = $"delivery-cancel-electronic-{orderEntity.Id}", DeliveryId = delivery.Id, OrderId = orderEntity.Id,
+                    Type = "cancelled", Reason = request.Reason.Trim(), Actor = cashierUser.Name, CreatedAtUtc = now,
+                });
+            }
             _auditLog.Append(new AuditEvent(
                 $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                 $"إلغاء محاولة دفع إلكتروني {orderEntity.OrderNumber}", "cash",

@@ -94,6 +94,22 @@ public class CashierCorrectnessTests
         Assert.Equal("تم تسجيل مصروف 30.00 ج", vm.LastSaleNote);
     }
 
+    /// <summary>Delivery audit, owner decision 2026-11-24 (D3): a delivery is all cash with the driver or all paid.</summary>
+    [Fact]
+    public void A_delivery_order_cannot_be_split_between_two_payment_methods()
+    {
+        var (vm, _) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)));
+        vm.IsSplitPaymentEnabled = true;
+
+        vm.OrderType = "delivery";
+
+        Assert.False(vm.IsSplitPaymentEnabled);
+        Assert.False(vm.CanSplitPayment);
+        vm.IsSplitPaymentEnabled = true;
+        Assert.False(vm.IsSplitPaymentEnabled);
+        Assert.Contains("التوصيل", vm.CheckoutError);
+    }
+
     [Fact]
     public async Task A_recorded_cash_in_is_confirmed_on_the_till()
     {

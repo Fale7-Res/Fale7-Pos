@@ -180,6 +180,7 @@ builder.Services.AddScoped<DailyStatementQueryService>();
 builder.Services.AddScoped<CreatePrintJobsHandler>();
 builder.Services.AddScoped<Falah.Infrastructure.Printing.ReprintDocumentHandler>();
 builder.Services.AddScoped<OrderAutoPrintService>();
+builder.Services.AddScoped<Falah.Infrastructure.Treasury.DrawerCashAlert>();
 builder.Services.AddScoped<Falah.Infrastructure.Authorization.SessionService>();
 builder.Services.AddScoped<ReportPrintJobResultHandler>();
 builder.Services.AddScoped<SetProductStationHandler>();
@@ -1695,7 +1696,7 @@ app.MapGet("/api/delivery/{id}", async (string id, DeliveryQueryService query, H
 app.MapGet("/api/delivery/{id}/timeline", async (string id, DeliveryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.GetTimelineAsync(id, ct)));
 
-api.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
+api.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, OrderAutoPrintService autoPrint, Falah.Infrastructure.Treasury.DrawerCashAlert drawerAlert, ILogger<Program> log, CancellationToken ct) =>
 {
     try
     {
@@ -1704,7 +1705,9 @@ api.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrde
         // doc comment for why a printing problem must not be able to undo a paid order. It reports
         // what happened so the station can say so rather than leaving a missing ticket silent.
         var printed = await autoPrint.TryPrintAsync(request, result, ct);
-        return Results.Ok(result with { PrintJobsQueued = printed });
+        // Owner, 2026-11-24: past the safe-drop limit the till is told to drop (a warning, never a failed sale).
+        var alert = await TryDrawerAlertAsync(drawerAlert, request.ShiftId, request.CashierId, log, ct);
+        return Results.Ok(result with { PrintJobsQueued = printed, DrawerCashAlert = alert });
     }
     catch (Falah.Application.Orders.ShiftNotOpenException ex)
     {
@@ -1773,14 +1776,15 @@ api.MapPost("/api/orders/cancel-undispatched-delivery", async (Falah.Application
 });
 
 // UI-0025 (owner decision 2026-11-22): a pickup registered unpaid is paid when its customer collects it.
-api.MapPost("/api/orders/collect-pickup", async (Falah.Application.Orders.CollectPickupPaymentRequest request, CollectPickupPaymentHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
+api.MapPost("/api/orders/collect-pickup", async (Falah.Application.Orders.CollectPickupPaymentRequest request, CollectPickupPaymentHandler handler, OrderAutoPrintService autoPrint, Falah.Infrastructure.Treasury.DrawerCashAlert drawerAlert, ILogger<Program> log, CancellationToken ct) =>
 {
     try
     {
         var result = await handler.HandleAsync(request, ct);
         // After the payment is committed, never inside it - the same rule as checkout's receipt.
         var printed = result.WasReplayed || await autoPrint.TryPrintCollectionReceiptAsync(result.OrderId, request.CashierId, ct);
-        return Results.Ok(result with { PrintJobsQueued = printed });
+        var alert = await TryDrawerAlertAsync(drawerAlert, request.ShiftId, request.CashierId, log, ct);
+        return Results.Ok(result with { PrintJobsQueued = printed, DrawerCashAlert = alert });
     }
     catch (Falah.Application.Orders.ShiftNotOpenException ex) { return Results.Conflict(new { error = ex.Message }); }
     catch (Falah.Application.Orders.CheckoutConflictException ex) { return Results.Conflict(new { error = ex.Message }); }
@@ -2305,10 +2309,13 @@ api.MapPost("/api/auth/login-by-pin", async (Falah.Application.Users.LoginByPinR
             Id = $"audit-{Guid.NewGuid():N}", Action = Falah.Infrastructure.Authorization.LoginAttemptGuard.SucceededAction, Actor = user.Name,
             EntityId = source, Reason = user.Id, CreatedAtUtc = DateTimeOffset.UtcNow,
         });
+        // Owner, 2026-11-24: a PIN older than OperatingLimits:PinMaxAgeDays is changed before anything else.
+        var pinChangeRequired = await Falah.Infrastructure.Authorization.PinAge.OnLoginAsync(
+            db, user, Falah.Infrastructure.Settings.OperatingLimits.PinMaxAgeDays(app.Configuration), DateTimeOffset.UtcNow, ct);
         var token = await sessions.IssueAsync(user.Id, ct); // saves the audit row with the session
         var summary = ToUserSummary(user);
         return Results.Ok(new Falah.Application.Users.LoginResultDto(
-            summary.Id, summary.Name, summary.Role, summary.Permissions, token));
+            summary.Id, summary.Name, summary.Role, summary.Permissions, token, pinChangeRequired));
     }
     catch (Falah.Infrastructure.Authorization.LoginThrottledException ex)
     {
@@ -2942,6 +2949,18 @@ static async Task<IResult?> RefuseOrderOutsideOpenShiftAsync(HttpContext http, F
 
 static IResult? RequirePrintAgent(HttpContext http) =>
     RequireAnyPermission(http, "هذه العملية لوكيل الطباعة فقط.", "print_agent");
+
+// Owner, 2026-11-24: the safe-drop warning rides on a committed sale's answer. Nothing it can hit may fail that sale.
+static async Task<string?> TryDrawerAlertAsync(Falah.Infrastructure.Treasury.DrawerCashAlert alert, string shiftId, string actorUserId,
+    ILogger log, CancellationToken ct)
+{
+    try { return await alert.CheckAsync(shiftId, actorUserId, ct); }
+    catch (Exception ex)
+    {
+        log.LogWarning(ex, "Drawer safe-drop check failed for shift {ShiftId}; the sale itself is unaffected.", shiftId);
+        return null;
+    }
+}
 
 // The session's user must hold one of these permissions (or "all"). For reads that carry money or
 // security information and name no actor in the request: the session is the only identity there is.

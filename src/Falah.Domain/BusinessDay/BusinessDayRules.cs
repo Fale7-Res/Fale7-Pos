@@ -83,7 +83,10 @@ public static class BusinessDayRules
         // outside the drawer exactly like open custody, so it gates the close the same way.
         IReadOnlyList<(string DriverId, long CarriedPiastres)>? DriverBalances = null,
         /// <summary>UI-0025: pickups registered unpaid whose customer has not paid and collected yet.</summary>
-        IReadOnlyList<(string OrderId, string OrderNumber)>? UncollectedPickups = null);
+        IReadOnlyList<(string OrderId, string OrderNumber)>? UncollectedPickups = null,
+        /// <summary>Delivery audit, owner decision 2026-11-24 (D4): deliveries not yet ended and settled with their
+        /// driver. Status is the delivery's own (New .. Delivered/Failed/Returned).</summary>
+        IReadOnlyList<(string DeliveryId, string OrderNumber, string Status)>? UnfinishedDeliveries = null);
 
     /// <summary>Every one of these gates a close - there is no "close with warnings" path. An
     /// unconfirmed InstaPay/wallet transfer in particular is real customer money that has neither
@@ -117,6 +120,17 @@ public static class BusinessDayRules
         foreach (var pickup in input.UncollectedPickups ?? Array.Empty<(string, string)>())
             blockers.Add(new CloseBlocker("UNCOLLECTED_PICKUP", "order", pickup.OrderId,
                 $"طلب الاستلام {pickup.OrderNumber} لسه ما اتدفعش. حصّله من العميل أو خلّي المدير يلغيه."));
+
+        // Delivery audit, owner decision 2026-11-24 (D4): a delivery that has not left, is still out, or was not settled
+        // with its driver keeps the day open. A cash delivery that had not left used to have no custody yet, so the day
+        // closed over it - and its failure the next day voided a sale of the closed day.
+        foreach (var delivery in input.UnfinishedDeliveries ?? Array.Empty<(string, string, string)>())
+            blockers.Add(new CloseBlocker("UNFINISHED_DELIVERY", "delivery", delivery.DeliveryId, delivery.Status switch
+            {
+                "New" or "Preparing" or "Ready" => $"طلب التوصيل {delivery.OrderNumber} لسه ما خرجش. اسنده لسائق أو الغيه.",
+                "Delivered" or "Failed" or "Returned" => $"طلب التوصيل {delivery.OrderNumber} اتسجلت نتيجته بس سائقه لسه ما اتسوّاش.",
+                _ => $"طلب التوصيل {delivery.OrderNumber} لسه مع السائق. سجّل نتيجة التوصيل وسوّي السائق.",
+            }));
 
         if (!input.PersistenceHealthy)
             blockers.Add(new CloseBlocker("PERSISTENCE_UNHEALTHY", "system", "persistence", "التخزين المحلي غير سليم."));

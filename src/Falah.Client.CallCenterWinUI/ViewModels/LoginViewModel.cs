@@ -50,6 +50,23 @@ public partial class LoginViewModel : ObservableObject
 
     private bool CanSubmit() => Pin.Length >= 4 && !IsBusy;
 
+    // ---- Owner, 2026-11-24: a PIN older than 90 days is changed right here, before the station opens ----
+
+    private Falah.Application.Users.UserSummaryDto? _expiredUser;
+    private string? _currentPin, _newPin;
+    private string? _pinChangeRequestId;
+
+    /// <summary>Null while logging in; the instruction while the expired PIN is being replaced.</summary>
+    [ObservableProperty] private string? _pinChangePrompt;
+
+    private void AskForNewPin(string? error = null)
+    {
+        _newPin = null;
+        Pin = string.Empty;
+        ErrorMessage = error;
+        PinChangePrompt = "رمزك عدّى 90 يوم. اكتب رمز جديد (من 4 لـ 6 أرقام) واضغط الزرار.";
+    }
+
     [RelayCommand(CanExecute = nameof(CanSubmit))]
     private async Task SubmitAsync()
     {
@@ -57,11 +74,41 @@ public partial class LoginViewModel : ObservableObject
         ErrorMessage = null;
         try
         {
+            if (_expiredUser is { } user)
+            {
+                if (_newPin is null)
+                {
+                    _newPin = Pin;
+                    Pin = string.Empty;
+                    PinChangePrompt = "اكتب الرمز الجديد تاني للتأكيد.";
+                    return;
+                }
+                if (Pin != _newPin) { AskForNewPin("الرمزين مش زي بعض. اكتب الرمز الجديد من الأول."); return; }
+                _pinChangeRequestId ??= $"pin-{Guid.NewGuid():N}";
+                var changed = await _session.Api.ChangePinAsync(new Falah.Application.Users.ChangePinRequest(
+                    user.Id, _currentPin, _newPin, user.Id, _pinChangeRequestId));
+                if (!changed.Success) { AskForNewPin(changed.Error ?? "تعذر تغيير الرمز. جرّب تاني."); return; }
+                _expiredUser = null; _currentPin = null; _newPin = null; _pinChangeRequestId = null;
+                PinChangePrompt = null;
+                _session.CurrentUser = user;
+                Pin = string.Empty;
+                LoggedIn?.Invoke();
+                return;
+            }
+
             var result = await _session.Api.LoginByPinAsync(Pin);
             if (!result.Success || result.Value is null)
             {
                 ErrorMessage = FailureMessage(result.OutcomeUnknown, result.StatusCode, result.Error);
                 Pin = string.Empty;
+                return;
+            }
+
+            if (_session.Api.LastLoginRequiresPinChange)
+            {
+                _expiredUser = result.Value;
+                _currentPin = Pin;
+                AskForNewPin();
                 return;
             }
 
