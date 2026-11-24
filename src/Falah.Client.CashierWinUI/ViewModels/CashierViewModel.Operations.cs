@@ -422,6 +422,8 @@ public partial class CashierViewModel
         }
 
         IsCashMovementOpen = false;
+        // UI review 2026-11-24: confirmed on the till's last-action line instead of the dialog just vanishing.
+        LastSaleNote = $"تم تسجيل {(request.MovementType == "cash_in" ? "إيداع نقدي في الدرج" : "سحب نقدي من الدرج")} {CashInput.Format(request.AmountPiastres)} ج";
     }
 
     private OpenCashDrawerRequest? _pendingCashDrawer;

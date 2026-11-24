@@ -19,6 +19,8 @@ public class CallCenterPickupOrderTests
     private sealed class Server : HttpMessageHandler
     {
         public CheckoutOrderRequest? Checkout;
+        /// <summary>When set, the checkout is recorded (the default fixture refuses it).</summary>
+        public bool Accept;
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
@@ -30,7 +32,10 @@ public class CallCenterPickupOrderTests
                     return Json(new[] { new DeliveryServiceDto("svc-7", "الحي السابع", 1500, true, "owner", DateTimeOffset.UtcNow) });
                 case "/api/orders/checkout":
                     Checkout = await request.Content!.ReadFromJsonAsync<CheckoutOrderRequest>(cancellationToken: ct);
-                    return new HttpResponseMessage(HttpStatusCode.UnprocessableEntity) { Content = JsonContent.Create(new { error = "fixture" }) };
+                    return Accept
+                        ? Json(new CheckoutOrderResult("ord-1", "#0131", 131, 4500, 0, 0, "preparing", false, null, false,
+                            AwaitingCollection: Checkout!.PayOnCollection))
+                        : new HttpResponseMessage(HttpStatusCode.UnprocessableEntity) { Content = JsonContent.Create(new { error = "fixture" }) };
                 default:
                     return new HttpResponseMessage(HttpStatusCode.NotFound);
             }
@@ -110,6 +115,57 @@ public class CallCenterPickupOrderTests
         Assert.Null(time.Attribute("SelectedTime"));
         Assert.Equal("OnPickupDateChanged", (string?)date.Attribute("DateChanged"));
         Assert.Equal("OnPickupTimeChanged", (string?)time.Attribute("SelectedTimeChanged"));
+    }
+
+    /// <summary>UI review 2026-11-24: a pickup was registered and the confirmation read "السائق يحصّل المبلغ عند
+    /// التسليم" - the driver collects - for an order no driver ever touches. The note is now the registered order's.</summary>
+    [Fact]
+    public async Task The_confirmation_of_a_registered_pickup_says_the_customer_pays_at_the_restaurant_not_the_driver()
+    {
+        var server = new Server { Accept = true };
+        var vm = Desk(server);
+        vm.SetOrderTypeCommand.Execute("pickup");
+        vm.Cart.Add(new CallCenterModels.CartLine { ProductId = "p", ProductName = "كبدة", UnitPricePiastres = 4500, Quantity = 1 });
+        vm.CustomerPhone = "01000000095";
+        vm.CustomerName = "عميل";
+
+        await vm.SubmitOrderCommand.ExecuteAsync(null);
+
+        Assert.True(vm.HasCheckoutResult);
+        Assert.True(vm.IsDelivery); // the form is reset for the next call...
+        Assert.Contains("في المطعم", vm.LastOrderPaymentNote); // ...but the note is about the order just registered
+        Assert.DoesNotContain("السائق", vm.LastOrderPaymentNote);
+    }
+
+    [Fact]
+    public async Task The_confirmation_of_a_registered_cash_delivery_says_the_driver_collects()
+    {
+        var server = new Server { Accept = true };
+        var vm = Desk(server);
+        await vm.LoadDeliveryServicesCommand.ExecuteAsync(null);
+        vm.SelectedDeliveryService = vm.DeliveryServices.Single();
+        vm.Cart.Add(new CallCenterModels.CartLine { ProductId = "p", ProductName = "كبدة", UnitPricePiastres = 4500, Quantity = 1 });
+        vm.CustomerPhone = "01000000096";
+        vm.CustomerName = "عميل";
+        vm.DeliveryArea = "الحي السابع";
+        vm.DeliveryStreet = "شارع 9";
+
+        await vm.SubmitOrderCommand.ExecuteAsync(null);
+
+        Assert.True(vm.HasCheckoutResult);
+        Assert.Contains("السائق", vm.LastOrderPaymentNote);
+    }
+
+    /// <summary>The same review: looking up that unpaid pickup read "تحصيل عند التسليم" - collect on delivery.</summary>
+    [Fact]
+    public void A_looked_up_unpaid_pickup_is_paid_at_the_restaurant_not_on_delivery()
+    {
+        var vm = Desk(new Server());
+        vm.LookedUpOrder = System.Text.Json.JsonSerializer.Deserialize<OrderDetailsDto>(
+            """{"Id":"o","OrderNumber":"#0131","OrderType":"pickup","PaymentMethod":"cash","Status":"preparing","IsPaid":false,"Items":[]}""");
+
+        Assert.Contains("في المطعم", vm.LookedUpPaymentLine);
+        Assert.DoesNotContain("التسليم", vm.LookedUpPaymentLine);
     }
 
     [Fact]

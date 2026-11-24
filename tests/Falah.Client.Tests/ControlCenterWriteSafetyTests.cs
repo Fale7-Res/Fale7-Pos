@@ -83,6 +83,28 @@ public class ControlCenterWriteSafetyTests
         Assert.Null(vm.LoadError);
     }
 
+    /// <summary>UI review 2026-11-24: a day was closed and the next one opened at once; the open day's screen kept
+    /// "تقرير الإغلاق المحفوظ لهذا اليوم" with the closed day's figures and an empty "أغلقه". Clearing the snapshot on
+    /// reload never told the card (HasSnapshot) or its figures (SnapshotReconciliation) that it was gone.</summary>
+    [Fact]
+    public void Clearing_the_close_snapshot_hides_its_card_and_figures()
+    {
+        var http = new HttpClient(new Handler(_ => Task.FromResult(Json("{}", HttpStatusCode.ServiceUnavailable))))
+            { BaseAddress = new Uri("http://fixture.invalid") };
+        var vm = new ControlCenterViewModel(new AppSession(new ApiClient(http))
+            { CurrentUser = new("actor", "مدير", "manager", new[] { "all" }) });
+        vm.LatestSnapshot = System.Text.Json.JsonSerializer.Deserialize<BusinessDayCloseSnapshotDto>(
+            """{"Id":"snap","BusinessDayId":"day-1","ClosedBy":"مدير","ReconciliationJson":"{}"}""");
+        var raised = new List<string?>();
+        vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+
+        vm.LatestSnapshot = null;
+
+        Assert.False(vm.HasSnapshot);
+        Assert.Contains(nameof(ControlCenterViewModel.HasSnapshot), raised);
+        Assert.Contains(nameof(ControlCenterViewModel.SnapshotReconciliation), raised);
+    }
+
     [Fact]
     public async Task Unknown_day_history_disables_open_close_and_reopen()
     {

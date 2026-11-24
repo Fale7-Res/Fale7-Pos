@@ -16,7 +16,7 @@
     <Grid>
         <!-- ================= SAFE DROP MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsSafeDropOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="إيداع بالخزنة (Safe Drop)" CloseCommand="{Binding CancelSafeDropCommand}" CloseAutomationId="SafeDrop_Close"/>
                     <TextBlock Text="نقل مبلغ فائض من الدرج إلى الخزنة أثناء الوردية." Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
@@ -40,7 +40,7 @@
 
         <!-- ================= CASH IN / OUT MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCashMovementOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="{Binding CashMovementTitle}" CloseCommand="{Binding CancelCashMovementCommand}" CloseAutomationId="CashMovement_Close"/>
                     <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
@@ -63,7 +63,7 @@
 
         <!-- ================= CASH DRAWER MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCashDrawerOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="فتح الدرج" CloseCommand="{Binding CancelCashDrawerCommand}" CloseAutomationId="CashDrawer_Close"/>
                     <TextBlock Text="يسجل طلب فتح الدرج؛ تأكد من فتح الدرج فعلياً."
@@ -85,7 +85,7 @@
 
         <!-- ================= CASH COUNT MODAL (read-only) ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCashCountOpen, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="380" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="رصيد الدرج المسجل" CloseCommand="{Binding CloseCashCountCommand}" CloseAutomationId="CashCount_Close"/>
                     <TextBlock Text="الرصيد النقدي الحالي في الدرج (محسوب من حركات الخزينة الفعلية على السيرفر)."

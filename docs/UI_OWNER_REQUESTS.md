@@ -511,3 +511,57 @@ Charcoal-station XP-D200N to be integrated. Spec (with Amendments 1 and 2):
   view model stay so a safe drop left in flight by an earlier run can still be resolved.
 - **Printing after a permission change.** Fixed server-side (`IsolationLevelResetInterceptor`); see
   `IsolationLevelLeakTests`.
+  Before handover (2026-11-24) the owner asked for protection against more defects of this kind.
+  Every SQL session setting in the server was searched: only those two SERIALIZABLE commands change
+  one, and the interceptor resets every connection, so the class is closed. `MixedStationTrafficTests`
+  now sends every everyday station call (till, call center, dispatcher, all six print routes, the
+  screens' reads) as the very next request after every back-office action, and the same mix
+  concurrently. Red proof: without the interceptor it fails with exactly the 12 print claims after
+  the permission change and the deactivation; with it, 2/2 green. Full integration suite on commit
+  `ffa0b09` (scratch copy, 2026-11-24): 1137/1137 passed in 2 h 18 m (the two new mixed-traffic tests
+  were run separately, above).
+
+### Full UI review before handover — Claude, 2026-11-24
+
+Owner: "review everything in the interface - every screen and every button." Run on a Development server
+against its own database `FalahUiReview_20261124` (demo seed; never `Falah`), both clients driven with
+`winapp ui` (screenshots and element dumps under the session scratchpad, `uireview\shots`).
+
+- **Static pass.** Every `Command` binding resolves (Cashier 627 controls / 47 views, Call Center 116 / 14);
+  every `{Binding}` name exists (script false positives checked by hand).
+- **Every Cashier page opens** (24 back-office pages + till) with its empty state, then again with data.
+- **One trading day through the screens:** open day -> treasury deposit -> open shift (refused first with a
+  clear message: main treasury empty) -> cash sale with quantity +, change 85 -> sized item + card sale ->
+  expense -> drawer cash-in -> drawer balance 1,185 (= 1,000 + 115 - 30 + 100) -> order lookup, reprint,
+  refund 25 -> add driver and delivery service -> Call Center delivery (fee 15) and two pickups -> ready,
+  assign, delivered, driver settlement 45, driver statement -> pickups collected at the till -> shift close
+  expected 1,295 = counted, difference 0 -> day checklist -> day closed -> dashboard, reports, daily
+  statement, daily summary, financial control, shifts, audit, printing. Every figure agreed across screens
+  (net 295, main treasury 4,195 = 5,000 - 1,000 float - 100 + 295).
+
+Fixed (test first, red then green):
+- Call Center confirmation said "السائق يحصّل المبلغ عند التسليم" for a pickup; lookup of an unpaid pickup
+  said "تحصيل عند التسليم". Now from the registered order (`CallCenterPickupOrderTests`, 3 new).
+- Shift close statement listed a settled cash delivery under "طلبات غير مدفوعة" (IsPaid stays false after
+  the driver settles). Now uses the settled-custody rule `OrderReadProjection` already uses
+  (`DriverFeeSettlementAndHandoverTests.A_settled_cash_delivery_is_not_listed_as_unpaid...`; shift
+  statement classes 22/22).
+- Expense and drawer cash-in/out closed silently; the till's last-action line now confirms
+  ("تم تسجيل مصروف 12.00 ج") (`CashierCorrectnessTests`, 2 new).
+- Control Center kept the closed day's "تقرير الإغلاق المحفوظ" on a newly opened day (clearing the snapshot
+  did not notify the card) (`ControlCenterWriteSafetyTests`, 1 new); the day picker now shows the state
+  ("2026-11-24 · مغلق") because a 24-hour day can share its date with the next.
+- Drawer modals (cash in/out, drawer balance, cash drawer, safe drop) stretched to full height; centred.
+  Daily summary's net-sales caption was clipped; wraps.
+Client tests 492/492; solution builds with 0 errors. All verified on screen after the fix.
+
+Seen, not changed (owner's call):
+- Orders never leave "قيد التحضير" (no kitchen step moves them; a delivered, settled order still reads
+  so in the Orders lists). Display-only change possible if wanted.
+- Payment-method rows (نقدًا/بطاقة…) exclude cash a driver collected; they add to 235 against net 295 on
+  this day's sheets. The figures are as defined in `METRIC_DEFINITIONS.md`; a "مع السائقين" row is a
+  question for the accountant.
+- Audit log details show raw piastres and internal ids ("tre-drawer", "129500"); its two filters start
+  blank rather than "الكل". With no delivery service defined, the delivery-service list is empty with no
+  hint. The Control Center's "عدّ النقدية" refuses after the last shift closes (the closing checklist's
+  "عد درج النقدية" is a tick, not that dialog).

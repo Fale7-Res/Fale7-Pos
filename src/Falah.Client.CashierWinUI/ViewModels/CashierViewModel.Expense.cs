@@ -121,6 +121,8 @@ public partial class CashierViewModel
         }
 
         IsAddExpenseOpen = false;
+        // UI review 2026-11-24: the dialog used to just vanish; the till's last-action line confirms it.
+        LastSaleNote = $"تم تسجيل مصروف {CashInput.Format(request.AmountPiastres)} ج";
     }
 
 }

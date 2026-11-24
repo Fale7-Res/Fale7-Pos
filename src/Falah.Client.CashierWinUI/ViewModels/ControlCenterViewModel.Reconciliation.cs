@@ -125,12 +125,18 @@ public partial class ControlCenterViewModel
     public BusinessDayReconciliationDto? SnapshotReconciliation => LatestSnapshot is null ? null
         : System.Text.Json.JsonSerializer.Deserialize<BusinessDayReconciliationDto>(LatestSnapshot.ReconciliationJson);
 
+    /// <summary>Every change, including the reload's clear (UI review 2026-11-24: an open day kept showing the closed
+    /// day's saved report because only the load notified these).</summary>
+    partial void OnLatestSnapshotChanged(BusinessDayCloseSnapshotDto? value)
+    {
+        OnPropertyChanged(nameof(HasSnapshot));
+        OnPropertyChanged(nameof(SnapshotReconciliation));
+    }
+
     private async Task LoadSnapshotAsync(string businessDayId)
     {
         var result = await _session.Api.GetLatestCloseSnapshotAsync(businessDayId);
         LatestSnapshot = result.Success ? result.Value : null;
-        OnPropertyChanged(nameof(HasSnapshot));
-        OnPropertyChanged(nameof(SnapshotReconciliation));
     }
 
     private async Task<(string? ApprovalId, string? ApproverUserId, bool Ok)> ResolveApprovalAsync(

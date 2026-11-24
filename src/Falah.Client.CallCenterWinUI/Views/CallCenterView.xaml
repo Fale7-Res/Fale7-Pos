@@ -118,7 +118,7 @@
                         <Run Text="{Binding LastCheckoutResult.OrderNumber}"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource MutedText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
-                               Text="السائق يحصّل المبلغ عند التسليم إذا كان الدفع نقدًا."/>
+                               Text="{Binding LastOrderPaymentNote}" AutomationProperties.AutomationId="CallCenter_LastOrderPaymentNote"/>
                     <TextBlock Text="{Binding ReprintNote}" Style="{StaticResource MutedText}"
                                TextWrapping="Wrap" TextAlignment="Center"/>
                     <!-- The order is never failed for a printing problem, so this is the only thing

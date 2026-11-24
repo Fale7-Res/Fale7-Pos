@@ -246,6 +246,7 @@ public partial class CallCenterViewModel
         HasRefusedCheckoutRetry = false;
         OnPropertyChanged(nameof(HasPendingCheckout));
         RefreshOperationState();
+        LastOrderPaymentNote = PaymentNoteFor(request);
         LastCheckoutResult = result.Value;
 
         // Persist the customer + this address for next time the same number calls - a plain upsert,
@@ -273,6 +274,18 @@ public partial class CallCenterViewModel
         CurrentCheckoutRequestId = null;
     }
 
+    /// <summary>How the order just registered is paid, under its number on the confirmation. Taken from the request
+    /// that was sent, not the form - the form is already reset for the next call. UI review 2026-11-24: the line
+    /// was fixed text, "the driver collects", and said so for pickups too.</summary>
+    [ObservableProperty] private string _lastOrderPaymentNote = "";
+
+    private static string PaymentNoteFor(CheckoutOrderRequest request) => (request.OrderType, request.PaymentMethod) switch
+    {
+        ("pickup", "cash") => "العميل يدفع في المطعم لما ييجي ياخد الطلب.",
+        (_, "instapay" or "wallet") => "الدفع بتحويل؛ يتأكد بعدين.",
+        _ => "السائق يحصّل المبلغ نقدًا عند التسليم.",
+    };
+
     [RelayCommand]
     private void StartNewOrder()
     {
@@ -291,8 +304,7 @@ public partial class CallCenterViewModel
     [ObservableProperty] private OrderDetailsDto? _lookedUpOrder;
 
     /// <summary>An operator taking a follow-up call about a pickup needs to know when the customer
-    /// said they were coming. Cairo wall clock - the clock the counter and the customer agreed on.
-    /// The Call Center itself only ever creates delivery orders, but it looks up every order.</summary>
+    /// said they were coming. Cairo wall clock - the clock the counter and the customer agreed on.</summary>
     public string LookedUpRequestedPickupLine =>
         LookedUpOrder?.RequestedPickupAtUtc is { } at
             ? TimeZoneInfo.ConvertTime(at, Falah.Domain.Common.BusinessClock.CairoTimeZone).ToString("yyyy-MM-dd HH:mm")
@@ -315,6 +327,7 @@ public partial class CallCenterViewModel
                 return $"{how} - ملغى؛ لا يوجد مبلغ مطلوب تحصيله";
             return order.ElectronicPaymentStatus == "pending" ? $"{how} - تحويل لم يُؤكَّد"
                 : order.IsPaid || order.CustomerFundsCollected ? $"{how} - مدفوع"
+                : string.Equals(order.OrderType, "pickup", StringComparison.OrdinalIgnoreCase) ? $"{how} - يدفع في المطعم عند الاستلام"
                 : $"{how} - تحصيل عند التسليم";
         }
     }
