@@ -574,3 +574,10 @@ follows `docs/DEPLOYMENT.md` §0 (verified backup first, service stopped outside
 New installer from `b254c6a` (clean tree): `artifacts/install/Falah-Setup-8D86E5EB054CFE52.exe` (417 MB,
 SHA-256 `DE635B3941473BC6D982F453663645B96EB3E8DA6CE8CE1FD3D941BC13AE0266`); server version
 `8D86E5EB054CFE52-b254c6a`; its `migrations-idempotent.sql` includes `20261123064520_AddPickupPayOnCollection`.
+
+**Commit IDs rewritten before the first push (2026-11-24).** GitHub refused the branch because
+`docs/archive/documentation-20261108.zip` (107 MB, ignored since 2026-11-10) was in its history; the 16
+unpushed commits were rewritten without that one file (trees otherwise identical; old history kept locally
+as tag `backup/closeout-before-rewrite-20261124`). Earlier documents and the installer's version stamp use
+the old IDs: `76a7d5f`→`81e5385`, `14f1726`→`a18556c`, `d386164`→`7e902ba`, `e0a097f`→`e731e8c`,
+`ebbe217`→`1657d0b`, `a023f7a`→`9c474cf`, `ffa0b09`→`a348366`, `b254c6a`→`25eec06`, `e80d963`→`14dc168`.
