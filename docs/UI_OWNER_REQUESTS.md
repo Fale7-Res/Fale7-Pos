@@ -565,3 +565,12 @@ Seen, not changed (owner's call):
   blank rather than "الكل". With no delivery service defined, the delivery-service list is empty with no
   hint. The Control Center's "عدّ النقدية" refuses after the last shift closes (the closing checklist's
   "عد درج النقدية" is a tick, not that dialog).
+
+Committed as `b254c6a`. Full integration suite on that commit (scratch copy, 2026-11-24): 1140/1140 passed
+in 2 h 14 m; domain 606/606, client 492/492, solution 0 errors. The Setup.exe on disk before this
+(`F20DECCB3A21A4A9`, 2026-11-22) predates `ffa0b09` and this commit; installing the new one applies four
+additive migrations (wage history, customer hidden, frozen food cost, pickup pay on collection), so it
+follows `docs/DEPLOYMENT.md` §0 (verified backup first, service stopped outside a shift).
+New installer from `b254c6a` (clean tree): `artifacts/install/Falah-Setup-8D86E5EB054CFE52.exe` (417 MB,
+SHA-256 `DE635B3941473BC6D982F453663645B96EB3E8DA6CE8CE1FD3D941BC13AE0266`); server version
+`8D86E5EB054CFE52-b254c6a`; its `migrations-idempotent.sql` includes `20261123064520_AddPickupPayOnCollection`.
