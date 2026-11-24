@@ -181,6 +181,11 @@
                                    AutomationProperties.AutomationId="Shifts_ReprintMessage" AutomationProperties.LiveSetting="Polite"
                                    Text="{Binding ReprintMessage}"
                                    Visibility="{Binding ReprintMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        <!-- SEC-0030: a user without print_reprint has a manager type their PIN before a row reprint. -->
+                        <PasswordBox Margin="16,10,16,0" MaxWidth="320" HorizontalAlignment="Right"
+                                     AutomationProperties.AutomationId="Shifts_ReprintManagerPin" AutomationProperties.Name="رمز المدير لإعادة الطباعة"
+                                     PlaceholderText="رمز المدير لإعادة الطباعة" Password="{Binding ReprintManagerPin, Mode=TwoWay}"
+                                     Visibility="{Binding ReprintNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
 
                         <TextBlock Margin="16" TextWrapping="Wrap" Style="{StaticResource CaptionText}"
                                    Foreground="{ThemeResource TextMutedBrush}"

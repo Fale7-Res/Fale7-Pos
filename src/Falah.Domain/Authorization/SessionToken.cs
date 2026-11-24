@@ -34,6 +34,13 @@ public static class SessionToken
     /// should stop working on its own.</summary>
     public static readonly TimeSpan IdleLifetime = TimeSpan.FromHours(16);
 
+    /// <summary>SEC-0007 (owner decision 2026-11-22): however busy a session is, it ends this long after
+    /// the login that created it, so a token copied from a till cannot be kept alive for ever.</summary>
+    public static readonly TimeSpan AbsoluteLifetime = TimeSpan.FromHours(24);
+
     public static bool IsExpired(DateTimeOffset lastSeenUtc, DateTimeOffset nowUtc) =>
         nowUtc - lastSeenUtc > IdleLifetime;
+
+    public static bool IsExpired(DateTimeOffset createdUtc, DateTimeOffset lastSeenUtc, DateTimeOffset nowUtc) =>
+        IsExpired(lastSeenUtc, nowUtc) || nowUtc - createdUtc > AbsoluteLifetime;
 }

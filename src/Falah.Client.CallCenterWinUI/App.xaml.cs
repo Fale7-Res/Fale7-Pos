@@ -15,6 +15,11 @@ public partial class App : global::Microsoft.UI.Xaml.Application
         // Audit 2026-11-18: written down before the process ends (see CrashLog). Not marked handled:
         // the station recovers its in-flight work on the next start, which a half-finished screen would not.
         var crashDirectory = System.IO.Path.Combine(Services.FileRetainedRequestStore.DataRoot(), "logs");
+        // Runtime logging audit 2026-11-23: station log beside the crash log, 30 days kept.
+        Falah.Client.Diagnostics.ClientLog.Configure(Falah.Client.Diagnostics.ClientLog.ResolveDirectory(crashDirectory), "callcenter");
+        Falah.Client.Diagnostics.ClientLog.DeleteOldLogs(retentionDays: 30);
+        Falah.Client.Diagnostics.ClientLog.Write("INFO", "call center station started");
+        crashDirectory = Falah.Client.Diagnostics.ClientLog.ResolveDirectory(crashDirectory)!;
         UnhandledException += (_, e) => Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "callcenter", e.Exception, "UI");
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "callcenter", e.ExceptionObject as Exception, "process");

@@ -55,6 +55,9 @@ public static class PermissionCatalog
         // What a print agent station logs in with, and all it needs: claim its route's jobs and
         // report what happened to them (and to a cash-drawer kick). Nothing else in the system.
         new("print_agent", "printing"),
+        // SEC-0030 (owner decision 2026-11-22): printing a receipt or slip again. Without it a manager
+        // approves the reprint at the till.
+        new("print_reprint", "printing"),
     };
 
     public static readonly IReadOnlySet<string> Keys = All.Select(p => p.Key).ToHashSet();

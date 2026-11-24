@@ -15,7 +15,8 @@ public static class OrderReadProjection
                 .GroupBy(c => c.OrderId).ToDictionary(g => g.Key, g => g.Max(c => c.CollectedPiastres));
         return orders.Select(o => OrderMapper.ToDto(o) with {
             CustomerFundsCollected = o.IsPaid || o.OrderType == "delivery" && o.PaymentMethod == "cash"
-                && o.TotalPiastres > 0 && settlements.GetValueOrDefault(o.Id) >= o.TotalPiastres
+                && o.TotalPiastres > 0 && settlements.GetValueOrDefault(o.Id) >= o.TotalPiastres,
+            AwaitingCollection = o.AwaitingCollection && o.Status != "cancelled",
         }).ToList();
     }
 }

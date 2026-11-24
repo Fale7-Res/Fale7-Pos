@@ -26,6 +26,6 @@ public sealed class PayrollQueryService
         _db.PayrollLines.AsNoTracking().Where(l => l.PayrollRunId == runId)
             .Select(l => new PayrollLineDto(l.Id, l.PayrollRunId, l.EmployeeId, l.BasePiastres, l.OvertimePiastres,
                 l.ExtraShiftsPiastres, l.BonusesPiastres, l.DeductionsPiastres, l.AdvanceDeductionsPiastres,
-                l.NetPayablePiastres, l.Status, l.PaidAtUtc))
+                l.NetPayablePiastres, l.Status, l.PaidAtUtc, l.PaidOutsidePayrollPiastres ?? 0))
             .ToListAsync(ct);
 }

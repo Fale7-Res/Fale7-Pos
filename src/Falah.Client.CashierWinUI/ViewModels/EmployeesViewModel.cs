@@ -99,12 +99,13 @@ public partial class EmployeesViewModel : ObservableObject
             Employees.Clear();
             foreach (var e in employees.Value) _all.Add(new EmployeeRow { Employee = e });
 
-            foreach (var row in _all)
-            {
-                var balance = await _session.Api.GetEmployeeBalanceAsync(row.Employee.Id);
-                if (!balance.Success || balance.Value is null) { LoadError = balance.Error ?? "تعذر تحميل رصيد الموظف."; return; }
-                if (balance.Success && balance.Value is not null) row.BalancePiastres = balance.Value.BalancePiastres;
-            }
+            // PERF-0006: one request for every balance instead of one per employee. If it fails the list
+            // still shows (balances blank) with the reason, rather than an empty screen.
+            var balances = await _session.Api.GetEmployeeBalancesAsync();
+            if (balances.Success && balances.Value is not null)
+                foreach (var row in _all) row.BalancePiastres = balances.Value.GetValueOrDefault(row.Employee.Id);
+            else
+                LoadError = balances.Error ?? "تعذر تحميل أرصدة الموظفين.";
             ApplyFilter();
         }
         finally

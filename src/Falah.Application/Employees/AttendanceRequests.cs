@@ -1,10 +1,9 @@
 namespace Falah.Application.Employees;
 
 /// <summary>Ported from biometricCheckIn in lib/store.tsx - hardware-agnostic (a real fingerprint
-/// device can call this the same way a simulator does), so BiometricEventId is optional and only
-/// used for a future device's own dedup key. No permission check, matching legacy exactly: operating
-/// the biometric device (or its simulator) IS the authorization for a routine check-in - a
-/// discretionary financial decision this is not.</summary>
+/// device can call this the same way a simulator does). BiometricEventId is the request id: required,
+/// and a retry with the same id replays. The actor needs attendance_manage (SEC-0037, owner decision
+/// 2026-11-22); a device logs in as an account holding it.</summary>
 public sealed record BiometricCheckInRequest(string EmployeeId, string? BiometricEventId, string ActorUserId);
 
 public sealed record BiometricCheckOutRequest(string EmployeeId, string? BiometricEventId, string ActorUserId);

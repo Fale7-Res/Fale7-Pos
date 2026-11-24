@@ -12,6 +12,8 @@
     <ProjectReference Include="../../src/Falah.Application/Falah.Application.csproj" />
     <Compile Include="../../src/Falah.Client.Shared/WindowsUserDataProtection.cs" Link="Security/WindowsUserDataProtection.cs" />
     <Compile Include="../../src/Falah.Client.Shared/CrashLog.cs" Link="Diagnostics/CrashLog.cs" />
+    <Compile Include="../../src/Falah.Client.Shared/ClientLog.cs" Link="Diagnostics/ClientLog.cs" />
+    <Compile Include="../../src/Falah.Client.Shared/CorrelationLoggingHandler.cs" Link="Diagnostics/CorrelationLoggingHandler.cs" />
     <!-- ThemeService/ThemeResources are excluded: both depend on Microsoft.UI.Xaml types
          (ElementTheme, FrameworkElement, ResourceDictionary) that only exist in the real WinUI 3
          app, not in this plain net8.0 test project - the same reason HeaderViewModel/MainViewModel
@@ -31,5 +33,9 @@
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/MainViewModel.cs" Link="CallCenter/ViewModels/MainViewModel.cs" />
     <Compile Include="../../src/Falah.Client.CashierWinUI/ViewModels/MainViewModel.cs" Link="Client/ViewModels/MainViewModel.cs" />
     <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/LoginViewModel.cs" Link="CallCenter/ViewModels/LoginViewModel.cs" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/DeliveryViewModel.cs" Link="CallCenter/ViewModels/DeliveryViewModel.cs" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/DeliveryViewModel.Statistics.cs" Link="CallCenter/ViewModels/DeliveryViewModel.Statistics.cs" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/DriverStatementViewModel.cs" Link="CallCenter/ViewModels/DriverStatementViewModel.cs" />
+    <Compile Include="../../src/Falah.Client.CallCenterWinUI/ViewModels/OrdersViewModel.cs" Link="CallCenter/ViewModels/OrdersViewModel.cs" />
   </ItemGroup>
 </Project>

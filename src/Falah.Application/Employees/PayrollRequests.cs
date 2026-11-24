@@ -17,7 +17,8 @@ public sealed record PayrollRunDto(
 public sealed record PayrollLineDto(
     string Id, string PayrollRunId, string EmployeeId, long BasePiastres, long OvertimePiastres,
     long ExtraShiftsPiastres, long BonusesPiastres, long DeductionsPiastres, long AdvanceDeductionsPiastres,
-    long NetPayablePiastres, string Status, DateTimeOffset? PaidAtUtc);
+    long NetPayablePiastres, string Status, DateTimeOffset? PaidAtUtc,
+    long PaidOutsidePayrollPiastres = 0);
 
 /// <summary>Ported from transitionPayroll - draft→calculated→reviewed→approved, or cancelled from
 /// any of those (PAYROLL_TRANSITIONS), with `approved` additionally requiring `payroll_approve`

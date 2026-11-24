@@ -118,7 +118,7 @@
                         <Run Text="{Binding LastCheckoutResult.OrderNumber}"/>
                     </TextBlock>
                     <TextBlock Style="{StaticResource MutedText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
-                               Text="السائق يحصّل المبلغ عند التسليم إذا كان الدفع نقدًا."/>
+                               Text="{Binding LastOrderPaymentNote}" AutomationProperties.AutomationId="CallCenter_LastOrderPaymentNote"/>
                     <TextBlock Text="{Binding ReprintNote}" Style="{StaticResource MutedText}"
                                TextWrapping="Wrap" TextAlignment="Center"/>
                     <!-- The order is never failed for a printing problem, so this is the only thing
@@ -186,6 +186,9 @@
                                    Text="{Binding LookedUpPaymentLine}"
                                    Foreground="{Binding IsLookedUpPaymentUnconfirmed, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=WarningBrush|TextMutedBrush}"
                                    Visibility="{Binding HasLookedUpPaymentLine, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <PasswordBox AutomationProperties.AutomationId="CallCenter_ReprintManagerPin" AutomationProperties.Name="رمز المدير لإعادة الطباعة"
+                                     PlaceholderText="رمز المدير لإعادة الطباعة" Password="{Binding ReprintManagerPin, Mode=TwoWay}"
+                                     Visibility="{Binding ReprintNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <Button Content="إعادة طباعة إيصال مركز الاتصال" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"
                                 Command="{Binding ReprintLookedUpOrderCommand}"/>
                         <TextBlock Text="{Binding ReprintNote}" FontSize="11" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"

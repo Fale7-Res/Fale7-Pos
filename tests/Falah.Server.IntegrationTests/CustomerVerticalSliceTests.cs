@@ -33,6 +33,47 @@ public class CustomerVerticalSliceTests : IAsyncLifetime
         string? serviceId = "svc-1", string? serviceName = "توصيل سريع") =>
         new(phone, name, area, street, building, floor, apartment, landmark, serviceId, serviceName);
 
+    private HttpClient As(string userId)
+    {
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(userId));
+        return client;
+    }
+
+    // CUS-0002, owner decision 2026-11-22: the owner can delete a customer. Staff no longer find them;
+    // the record stays stored for the owner, and a new order from the same phone brings them back.
+    [Fact]
+    public async Task A_deleted_customer_is_gone_for_staff_but_kept_for_the_owner()
+    {
+        var ownerId = await _factory.SeedUserAsync("المالك", "owner", "all");
+        var cashierId = await _factory.SeedUserAsync("كاشير", "cashier", "pos");
+        var customer = (await (await _client.PostAsJsonAsync("/api/customers/upsert", MakeRequest())).Content.ReadFromJsonAsync<CustomerDto>())!;
+
+        (await As(ownerId).PostAsJsonAsync($"/api/customers/{customer.Id}/hide", new HideCustomerRequest(customer.Id, ownerId))).EnsureSuccessStatusCode();
+
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, (await As(cashierId).GetAsync("/api/customers/lookup?phone=01012345678")).StatusCode);
+        var forOwner = await As(ownerId).GetFromJsonAsync<CustomerDto>("/api/customers/lookup?phone=01012345678");
+        Assert.True(forOwner!.IsHidden);
+        Assert.Single(forOwner.Addresses);
+        Assert.Equal(1, await _factory.QueryAsync(db => db.Customers.CountAsync(c => c.Id == customer.Id)));
+
+        (await _client.PostAsJsonAsync("/api/customers/upsert", MakeRequest(name: "أحمد تاني"))).EnsureSuccessStatusCode();
+        var back = await As(cashierId).GetFromJsonAsync<CustomerDto>("/api/customers/lookup?phone=01012345678");
+        Assert.False(back!.IsHidden);
+        Assert.Equal(customer.Id, back.Id);
+    }
+
+    [Fact]
+    public async Task Only_the_owner_can_delete_a_customer()
+    {
+        var cashierId = await _factory.SeedUserAsync("كاشير", "cashier", "pos", "delivery_manage");
+        var customer = (await (await _client.PostAsJsonAsync("/api/customers/upsert", MakeRequest())).Content.ReadFromJsonAsync<CustomerDto>())!;
+
+        var refused = await As(cashierId).PostAsJsonAsync($"/api/customers/{customer.Id}/hide", new HideCustomerRequest(customer.Id, cashierId));
+        Assert.Equal(System.Net.HttpStatusCode.UnprocessableEntity, refused.StatusCode);
+        Assert.Equal(System.Net.HttpStatusCode.OK, (await As(cashierId).GetAsync("/api/customers/lookup?phone=01012345678")).StatusCode);
+    }
+
     [Fact]
     public async Task Upserting_a_new_customer_creates_it_with_its_first_address()
     {

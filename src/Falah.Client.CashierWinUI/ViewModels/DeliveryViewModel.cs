@@ -84,6 +84,9 @@ public partial class DeliveryViewModel : ObservableObject
 
         public bool IsPaymentUnconfirmed => string.Equals(Delivery.ElectronicPaymentStatus, "pending", StringComparison.OrdinalIgnoreCase);
 
+        /// <summary>FIN-0051: an unpaid cash-on-delivery order not yet with a driver can be cancelled.</summary>
+        public bool CanCancel => CanCancelBeforeDispatch(Delivery);
+
         /// <summary>How long this order has been on the board. The single most useful number on a
         /// dispatch screen and the one it did not have.</summary>
         public string ElapsedDisplay
@@ -137,6 +140,24 @@ public partial class DeliveryViewModel : ObservableObject
 
     public bool HasNoDeliveries => !IsLoading && LoadError is null && Board.Count == 0;
 
+    /// <summary>Audit 2026-11-23, F-11: the drivers panel said nothing when there was nobody to assign.</summary>
+    public bool HasNoDrivers => !IsLoading && LoadError is null && Drivers.Count == 0;
+
+    /// <summary>Audit 2026-11-23, F-16: how often the board reads itself again while it is on screen. A dispatcher
+    /// used to work from orders that had already moved on until someone pressed "تحديث".</summary>
+    public static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromSeconds(30);
+
+    /// <summary>Never under the dispatcher's hands: not while anything is loading or being sent, an answer is still
+    /// awaited, or a dialog about one delivery or driver is open.</summary>
+    public bool CanAutoRefresh => !IsLoading && !IsBusy && CanEditAction
+        && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null;
+
+    [RelayCommand]
+    private async Task AutoRefreshAsync()
+    {
+        if (CanAutoRefresh) await LoadAsync();
+    }
+
     /// <summary>Writes are gated on delivery_manage; the server enforces this too (and accepts a
     /// manager approval instead), this only decides whether the buttons are offered at all.</summary>
     public bool CanDispatch => _session.HasPermission("delivery_manage");
@@ -173,6 +194,7 @@ public partial class DeliveryViewModel : ObservableObject
         {
             IsLoading = false;
             OnPropertyChanged(nameof(HasNoDeliveries));
+            OnPropertyChanged(nameof(HasNoDrivers));
         }
     }
 
@@ -195,6 +217,97 @@ public partial class DeliveryViewModel : ObservableObject
                 return;
             }
             ActionNote = $"تم تجهيز {delivery.OrderNumber} للتوصيل.";
+            await LoadAsync();
+        }
+        finally { IsBusy = false; }
+    }
+
+    // ---------------- Cancel before it leaves (FIN-0051, owner decision 2026-11-22) ----------------
+
+    [ObservableProperty] private DeliveryDto? _cancelTarget;
+    [ObservableProperty] private string _cancelReason = "";
+    [ObservableProperty] private string? _cancelStockDisposition;
+    [ObservableProperty] private string _cancelManagerPin = "";
+    [ObservableProperty] private string? _cancelError;
+    private string? _cancelRequestId;
+
+    public bool IsCancelOpen => CancelTarget is not null;
+    /// <summary>Without delivery_override a manager approves the cancellation with their PIN.</summary>
+    public bool CancelNeedsApproval => !_session.HasPermission("delivery_override");
+    partial void OnCancelTargetChanged(DeliveryDto? value) => OnPropertyChanged(nameof(IsCancelOpen));
+
+    public bool IsCancelFoodPrepared
+    {
+        get => CancelStockDisposition == "prepared";
+        set { if (value) CancelStockDisposition = "prepared"; }
+    }
+
+    public bool IsCancelFoodNotPrepared
+    {
+        get => CancelStockDisposition == "not_prepared";
+        set { if (value) CancelStockDisposition = "not_prepared"; }
+    }
+
+    partial void OnCancelStockDispositionChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsCancelFoodPrepared));
+        OnPropertyChanged(nameof(IsCancelFoodNotPrepared));
+    }
+
+    /// <summary>Only an unpaid cash-on-delivery order still on the board (not yet with a driver).</summary>
+    public static bool CanCancelBeforeDispatch(DeliveryDto delivery) =>
+        delivery.Status is "New" or "Preparing" or "Ready"
+        && delivery is { PaymentMethod: "cash", PaymentAlreadySettled: false }
+        && !string.Equals(delivery.ElectronicPaymentStatus, "pending", StringComparison.OrdinalIgnoreCase);
+
+    [RelayCommand]
+    private void OpenCancel(DeliveryDto delivery)
+    {
+        if (!CanEditAction || !CanCancelBeforeDispatch(delivery)) return;
+        CancelReason = "";
+        CancelStockDisposition = null;
+        CancelManagerPin = "";
+        CancelError = null;
+        _cancelRequestId = $"cud-{Guid.NewGuid():N}";
+        CancelTarget = delivery;
+    }
+
+    [RelayCommand]
+    private void CloseCancel() { if (CanEditAction) CancelTarget = null; }
+
+    [RelayCommand]
+    private async Task ConfirmCancelAsync()
+    {
+        if (CancelTarget is null || !CanEditAction) return;
+        if (string.IsNullOrWhiteSpace(CancelReason)) { CancelError = "اكتب سبب الإلغاء."; return; }
+        if (CancelStockDisposition is null) { CancelError = "اختر: هل الأكل اتحضّر ولا لأ؟"; return; }
+        IsBusy = true;
+        CancelError = null;
+        try
+        {
+            string? approvalId = null, approverId = null;
+            if (CancelNeedsApproval)
+            {
+                var pin = CancelManagerPin.Trim();
+                if (pin.Length < 4) { CancelError = "الإلغاء يحتاج رمز المدير."; return; }
+                var approval = await _session.Api.IssueManagerApprovalAsync(
+                    new Falah.Application.Approvals.IssueManagerApprovalRequest(pin, "delivery_override", CancelReason.Trim()));
+                if (!approval.Success || approval.Value is null)
+                {
+                    CancelError = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد الإلغاء.";
+                    return;
+                }
+                (approvalId, approverId) = (approval.Value.ApprovalId, approval.Value.ApproverUserId);
+            }
+            var result = await _session.Api.CancelUndispatchedDeliveryAsync(new Falah.Application.Orders.CancelUndispatchedDeliveryRequest(
+                _cancelRequestId!, CancelTarget.OrderId, CancelReason.Trim(), _session.CurrentUser!.Id, CancelStockDisposition, approvalId, approverId));
+            if (!result.Success)
+            {
+                CancelError = result.Error ?? "تعذر إلغاء الطلب.";
+                return;
+            }
+            ActionNote = $"تم إلغاء الطلب {CancelTarget.OrderNumber} قبل خروجه.";
+            CancelTarget = null;
             await LoadAsync();
         }
         finally { IsBusy = false; }

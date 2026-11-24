@@ -30,6 +30,9 @@ public sealed record OrderDetailsDto(
     /// <summary>Read-side collection fact; the refund command rechecks it transactionally.
     /// Cash on delivery is collected for refunds only after the driver's full cash is settled.</summary>
     public bool CustomerFundsCollected { get; init; }
+
+    /// <summary>UI-0025: a pickup registered unpaid, waiting for its customer to pay at collection.</summary>
+    public bool AwaitingCollection { get; init; }
 }
 
 public sealed record OrderSplitPaymentDto(string Method, long AmountPiastres);

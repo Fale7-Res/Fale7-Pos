@@ -51,7 +51,7 @@ public static class PayrollRules
     {
         var rate = NormalHourlyRate(dailyWage, workdayHours);
         var hours = CalculateLatePenaltyHours(lateMinutes, graceMinutes, maxPenaltyHours);
-        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * hours * latePenaltyMultiplier));
+        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * hours * latePenaltyMultiplier, MidpointRounding.AwayFromZero)); // PAYR-0019: half a piastre up
         return new LateDeductionResult(hours, rate, amount);
     }
 
@@ -61,7 +61,7 @@ public static class PayrollRules
     {
         var rate = NormalHourlyRate(dailyWage, workdayHours);
         if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);
-        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier));
+        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier, MidpointRounding.AwayFromZero)); // PAYR-0019
         return new OvertimeAmountResult(rate, amount);
     }
 
@@ -79,7 +79,7 @@ public static class PayrollRules
 
     public readonly record struct PayrollLine(
         string EmployeeId, Money Base, Money Overtime, Money ExtraShifts, Money Bonuses, Money Deductions,
-        Money AdvanceDeductions, Money NetPayable);
+        Money AdvanceDeductions, Money NetPayable, Money PaidOutsidePayroll = default);
 
     public sealed record PayrollLineInput(
         string EmployeeId, bool IsActive, bool CompensationIsMonthly, Money? MonthlySalary,
@@ -100,6 +100,22 @@ public static class PayrollRules
         var days = DateTime.DaysInMonth(date.Year, date.Month);
         var share = monthlySalary.Piastres / days;
         return Money.FromPiastres(date.Day == days ? monthlySalary.Piastres - share * (days - 1) : share);
+    }
+
+    /// <summary>PAYR-0007 (owner decision 2026-11-22): the part of a monthly salary a payroll period owes -
+    /// the daily shares (<see cref="DailySalaryAccrual"/>) of the days from the hire date (or the period's
+    /// first day) to the period's last day. A whole month adds up to exactly the salary.</summary>
+    public static Money MonthlyBaseForPeriod(Money monthlySalary, DateOnly periodStart, DateOnly periodEnd, DateOnly hireDate) =>
+        MonthlyBaseForPeriod(_ => monthlySalary, periodStart, periodEnd, hireDate);
+
+    /// <summary>The same, with the salary in effect on each day (PAYR-0006: a raise mid-period counts
+    /// from its own day), so the base equals the accrual posted day by day.</summary>
+    public static Money MonthlyBaseForPeriod(Func<DateOnly, Money> salaryOn, DateOnly periodStart, DateOnly periodEnd, DateOnly hireDate)
+    {
+        var first = hireDate > periodStart ? hireDate : periodStart;
+        long total = 0;
+        for (var day = first; day <= periodEnd; day = day.AddDays(1)) total += DailySalaryAccrual(salaryOn(day), day).Piastres;
+        return Money.FromPiastres(total);
     }
 
     public static IReadOnlyList<PayrollLine> CalculatePayrollLines(IEnumerable<PayrollLineInput> inputs)
@@ -126,10 +142,15 @@ public static class PayrollRules
             if (emp.RequestedAdvanceDeduction.IsNegative || emp.RequestedAdvanceDeduction > emp.AvailableAdvance)
                 throw new DomainException($"استقطاع السلفة للموظف {emp.EmployeeId} يتجاوز الرصيد المتفق عليه.");
 
-            var net = baseAmount + overtime + extraShifts + bonuses - deductions - emp.RequestedAdvanceDeduction;
+            // PAYR-0004 (owner decision 2026-11-22): money already paid out of these earnings this period,
+            // outside the run - "دفع مستحقات" (Settlement) and "سحب" (Withdrawal) - is not paid again.
+            // An advance is a loan, not a payout of earnings; its recovery is a separate decision.
+            var paidOutside = Money.FromPiastres(emp.PeriodEntries.Where(e => e.Type is "Settlement" or "Withdrawal").Sum(e => e.Debit.Piastres));
+
+            var net = baseAmount + overtime + extraShifts + bonuses - deductions - emp.RequestedAdvanceDeduction - paidOutside;
             if (net.IsNegative) net = Money.Zero;
 
-            result.Add(new PayrollLine(emp.EmployeeId, baseAmount, overtime, extraShifts, bonuses, deductions, emp.RequestedAdvanceDeduction, net));
+            result.Add(new PayrollLine(emp.EmployeeId, baseAmount, overtime, extraShifts, bonuses, deductions, emp.RequestedAdvanceDeduction, net, paidOutside));
         }
         return result;
     }

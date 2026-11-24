@@ -61,6 +61,45 @@ public class SalaryAccrualDatingTests : IAsyncLifetime
         return body.RootElement.GetProperty("profitability").GetProperty("wagesPiastres").GetInt64();
     }
 
+    // PAYR-0006, owner decision 2026-11-22: a catch-up accrual pays each past day at the salary that
+    // was in effect that day, not today's.
+    [Fact]
+    public async Task A_late_accrual_pays_each_day_at_the_salary_in_effect_that_day()
+    {
+        await _factory.QueryAsync(async db =>
+        {
+            db.EmployeeWageHistory.Add(new EmployeeWageHistoryEntity { Id = "wh-1", EmployeeId = _employeeId, EffectiveFrom = new DateOnly(2024, 1, 1),
+                MonthlySalaryPiastres = MonthlySalary, RecordedAtUtc = DateTimeOffset.UtcNow, RecordedBy = "test" });
+            db.EmployeeWageHistory.Add(new EmployeeWageHistoryEntity { Id = "wh-2", EmployeeId = _employeeId, EffectiveFrom = new DateOnly(2026, 9, 11),
+                MonthlySalaryPiastres = MonthlySalary * 2, RecordedAtUtc = DateTimeOffset.UtcNow, RecordedBy = "test" });
+            await db.Employees.Where(e => e.Id == _employeeId).ExecuteUpdateAsync(s => s.SetProperty(e => e.MonthlySalaryPiastres, MonthlySalary * 2));
+            await db.SaveChangesAsync();
+            return true;
+        });
+
+        await AccrueThroughAsync(new DateOnly(2026, 9, 20));
+
+        Task<long> CreditOn(int day) => _factory.QueryAsync(db => db.EmployeeLedgerEntries
+            .Where(e => e.Id == SalaryAccrual.EntryId(_employeeId, new DateOnly(2026, 9, day))).Select(e => e.CreditPiastres).SingleAsync());
+        Assert.Equal(DailyShare, await CreditOn(5));                       // before the raise: the old salary
+        Assert.Equal(20_666, await CreditOn(15));                          // 620 000 / 30 = 20 666 (the remainder goes to the last day)
+    }
+
+    // PAYR-0005/0006: changing someone's pay records what it was before and what it is from today.
+    [Fact]
+    public async Task Changing_the_salary_records_the_old_pay_and_the_new_one_from_today()
+    {
+        (await _client.PutAsJsonAsync($"/api/employees/{_employeeId}", new UpdateEmployeeRequest(
+            _employeeId, "محاسب المطعم", $"EMP-{Guid.NewGuid():N}", "محاسب", "01000000000", new DateOnly(2024, 1, 1),
+            "Monthly", 0, 0, MonthlySalary * 2, false, "cashier", true, null, null, null, null, null, null, null, null, _managerId))).EnsureSuccessStatusCode();
+
+        var rows = await _factory.QueryAsync(db => db.EmployeeWageHistory.AsNoTracking().Where(h => h.EmployeeId == _employeeId)
+            .OrderBy(h => h.EffectiveFrom).ToListAsync());
+        Assert.Equal(2, rows.Count);
+        Assert.Equal((new DateOnly(2024, 1, 1), (long?)MonthlySalary), (rows[0].EffectiveFrom, rows[0].MonthlySalaryPiastres));
+        Assert.Equal((Falah.Domain.Common.BusinessClock.BusinessDate(DateTimeOffset.UtcNow), (long?)(MonthlySalary * 2)), (rows[1].EffectiveFrom, rows[1].MonthlySalaryPiastres));
+    }
+
     private static long Optional(JsonElement element, string property) =>
         element.TryGetProperty(property, out var value) ? value.GetInt64() : 0;
 

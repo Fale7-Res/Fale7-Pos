@@ -83,7 +83,8 @@ public sealed class ReassignDeliveryHandler
                 approval = new ManagerApproval(request.ManagerApprovalId, approverUser.Id, approverUser.Name,
                     approverUser.Role, DateTimeOffset.UtcNow, permission, request.Reason);
             }
-            AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, permission, approval, requireApproval: true);
+            // Audit 2026-11-23, F-05: only an approval the check actually validated is named as the authoriser.
+            var approvedBy = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, permission, approval, requireApproval: true).Approver?.ApproverName;
 
             var oldDriverId = delivery.DriverId;
             var oldDriver = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == oldDriverId, ct);
@@ -111,7 +112,7 @@ public sealed class ReassignDeliveryHandler
             {
                 Id = $"delivery-event-{Guid.NewGuid():N}", DeliveryId = delivery.Id, OrderId = delivery.OrderId,
                 DriverId = newDriver.Id, TripId = delivery.TripId, Type = "reassignment", Reason = request.Reason.Trim(),
-                Actor = actorUser.Name, Approver = approval?.ApproverName, CreatedAtUtc = now,
+                Actor = actorUser.Name, Approver = approvedBy, CreatedAtUtc = now,
             });
 
             // A fresh dispatch ticket for the NEW driver - ComposeTicketContentAsync marks it
@@ -131,7 +132,7 @@ public sealed class ReassignDeliveryHandler
                 $"audit-{Guid.NewGuid():N}", actorUser.Id, actorUser.Name, actorUser.Role,
                 "نقل طلب دليفري لسائق آخر", "order",
                 $"نقل من {oldDriver?.Name ?? oldDriverId} إلى {newDriver.Name} - {request.Reason}",
-                afterOutcome ? "critical" : "normal", now, Reason: request.Reason, AuthorizedBy: approval?.ApproverName,
+                afterOutcome ? "critical" : "normal", now, Reason: request.Reason, AuthorizedBy: approvedBy,
                 ReferenceId: delivery.Id));
 
             await _db.SaveChangesAsync(ct);

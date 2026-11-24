@@ -253,7 +253,7 @@ public sealed class SettleDriverCustodyHandler
         var result = new Microsoft.Data.SqlClient.SqlParameter("@driverLock", System.Data.SqlDbType.Int) { Direction = System.Data.ParameterDirection.Output };
         var resource = new Microsoft.Data.SqlClient.SqlParameter("@driverLockResource", System.Data.SqlDbType.NVarChar, 255) { Value = $"FalahDriverSettlement:{driverId}" };
         await _db.Database.ExecuteSqlRawAsync(
-            "EXEC @driverLock = sys.sp_getapplock @Resource=@driverLockResource, @LockMode=N'Exclusive', @LockOwner=N'Transaction', @LockTimeout=15000",
+            "EXEC @driverLock = sys.sp_getapplock @Resource=@driverLockResource, @LockMode=N'Exclusive', @LockOwner=N'Transaction', @LockTimeout=" + Falah.Infrastructure.Persistence.LockTimeouts.Milliseconds,   // audit 2026-11-23, F-09: under the till's 10 s
             new object[] { result, resource }, ct);
         if (result.Value is not int code || code < 0)
             throw new DeliveryConflictException(Falah.Infrastructure.Treasury.BalanceLockContention.RetryMessage);

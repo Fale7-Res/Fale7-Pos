@@ -35,7 +35,7 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
         var ticketAgent = await _factory.SeedUserAsync("قارئ تذاكر الطباعة", "print_agent", "print_agent");
         _ticketClient = _factory.CreateClient();
         _ticketClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(ticketAgent));
-        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own");
+        _cashierId = await _factory.SeedUserAsync("كاشير الاختبار", "cashier", "pos", "shifts_open_own", "print_reprint");
         // Print results are reported by the print station's own account, never a till (SEC5).
         _agentId = await _factory.SeedUserAsync("محطة الطباعة", "print_agent", "print_agent");
         _menuManagerId = await _factory.SeedUserAsync("مدير المنيو", "supervisor", "menu_manage");
@@ -100,6 +100,56 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
     ///
     /// This follows one the whole way - sent at checkout, absent from the order when it is looked
     /// up again, and absent from both the customer's receipt and the kitchen's ticket.</summary>
+    // PRT-0008, owner decision 2026-11-22: "عدد نسخ الإيصال" works - the customer receipt's first print
+    // comes out as that many copies, cut apart. A reprint is one copy, marked as a reprint.
+    [Fact]
+    public async Task The_receipt_prints_the_number_of_copies_set_and_a_reprint_prints_one()
+    {
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول الإعدادات ٦", "manager", "settings_manage");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, NumberOfReceiptCopies: 2))).EnsureSuccessStatusCode();
+        var product = await CreateProductAsync("فطيرة", 5000, null);
+        var order = await CheckoutAsync((product, 1));
+
+        var first = (await CreatePrintJobsAsync(order.OrderId, "Receipt"))!.Jobs.Single(j => j.Route == "Receipt");
+        var firstTicket = (await (await _ticketClient.GetAsync($"/api/print-jobs/{first.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>())!;
+        Assert.Equal(1, firstTicket.Lines.Count(l => l.Kind == TicketElementMapping.KindCut));   // two copies, one cut between them
+
+        var reprint = (await (await _client.PostAsJsonAsync($"/api/orders/{order.OrderId}/print-jobs", new CreatePrintJobsRequest(
+            $"rp-{Guid.NewGuid():N}", order.OrderId, "Receipt", IsReprint: true, ActorUserId: _cashierId, IncludeKitchenRoutes: false)))
+            .Content.ReadFromJsonAsync<CreatePrintJobsResult>())!.Jobs.Single();
+        var reprintTicket = (await (await _ticketClient.GetAsync($"/api/print-jobs/{reprint.Id}/ticket")).Content.ReadFromJsonAsync<ComposedTicketDto>())!;
+        Assert.Equal(0, reprintTicket.Lines.Count(l => l.Kind == TicketElementMapping.KindCut));
+    }
+
+    // PRT-0016, owner decision 2026-11-22: a kitchen ticket held until the transfer is confirmed prints
+    // by itself when it is confirmed - once, however often the confirmation is retried.
+    [Fact]
+    public async Task A_held_kitchen_ticket_prints_by_itself_when_the_transfer_is_confirmed()
+    {
+        var settingsAdmin = await _factory.SeedUserAsync("مسؤول الإعدادات ٥", "manager", "settings_manage");
+        (await _client.PutAsJsonAsync("/api/settings", new Falah.Application.Settings.UpdateSettingsRequest(
+            settingsAdmin, AutoPrintReceipt: false, AutoPrintPreparationTicket: true, HoldPreparationUntilPaymentConfirmed: true))).EnsureSuccessStatusCode();
+        var grill = await CreateProductAsync("مشويات", 20_000, "Grill");
+        var order = (await (await _client.PostAsJsonAsync("/api/orders/checkout", new CheckoutOrderRequest(
+            CheckoutRequestId: $"req-{Guid.NewGuid():N}", CashierId: _cashierId, ShiftId: _shiftId,
+            OrderType: "takeaway", PaymentMethod: "instapay",
+            Items: new[] { new CheckoutItemRequest(grill, null, 1, null, null) },
+            DiscountPiastres: 0, DeliveryFeePiastres: 0, CompAmountPiastres: 0,
+            CompApprovalId: null, CompApproverUserId: null, CompReason: null,
+            AmountPaidPiastres: 20_000, SplitPayments: null, WalletProvider: null,
+            TableNumber: null, CustomerName: null, CustomerPhone: null,
+            DeliveryAddress: null, DeliveryArea: null, BusinessDayId: null))).Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+        Task<int> GrillJobsAsync() => _factory.QueryAsync(db => db.PrintJobs.CountAsync(j => j.OrderId == order.OrderId && j.Route == "Grill"));
+        Assert.Equal(0, await GrillJobsAsync());   // held: the transfer is not confirmed yet
+
+        for (var i = 0; i < 2; i++)
+            (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment",
+                new Falah.Application.Orders.ConfirmElectronicPaymentRequest(order.OrderId, _cashierId))).EnsureSuccessStatusCode();
+
+        Assert.Equal(1, await GrillJobsAsync());
+    }
+
     [Fact]
     public async Task A_pickup_order_carries_no_table_even_if_one_is_sent()
     {

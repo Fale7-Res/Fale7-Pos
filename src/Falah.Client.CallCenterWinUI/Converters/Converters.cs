@@ -351,3 +351,70 @@ public sealed class CountToVisibleConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
 }
+
+// Ported with the delivery board and the order history (2026-11-24).
+
+public sealed class DeliveryStatusLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string) switch
+    {
+        // DeliveryStatus is persisted as nameof(...), i.e. PascalCase - unlike OrderStatus.
+        "New" => "جديد",
+        "Preparing" => "قيد التحضير",
+        "Ready" => "جاهز للإسناد",
+        "Assigned" => "مُسند",
+        "HandedToDriver" => "مع السائق",
+        "OutForDelivery" => "في الطريق",
+        "Delivered" => "تم التسليم",
+        "Failed" => "فشل التسليم",
+        "Returned" => "مرتجع",
+        "Settled" => "تمت التسوية",
+        "Cancelled" => "ملغي",
+        var other => other ?? "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+public sealed class OrderTypeLabelConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) => (value as string)?.ToLowerInvariant() switch
+    {
+        "pickup" => "استلام من المطعم",
+        "takeaway" => "تيك أواي",
+        "delivery" => "توصيل",
+        // Pre-rename spelling still present on historical Pickup orders (see OrderEnumMapping).
+        "dine_in" or "dinein" => "استلام من المطعم",
+        _ => value as string ?? "",
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+
+public sealed class PaymentMethodLabelConverter : IValueConverter
+{
+    public static string Label(string? method) => method?.ToLowerInvariant() switch
+    {
+        "cash" => "كاش",
+        "card" => "فيزا",
+        "instapay" => "إنستاباي",
+        "wallet" => "محفظة",
+        "multi" => "دفع مقسّم",
+        null or "" => "",
+        _ => method!,
+    };
+
+    public object Convert(object value, Type targetType, object parameter, string language) => Label(value as string);
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotSupportedException();
+}
+
+public sealed class PositiveAmountToVisibleConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language) =>
+        value is long l && l > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}

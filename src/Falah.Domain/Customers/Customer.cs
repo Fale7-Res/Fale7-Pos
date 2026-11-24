@@ -21,7 +21,20 @@ public sealed record CustomerAddress(
 /// up by name.</summary>
 public static class CustomerRules
 {
-    public static string NormalizePhone(string phone) => Regex.Replace(phone, @"\D", "");
+    /// <summary>QA-02 (audit 2026-11-23): Arabic-Indic and Persian digits are converted first, and only
+    /// 0-9 are kept. `\D` alone kept Arabic-Indic digits (.NET counts them as digits), so a number pasted
+    /// as "٠١٠…" became a second customer and the lookup missed the first one's saved addresses.</summary>
+    public static string NormalizePhone(string phone) => Regex.Replace(InputRules.NormalizeDigits(phone ?? ""), "[^0-9]", "");
+
+    /// <summary>The longest real number (E.164 allows 15 digits) plus room for a prefix.</summary>
+    public const int MaxPhoneDigits = 20;
+
+    public static void AssertPhone(string phone)
+    {
+        var normalized = NormalizePhone(phone);
+        if (string.IsNullOrEmpty(normalized)) throw new DomainException("رقم هاتف العميل مطلوب.");
+        if (normalized.Length > MaxPhoneDigits) throw new DomainException($"رقم الهاتف أطول من المسموح (الحد {MaxPhoneDigits} رقم).");
+    }
 
     public static Customer? FindByPhone(IEnumerable<Customer> customers, string phone)
     {
@@ -51,7 +64,8 @@ public static class CustomerRules
     /// remote caller (e.g. Call Center) to debug.</summary>
     public static void AssertUpsertInput(string phone, string name)
     {
-        if (string.IsNullOrEmpty(NormalizePhone(phone))) throw new DomainException("رقم هاتف العميل مطلوب.");
+        AssertPhone(phone);
         if (string.IsNullOrWhiteSpace(name)) throw new DomainException("اسم العميل مطلوب.");
+        InputRules.AssertMaxLength(name.Trim(), InputRules.MaxNameLength, "اسم العميل");
     }
 }

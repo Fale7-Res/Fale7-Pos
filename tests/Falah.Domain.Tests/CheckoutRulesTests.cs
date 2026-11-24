@@ -11,6 +11,61 @@ public class CheckoutRulesTests
         new("i1", "prod-1", null, "شاورما فراخ", null, Money.FromEgp(unitPrice), Money.FromEgp(unitPrice), qty,
             Money.FromEgp(unitPrice * qty), false, null, null, null);
 
+    // ---- UI-0025, owner decision 2026-11-22: a pickup is registered and prepared, the customer pays on collection ----
+
+    [Fact]
+    public void A_pay_on_collection_pickup_takes_no_money_and_is_not_paid()
+    {
+        var plan = CheckoutRules.BuildPlan(OrderType.Pickup, PaymentMethod.Cash, new[] { Item(100m) },
+            Money.Zero, taxRule: null, Money.Zero, Money.Zero, Money.Zero, null, null, payOnCollection: true);
+
+        Assert.True(plan.PayOnCollection);
+        Assert.False(plan.IsPaid);
+        Assert.True(plan.DefersAllMoney);
+        Assert.Equal(Money.FromEgp(100m), plan.PayableTotal);
+        Assert.Equal(Money.Zero, plan.AmountPaid);
+        Assert.Null(plan.ElectronicLeg);
+    }
+
+    [Fact]
+    public void Only_a_pickup_can_be_paid_on_collection()
+    {
+        var ex = Assert.Throws<DomainException>(() => CheckoutRules.BuildPlan(OrderType.Takeaway, PaymentMethod.Cash, new[] { Item(100m) },
+            Money.Zero, taxRule: null, Money.Zero, Money.Zero, Money.Zero, null, null, payOnCollection: true));
+        Assert.Contains("الاستلام", ex.Message);
+    }
+
+    [Fact]
+    public void Collecting_a_pickup_in_cash_is_paid_and_gives_change()
+    {
+        var plan = CheckoutRules.BuildCollectionPlan(Money.FromEgp(100m), PaymentMethod.Cash, Money.FromEgp(150m), null, null);
+        Assert.True(plan.IsPaid);
+        Assert.False(plan.DefersAllMoney);
+        Assert.Equal(Money.FromEgp(50m), plan.ChangeDue);
+    }
+
+    [Fact]
+    public void Collecting_a_pickup_by_instapay_is_a_pending_claim_like_any_transfer()
+    {
+        var plan = CheckoutRules.BuildCollectionPlan(Money.FromEgp(100m), PaymentMethod.InstaPay, Money.FromEgp(100m), null, null);
+        Assert.False(plan.IsPaid);
+        Assert.True(plan.DefersAllMoney);
+        Assert.Equal(ElectronicPaymentStatus.Pending, plan.ElectronicLeg!.Status);
+    }
+
+    [Fact]
+    public void Collecting_less_than_the_order_is_refused()
+    {
+        Assert.Throws<DomainException>(() => CheckoutRules.BuildCollectionPlan(Money.FromEgp(100m), PaymentMethod.Cash, Money.FromEgp(99m), null, null));
+    }
+
+    [Fact]
+    public void Collecting_by_split_must_add_up_to_the_order()
+    {
+        var splits = new[] { new PaymentSplit(PaymentMethod.Cash, Money.FromEgp(40m)), new PaymentSplit(PaymentMethod.Card, Money.FromEgp(50m)) };
+        Assert.Throws<DomainException>(() => CheckoutRules.BuildCollectionPlan(Money.FromEgp(100m), PaymentMethod.Multi, Money.FromEgp(90m), splits, null));
+    }
+
     // Audit 2026-11-18: a discount above the items' value was accepted, the taxable base clamped to 0,
     // and the whole requested figure stored - so the discount reports showed money never given away.
     [Fact]

@@ -337,6 +337,27 @@ public class DriverFeeSettlementAndHandoverTests : IAsyncLifetime
         Assert.Equal(0, settled.DifferencePiastres);
     }
 
+    /// <summary>UI review 2026-11-24: a shift whose only delivery was delivered and its cash settled closed with
+    /// "طلبات غير مدفوعة: 1" under the open items - a cash delivery keeps IsPaid false after its driver settles, and
+    /// the line counted IsPaid alone. A settled cash delivery is collected (the rule OrderReadProjection already uses);
+    /// one the driver never took is still open.</summary>
+    [Fact]
+    public async Task A_settled_cash_delivery_is_not_listed_as_unpaid_on_the_shift_close_statement()
+    {
+        var shift = await OpenShiftAsync(_cashierA, 50_000);
+        var driverId = await CreateDriverAsync();
+        var delivered = await DeliveryOrderAsync(shift.ShiftId, _cashierA, 20_000, 2_000, "cash", "المنطقة-1");
+        await DeliveryOrderAsync(shift.ShiftId, _cashierA, 10_000, 3_000, "cash", "المنطقة-2"); // never sent out
+        await DispatchAsync(delivered.DeliveryId, driverId);
+        await Ok(ResultAsync(delivered.DeliveryId, "Delivered"));
+        await SettleOkAsync(Settle(driverId, _dispatcherId, 20_000));
+
+        await CloseAsync(shift.ShiftId, _cashierA, 50_000 + 20_000, retained: null, receiverId: null); // float + the driver's net
+
+        var statement = await _factory.QueryAsync(db => ShiftCloseStatements.LoadFrozenAsync(db, shift.ShiftId, default));
+        Assert.Contains("طلبات غير مدفوعة: 1", statement!.Outstanding);
+    }
+
     [Fact]
     public async Task A_short_final_settlement_records_the_difference_with_a_reason_and_a_manager_approval()
     {

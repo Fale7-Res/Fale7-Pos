@@ -31,6 +31,29 @@ public sealed class CloseBusinessDayHandler
         _reporting = reporting;
     }
 
+    /// <summary>INV-0011 / FIN-0044 (owner decision 2026-11-22): the day's food cost - and with it the
+    /// day's estimated profit - is frozen at close. Each of the day's orders keeps the unit food cost of
+    /// every line and its packaging as priced right now (recipes x latest purchase prices); a later price
+    /// or recipe change only affects days still open. An unknown cost is frozen as unknown, never as zero.
+    /// The one exception to "a close posts nothing": this records an estimate, not a financial fact.
+    /// An order frozen by an earlier close of a reopened day keeps its first figures.</summary>
+    private async Task FreezeFoodCostAsync(string businessDayId, DateTimeOffset now, CancellationToken ct)
+    {
+        var orders = await _db.Orders.Include(o => o.Items)
+            .Where(o => o.BusinessDayId == businessDayId && o.FoodCostFrozenAtUtc == null)
+            .ToListAsync(ct);
+        if (orders.Count == 0) return;
+        var live = await FoodCostCalculator.LoadAsync(_db, ct);
+        foreach (var order in orders)
+        {
+            foreach (var item in order.Items) item.FrozenUnitFoodCostPiastres = live.UnitCost(item.ProductId, item.VariantId);
+            var (cost, known, name) = live.Packaging(order.OrderType);
+            order.FrozenPackagingCostPiastres = known ? cost : null;
+            order.FrozenPackagingMissing = known ? null : name ?? order.OrderType;
+            order.FoodCostFrozenAtUtc = now;
+        }
+    }
+
     public async Task<BusinessDayCloseSnapshotDto> HandleAsync(CloseBusinessDayRequest request, CancellationToken ct = default)
     {
         var snapshotId = $"snapshot-{request.RequestId}";
@@ -87,6 +110,7 @@ public sealed class CloseBusinessDayHandler
                 throw new BusinessDayCloseBlockedException(blockers.Select(b => new CloseBlockerDto(b.Code, b.EntityType, b.EntityId, b.Message)).ToList());
             }
 
+            await FreezeFoodCostAsync(day.Id, now, ct);
             var reconciliation = await _reporting.GetBusinessDayReconciliationAsync(day.Id, ct);
             var exceptions = await BuildDayExceptionsAsync(day, ct);
             var completions = await _db.ChecklistCompletions.AsNoTracking().Where(c => c.BusinessDayId == day.Id).ToListAsync(ct);

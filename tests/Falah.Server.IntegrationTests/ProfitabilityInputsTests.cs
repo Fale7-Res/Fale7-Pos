@@ -55,6 +55,20 @@ public class ProfitabilityInputsTests : IAsyncLifetime
         Assert.Equal(15000, dashboard.Profitability.WagesPiastres);
     }
 
+    // PAYR-0021, owner decision 2026-11-22: an attendance correction's Adjustment (a credit for added
+    // overtime, a debit for a restored penalty) is wage cost too, as payroll already counts it.
+    [Fact]
+    public async Task Wage_cost_includes_attendance_correction_adjustments_as_payroll_does()
+    {
+        await SeedLedgerAsync("DailyWage", credit: 20000, debit: 0);
+        await SeedLedgerAsync("Adjustment", credit: 3000, debit: 0);
+        await SeedLedgerAsync("Adjustment", credit: 0, debit: 1000);
+
+        var dashboard = await DashboardAsync();
+
+        Assert.Equal(22000, dashboard.Profitability.WagesPiastres);
+    }
+
     [Fact]
     public async Task Profit_is_computed_on_sales_excluding_the_vat_collected_on_them()
     {

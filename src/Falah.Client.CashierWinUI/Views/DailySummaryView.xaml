@@ -60,9 +60,9 @@
                                 <StackPanel Spacing="2">
                                     <!-- Net of the day's refunds, VAT included (METRIC_DEFINITIONS: NetSales). It was
                                          labelled "إجمالي" (gross), which is a different figure. -->
-                                    <TextBlock Text="صافي المبيعات (بعد المرتجعات)" Style="{StaticResource CaptionText}" Foreground="{ThemeResource SuccessTextBrush}"/>
+                                    <TextBlock Text="صافي المبيعات (بعد المرتجعات)" Style="{StaticResource CaptionText}" TextWrapping="Wrap" Foreground="{ThemeResource SuccessTextBrush}"/>
                                     <TextBlock Text="{Binding Summary.Sales.NetSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource SuccessTextBrush}"/>
-                                    <TextBlock Style="{StaticResource CaptionText}">
+                                    <TextBlock Style="{StaticResource CaptionText}" TextWrapping="Wrap">
                                         <Run Text="الإجمالي قبل المرتجعات: "/><Run Text="{Binding Summary.Sales.GrossSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                     </TextBlock>
                                 </StackPanel>

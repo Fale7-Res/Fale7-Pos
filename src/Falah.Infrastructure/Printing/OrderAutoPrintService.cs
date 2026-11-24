@@ -40,6 +40,53 @@ public sealed class OrderAutoPrintService
         _log = log;
     }
 
+    /// <summary>PRT-0016 (owner decision 2026-11-22): the transfer was confirmed, so the kitchen ticket
+    /// held for it is queued now. Keyed on the order, and CreatePrintJobsHandler queues only routes this
+    /// order has no first print for, so a retried confirmation never prints the kitchen a second copy.
+    /// Never fails the confirmation; a missing ticket stays printable from Order Lookup.</summary>
+    public async Task<bool> TryReleaseHeldKitchenTicketsAsync(string orderId, string actorUserId, CancellationToken ct = default)
+    {
+        try
+        {
+            var settings = await _settings.GetAsync(ct);
+            if (!settings.AutoPrintPreparationTicket || !settings.HoldPreparationUntilPaymentConfirmed) return true;
+            await _createJobs.HandleAsync(new CreatePrintJobsRequest(
+                RequestId: $"confirmed-{orderId}", OrderId: orderId, CustomerRoute: null,
+                IsReprint: false, ActorUserId: actorUserId, IncludeKitchenRoutes: true), ct);
+            return true;
+        }
+        catch (Falah.Domain.Common.DomainException)
+        {
+            return true;   // nothing to prepare (no kitchen item): not a failure
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Releasing the held kitchen ticket failed for order {OrderId}; the confirmation itself is unaffected.", orderId);
+            return false;
+        }
+    }
+
+    /// <summary>UI-0025: the customer paid for an awaiting pickup at collection; their receipt prints now
+    /// (the kitchen ticket printed when it was registered). Keyed on the order, so a retried collection
+    /// never prints a second receipt. Never fails the payment; the receipt stays printable from Order Lookup.</summary>
+    public async Task<bool> TryPrintCollectionReceiptAsync(string orderId, string actorUserId, CancellationToken ct = default)
+    {
+        try
+        {
+            var settings = await _settings.GetAsync(ct);
+            if (!settings.AutoPrintReceipt) return true;
+            await _createJobs.HandleAsync(new CreatePrintJobsRequest(
+                RequestId: $"collected-{orderId}", OrderId: orderId, CustomerRoute: "Receipt",
+                IsReprint: false, ActorUserId: actorUserId, IncludeKitchenRoutes: false), ct);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Printing the collection receipt failed for order {OrderId}; the payment itself is unaffected.", orderId);
+            return false;
+        }
+    }
+
     /// <returns>True when the tickets were queued, or when the restaurant has deliberately turned
     /// automatic printing off. False only when something actually failed - the caller passes that
     /// on to the station so a missing ticket is visible rather than silent.</returns>
@@ -51,7 +98,8 @@ public sealed class OrderAutoPrintService
 
             // A station that did not say which customer ticket it prints gets the till's receipt -
             // the Call Center is the only caller that says otherwise, and it says so explicitly.
-            var customerRoute = settings.AutoPrintReceipt
+            // UI-0025: a pickup paid on collection gets its receipt when it is paid (TryPrintCollectionReceiptAsync).
+            var customerRoute = settings.AutoPrintReceipt && !result.AwaitingCollection
                 ? string.IsNullOrWhiteSpace(request.CustomerPrintRoute) ? "Receipt" : request.CustomerPrintRoute
                 : null;
 

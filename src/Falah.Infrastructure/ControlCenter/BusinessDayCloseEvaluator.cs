@@ -25,11 +25,18 @@ public static class BusinessDayCloseEvaluator
 {
     public static async Task<IReadOnlyList<CloseBlocker>> EvaluateAsync(FalahDbContext db, BusinessDayEntity day, CancellationToken ct)
     {
-        var shifts = await db.Shifts.AsNoTracking().Select(s => new { s.Id, s.Status }).ToListAsync(ct);
-        var driverCustodies = await db.DriverCustodies.AsNoTracking().Select(c => new { c.Id, c.Status }).ToListAsync(ct);
-        var journalEntries = await db.FinancialJournalEntries.AsNoTracking().Select(j => new { j.IdempotencyKey, j.Status }).ToListAsync(ct);
+        // PERF-0003 (2026-11-22): only rows that can block a close are read. EvaluateCloseBlockers looks at
+        // open shifts, unsettled custodies and incomplete journal entries alone, so loading the whole
+        // history to discard the closed ones changed nothing but the time the close took.
+        var shifts = await db.Shifts.AsNoTracking().Where(s => s.Status != "Closed").Select(s => new { s.Id, s.Status }).ToListAsync(ct);
+        var driverCustodies = await db.DriverCustodies.AsNoTracking().Where(c => c.Status != nameof(CustodyStatus.Settled))
+            .Select(c => new { c.Id, c.Status }).ToListAsync(ct);
+        var journalEntries = await db.FinancialJournalEntries.AsNoTracking().Where(j => j.Status != "Complete")
+            .Select(j => new { j.IdempotencyKey, j.Status }).ToListAsync(ct);
         var pendingElectronicOrderIds = await db.Orders.AsNoTracking()
             .Where(o => o.ElectronicPaymentStatus == "pending").Select(o => o.Id).ToListAsync(ct);   // stored lower-case (OrderEnumMapping.ToWireString)
+        var uncollectedPickups = await db.Orders.AsNoTracking()
+            .Where(o => o.AwaitingCollection && o.Status != "cancelled").Select(o => new { o.Id, o.OrderNumber }).ToListAsync(ct);
 
         var closingItems = await db.ChecklistItems.AsNoTracking()
             .Where(i => i.Phase == "Closing" && i.Active && i.Required).ToListAsync(ct);
@@ -51,7 +58,8 @@ public static class BusinessDayCloseEvaluator
             RequiredChecklist: requiredChecklist,
             ReconciliationChecks: reconciliationChecks,
             DriverBalances: (await Falah.Infrastructure.Delivery.DriverBalances.OpenAsync(db, ct))
-                .Select(b => (b.DriverId, b.CarriedPiastres)).ToList());
+                .Select(b => (b.DriverId, b.CarriedPiastres)).ToList(),
+            UncollectedPickups: uncollectedPickups.Select(p => (p.Id, p.OrderNumber)).ToList());
 
         return BusinessDayRules.EvaluateCloseBlockers(inputs);
     }
@@ -69,13 +77,13 @@ public static class BusinessDayCloseEvaluator
             .GroupBy(m => m.IdempotencyKey).Where(g => g.Count() > 1).AnyAsync(ct);
         checks.Add(("DUPLICATE_IDEMPOTENCY_KEY", duplicateKeyExists));
 
-        var postedMovements = await db.TreasuryMovements.AsNoTracking()
-            .Where(m => m.Status == nameof(MovementStatus.Posted))
-            .Select(m => new { m.SourceAccountId, m.DestinationAccountId, m.AmountPiastres }).ToListAsync(ct);
+        // Summed by SQL Server, not by loading every posted movement into this process (PERF-0003).
+        var posted = db.TreasuryMovements.AsNoTracking().Where(m => m.Status == nameof(MovementStatus.Posted));
         foreach (var accountId in TreasuryAccounts.Protected)
         {
-            var balance = postedMovements.Sum(m => (m.DestinationAccountId == accountId ? m.AmountPiastres : 0) - (m.SourceAccountId == accountId ? m.AmountPiastres : 0));
-            checks.Add(($"NEGATIVE_PROTECTED_BALANCE:{accountId}", balance < 0));
+            var inflow = await posted.Where(m => m.DestinationAccountId == accountId).SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;
+            var outflow = await posted.Where(m => m.SourceAccountId == accountId).SumAsync(m => (long?)m.AmountPiastres, ct) ?? 0;
+            checks.Add(($"NEGATIVE_PROTECTED_BALANCE:{accountId}", inflow - outflow < 0));
         }
 
         var threshold = await Falah.Infrastructure.Shifts.PrepareShiftCloseHandler.ReadDiscrepancyThresholdAsync(db, ct);

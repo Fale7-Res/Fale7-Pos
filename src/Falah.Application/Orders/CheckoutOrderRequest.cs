@@ -73,7 +73,38 @@ public sealed record CheckoutOrderRequest(
     /// (MaxDiscountWithoutApprovalBasisPoints, 10% unless the owner changed it). Spent on the order,
     /// the same way a comp's approval is; ignored for a discount within the limit.</summary>
     string? DiscountApprovalId = null,
-    string? DiscountApproverUserId = null);
+    string? DiscountApproverUserId = null,
+    /// <summary>UI-0025 (owner decision 2026-11-22): a pickup registered and sent to the kitchen now, paid
+    /// when the customer collects it (POST /api/orders/collect-pickup). The payment fields are ignored.</summary>
+    bool PayOnCollection = false);
+
+/// <summary>UI-0025: the customer collects an awaiting pickup and pays for it now, by any method. The sale
+/// belongs to this moment and this shift. RequestId is minted once per press and reused by a retry.</summary>
+public sealed record CollectPickupPaymentRequest(
+    string RequestId,
+    string OrderId,
+    string CashierId,
+    string ShiftId,
+    string PaymentMethod,
+    long AmountPaidPiastres,
+    IReadOnlyList<CheckoutSplitRequest>? SplitPayments = null,
+    string? WalletProvider = null);
+
+/// <summary>UI-0025: a manager cancels a pickup the customer never came for. Nothing was paid, so nothing
+/// is refunded; the food is either back in stock or wasted (StockDisposition "restore" / "waste").</summary>
+public sealed record CancelUncollectedPickupRequest(
+    string RequestId,
+    string OrderId,
+    string Reason,
+    string StockDisposition,
+    string ActorUserId,
+    string? ManagerApprovalId,
+    string? ManagerApproverUserId);
+
+/// <summary>An order waiting at the counter for its customer to pay and collect.</summary>
+public sealed record AwaitingPickupDto(
+    string OrderId, string OrderNumber, string? CustomerName, string? CustomerPhone, long TotalPiastres,
+    DateTimeOffset RegisteredAtUtc, DateTimeOffset? RequestedPickupAtUtc);
 
 public sealed record CheckoutOrderResult(
     string OrderId,
@@ -89,7 +120,9 @@ public sealed record CheckoutOrderResult(
     /// <summary>False when the sale succeeded but its tickets could not be queued. The sale is
     /// never failed for a printing problem - but the operator must still be told, or a ticket that
     /// never reached the kitchen looks exactly like one that did. Reprint from Order Lookup.</summary>
-    bool PrintJobsQueued = true);
+    bool PrintJobsQueued = true,
+    /// <summary>UI-0025: registered unpaid, to be paid when the customer collects it.</summary>
+    bool AwaitingCollection = false);
 
 /// <summary>Thrown when a write hits a genuine, unresolvable idempotency-key collision at the
 /// database's own constraint level that is NOT a legitimate replay (no matching Order exists to

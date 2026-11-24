@@ -30,10 +30,36 @@ public sealed class OwnerDashboardQueryService
     private readonly FalahDbContext _db;
     private readonly ReportingQueryService _reports;
 
-    public OwnerDashboardQueryService(FalahDbContext db, ReportingQueryService reports)
+    private readonly Microsoft.Extensions.Configuration.IConfiguration? _configuration;
+
+    public OwnerDashboardQueryService(FalahDbContext db, ReportingQueryService reports,
+        Microsoft.Extensions.Configuration.IConfiguration? configuration = null)
     {
         _db = db;
         _reports = reports;
+        _configuration = configuration;
+    }
+
+    /// <summary>OPS-0006 (2026-11-22): the free space on the backup folder's disk, and whether it is low
+    /// (under Backup:MinimumFreeMegabytes, default 5 GB, or three backups' worth). Null when unreadable.</summary>
+    private (long? FreeBytes, bool Low) ReadBackupDisk(long? lastBackupBytes)
+    {
+        var directory = _configuration?["Backup:DefaultDirectory"];
+        if (string.IsNullOrWhiteSpace(directory)) return (null, false);
+        try
+        {
+            var root = Path.GetPathRoot(Path.GetFullPath(directory));
+            if (string.IsNullOrEmpty(root)) return (null, false);
+            var drive = new DriveInfo(root);
+            if (!drive.IsReady) return (null, false);
+            var minimumMegabytes = long.TryParse(_configuration?["Backup:MinimumFreeMegabytes"], out var configured) && configured > 0 ? configured : 5120;
+            var required = Math.Max(minimumMegabytes * 1024 * 1024, 3 * (lastBackupBytes ?? 0));
+            return (drive.AvailableFreeSpace, drive.AvailableFreeSpace < required);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or System.Security.SecurityException)
+        {
+            return (null, false);
+        }
     }
 
     public async Task<OwnerDashboardDto> GetAsync(BusinessDateRange range, CancellationToken ct = default)
@@ -159,7 +185,7 @@ public sealed class OwnerDashboardQueryService
         DateTimeOffset start, DateTimeOffset end, CancellationToken ct)
     {
         var sales = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
             .Select(o => new { o.CreatedAtUtc, o.TotalPiastres })
             .ToListAsync(ct);
         var refunds = await _db.OrderRefunds.AsNoTracking()
@@ -254,6 +280,8 @@ public sealed class OwnerDashboardQueryService
             nameof(LedgerEntryType.Overtime), nameof(LedgerEntryType.ExtraShift),
             nameof(LedgerEntryType.Bonus), nameof(LedgerEntryType.OtherEarning),
             nameof(LedgerEntryType.Deduction),
+            // PAYR-0021 (owner decision 2026-11-22): attendance-correction adjustments, as payroll counts them.
+            nameof(LedgerEntryType.Adjustment),
         };
         var rows = await _db.EmployeeLedgerEntries.AsNoTracking()
             .ForDays(range.From, range.To)
@@ -494,7 +522,7 @@ public sealed class OwnerDashboardQueryService
     {
         var backups = await _db.BackupRecords.AsNoTracking()
             .Where(b => b.Kind == nameof(Persistence.Entities.BackupRecordKind.Backup))
-            .Select(b => new { b.Status, b.CompletedAtUtc, b.VerificationStatus })
+            .Select(b => new { b.Status, b.CompletedAtUtc, b.VerificationStatus, b.FileSizeBytes })
             .ToListAsync(ct);
 
         var lastCompleted = backups
@@ -548,11 +576,14 @@ public sealed class OwnerDashboardQueryService
                 failedCount));
         }
 
+        var (diskFree, diskLow) = ReadBackupDisk(lastCompleted?.FileSizeBytes);
         return new SystemHealthDto(
             lastCompleted?.CompletedAtUtc,
             lastCompleted?.CompletedAtUtc is { } at ? Math.Round((now - at).TotalHours, 1) : null,
             lastCompleted?.VerificationStatus,
             backups.Count(b => b.Status == nameof(Persistence.Entities.BackupRecordStatus.Failed)),
-            routes);
+            routes,
+            diskFree,
+            diskLow);
     }
 }

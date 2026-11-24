@@ -36,6 +36,11 @@ var builder = WebApplication.CreateBuilder(args);
 // installed service run the exact same build. See tools/install-falah-service.ps1.
 builder.Host.UseWindowsService(options => options.ServiceName = "FalahServer");
 
+// Runtime logging audit 2026-11-23 (L-01): the server's own rolling log file, resolved from the final host
+// configuration so a test host's overrides (Logging:File:Enabled=false) apply. See RollingFileLoggerProvider.
+builder.Services.AddSingleton<ILoggerProvider>(sp =>
+    new Falah.Server.Diagnostics.RollingFileLoggerProvider(Falah.Server.Diagnostics.FileLogOptions.From(sp.GetRequiredService<IConfiguration>())));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -69,6 +74,8 @@ builder.Services.AddDbContext<FalahDbContext>((sp, options) =>
     var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("Falah")
         ?? @"Server=.\SQLEXPRESS;Database=Falah;Trusted_Connection=True;TrustServerCertificate=True;";
     options.UseSqlServer(connectionString);
+    // 2026-11-23: a pooled connection must not carry another request's SERIALIZABLE (IsolationLevelResetInterceptor).
+    options.AddInterceptors(new Falah.Infrastructure.Persistence.IsolationLevelResetInterceptor());
 });
 
 // EF Core-backed and persisted: issuing (a manager approves) and consuming (a cashier's later
@@ -91,6 +98,9 @@ builder.Services.AddScoped<CloseShiftHandler>();
 builder.Services.AddScoped<RefundOrderHandler>();
 builder.Services.AddScoped<ConfirmElectronicPaymentHandler>();
 builder.Services.AddScoped<CancelPendingElectronicPaymentHandler>();
+builder.Services.AddScoped<CancelUndispatchedDeliveryHandler>();
+builder.Services.AddScoped<CollectPickupPaymentHandler>();
+builder.Services.AddScoped<CancelUncollectedPickupHandler>();
 builder.Services.AddScoped<IssueManagerApprovalHandler>();
 // One per process: the PIN guessing allowance must be shared by every request, or it limits nothing.
 builder.Services.AddSingleton(sp => new ApprovalPinAttemptGuard(sp.GetRequiredService<IConfiguration>(), TimeProvider.System));
@@ -162,6 +172,7 @@ builder.Services.AddScoped<SavePrepRecipeHandler>();
 builder.Services.AddScoped<SaveOrderPackagingRuleHandler>();
 builder.Services.AddScoped<InventoryQueryService>();
 builder.Services.AddScoped<UpsertCustomerHandler>();
+builder.Services.AddScoped<HideCustomerHandler>();
 builder.Services.AddScoped<CustomerQueryService>();
 builder.Services.AddScoped<ReportingQueryService>();
 builder.Services.AddScoped<OwnerDashboardQueryService>();
@@ -280,6 +291,15 @@ try
     await DemoDataSeeder.SeedIfEmptyAsync(db, seedDemoUsers);
 
     var startupLog = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Falah.Server.Startup");
+    // Runtime logging audit 2026-11-23 (L-01): when it started and stopped, which build, on which machine.
+    var lifecycleLog = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Falah.Server.Lifecycle");
+    var fileLog = Falah.Server.Diagnostics.FileLogOptions.From(app.Configuration);
+    app.Lifetime.ApplicationStarted.Register(() => lifecycleLog.LogInformation(
+        "Falah server {Version} started on {Machine} ({Environment}); log files in {Directory}",
+        Falah.Server.Diagnostics.RollingFileLoggerProvider.Version, Environment.MachineName, app.Environment.EnvironmentName,
+        fileLog.Enabled ? fileLog.Directory : "(file log off)"));
+    app.Lifetime.ApplicationStopping.Register(() => lifecycleLog.LogInformation("Falah server {Version} stopping on {Machine}",
+        Falah.Server.Diagnostics.RollingFileLoggerProvider.Version, Environment.MachineName));
     var ownerCreated = false;
     try
     {
@@ -342,6 +362,20 @@ if (app.Environment.IsDevelopment())
 //
 // Registered BEFORE the authentication middleware below, so it wraps it: a session lookup that
 // fails (SQL Server down or restarting) used to skip this handler entirely.
+// Runtime logging audit 2026-11-23 (QA-01): a station names each request with X-Correlation-Id. A plain
+// token of up to 64 characters becomes this request's identifier - the "reference" every error answer
+// carries and every server log line quotes - and is echoed back, so the station's own log line and the
+// server's meet on one value. Anything else is ignored and the server's own identifier is used.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Headers.TryGetValue("X-Correlation-Id", out var supplied)
+        && supplied.Count == 1 && supplied[0] is { Length: > 0 and <= 64 } id
+        && id.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.'))
+        context.TraceIdentifier = id;
+    context.Response.OnStarting(() => { context.Response.Headers["X-Correlation-Id"] = context.TraceIdentifier; return Task.CompletedTask; });
+    await next();
+});
+
 app.UseExceptionHandler(branch => branch.Run(async context =>
 {
     var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
@@ -408,7 +442,12 @@ app.Use(async (context, next) =>
 });
 app.UseMiddleware<Falah.Server.AuthenticationMiddleware>();
 
-app.MapPost("/api/shifts/open", async (Falah.Application.Shifts.OpenShiftRequest request, OpenShiftHandler handler, CancellationToken ct) =>
+// Independent audit 2026-11-23, F-04: every POST/PUT below is mapped on this group, so a write whose request id
+// is missing, blank or over-long is refused before its handler's replay lookup (RequestIdFilter).
+var api = app.MapGroup("");
+api.AddEndpointFilter<Falah.Server.RequestIdFilter>();
+
+api.MapPost("/api/shifts/open", async (Falah.Application.Shifts.OpenShiftRequest request, OpenShiftHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -443,7 +482,7 @@ app.MapGet("/api/shifts/current", async (FalahDbContext db, CancellationToken ct
 // The preview reveals what the drawer SHOULD hold - the one thing a blind count must not know in
 // advance - so it is gated on the same permission the close itself requires. The request names no
 // actor of its own, so the gate reads the authenticated session.
-app.MapPost("/api/shifts/prepare-close", async (Falah.Application.Shifts.PrepareShiftCloseRequest request, HttpContext http, PrepareShiftCloseHandler handler, CancellationToken ct) =>
+api.MapPost("/api/shifts/prepare-close", async (Falah.Application.Shifts.PrepareShiftCloseRequest request, HttpContext http, PrepareShiftCloseHandler handler, CancellationToken ct) =>
 {
     var declarer = Falah.Server.HttpContextActorExtensions.Actor(http);
     if (!Falah.Domain.Authorization.AuthorizationPolicy.HasPermission(OrderMapper.ToActor(declarer), "shifts_blind_close"))
@@ -508,7 +547,7 @@ app.MapGet("/api/shifts/{id}/close-statement", async (string id, FalahDbContext 
         PrintJobQueryService.ComposeCloseStatementPaper(statement, recomputed)));
 });
 
-app.MapPost("/api/shifts/close", async (Falah.Application.Shifts.CloseShiftRequest request, CloseShiftHandler handler, CancellationToken ct) =>
+api.MapPost("/api/shifts/close", async (Falah.Application.Shifts.CloseShiftRequest request, CloseShiftHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -529,7 +568,7 @@ app.MapPost("/api/shifts/close", async (Falah.Application.Shifts.CloseShiftReque
     }
 });
 
-app.MapPost("/api/business-day/open", async (Falah.Application.BusinessDay.OpenBusinessDayRequest request, OpenBusinessDayHandler handler, CancellationToken ct) =>
+api.MapPost("/api/business-day/open", async (Falah.Application.BusinessDay.OpenBusinessDayRequest request, OpenBusinessDayHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -576,7 +615,7 @@ app.MapGet("/api/business-day/{id}/close-blockers", async (string id, ControlCen
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/business-day/{id}/close", async (string id, Falah.Application.BusinessDay.CloseBusinessDayRequest body, CloseBusinessDayHandler handler, SalaryAccrualService salaries, CancellationToken ct) =>
+api.MapPost("/api/business-day/{id}/close", async (string id, Falah.Application.BusinessDay.CloseBusinessDayRequest body, CloseBusinessDayHandler handler, SalaryAccrualService salaries, CancellationToken ct) =>
 {
     try
     {
@@ -614,7 +653,7 @@ app.MapGet("/api/business-day/{id}/close-snapshots", async (string id, ControlCe
     RequireAnyPermission(http, ControlCenterRefusal, "reports_view", "control_center", "business_day_close")
         ?? Results.Ok(await query.ListCloseSnapshotsAsync(id, ct)));
 
-app.MapPost("/api/business-day/{id}/reopen", async (string id, Falah.Application.BusinessDay.ReopenBusinessDayRequest body, ReopenBusinessDayHandler handler, CancellationToken ct) =>
+api.MapPost("/api/business-day/{id}/reopen", async (string id, Falah.Application.BusinessDay.ReopenBusinessDayRequest body, ReopenBusinessDayHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -636,7 +675,7 @@ app.MapGet("/api/business-day/{id}/checklist", async (string id, ControlCenterQu
     RequireAnyPermission(http, ControlCenterRefusal, "business_day_close", "control_center")
         ?? Results.Ok(await query.GetChecklistAsync(id, ct)));
 
-app.MapPost("/api/business-day/{id}/checklist/{itemId}", async (string id, string itemId, Falah.Application.BusinessDay.CompleteChecklistItemRequest body, CompleteChecklistItemHandler handler, CancellationToken ct) =>
+api.MapPost("/api/business-day/{id}/checklist/{itemId}", async (string id, string itemId, Falah.Application.BusinessDay.CompleteChecklistItemRequest body, CompleteChecklistItemHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -656,7 +695,7 @@ app.MapPost("/api/business-day/{id}/checklist/{itemId}", async (string id, strin
 
 app.MapGet("/api/settings", async (SettingsQueryService query, HttpContext http, CancellationToken ct) => Results.Ok(SettingsForReader(await query.GetAsync(ct), http)));
 
-app.MapPut("/api/settings", async (Falah.Application.Settings.UpdateSettingsRequest request, UpdateSettingsHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPut("/api/settings", async (Falah.Application.Settings.UpdateSettingsRequest request, UpdateSettingsHandler handler, HttpContext http, CancellationToken ct) =>
 {
     try
     {
@@ -675,7 +714,7 @@ app.MapGet("/api/business-day/{id}/cash-counts", async (string id, ControlCenter
     RequireAnyPermission(http, ControlCenterRefusal, "cash_count", "control_center", "reports_view")
         ?? Results.Ok(await query.ListCashCountsAsync(id, ct)));
 
-app.MapPost("/api/business-day/{id}/cash-counts", async (string id, Falah.Application.BusinessDay.SaveCashCountRequest body, SaveCashCountHandler handler, CancellationToken ct) =>
+api.MapPost("/api/business-day/{id}/cash-counts", async (string id, Falah.Application.BusinessDay.SaveCashCountRequest body, SaveCashCountHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -694,7 +733,7 @@ app.MapGet("/api/business-day/{id}/exceptions", async (string id, ControlCenterQ
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/control-exceptions/{exceptionId}/status", async (string exceptionId, Falah.Application.BusinessDay.SetExceptionStatusRequest body, SetExceptionStatusHandler handler, CancellationToken ct) =>
+api.MapPost("/api/control-exceptions/{exceptionId}/status", async (string exceptionId, Falah.Application.BusinessDay.SetExceptionStatusRequest body, SetExceptionStatusHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -733,7 +772,7 @@ app.MapGet("/api/audit/events", async (string actorUserId, string? category, str
     return Results.Ok(await query.ListAsync(category, severity, userId, from, to, limit ?? 200, ct));
 });
 
-app.MapPost("/api/treasury/deposit", async (Falah.Application.Treasury.DepositRequest request, DepositHandler handler, CancellationToken ct) =>
+api.MapPost("/api/treasury/deposit", async (Falah.Application.Treasury.DepositRequest request, DepositHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -754,7 +793,7 @@ app.MapPost("/api/treasury/deposit", async (Falah.Application.Treasury.DepositRe
     }
 });
 
-app.MapPost("/api/treasury/withdraw", async (Falah.Application.Treasury.WithdrawalRequest request, WithdrawalHandler handler, CancellationToken ct) =>
+api.MapPost("/api/treasury/withdraw", async (Falah.Application.Treasury.WithdrawalRequest request, WithdrawalHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -775,7 +814,7 @@ app.MapPost("/api/treasury/withdraw", async (Falah.Application.Treasury.Withdraw
     }
 });
 
-app.MapPost("/api/treasury/transfer", async (Falah.Application.Treasury.TransferRequest request, TransferHandler handler, CancellationToken ct) =>
+api.MapPost("/api/treasury/transfer", async (Falah.Application.Treasury.TransferRequest request, TransferHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -796,7 +835,7 @@ app.MapPost("/api/treasury/transfer", async (Falah.Application.Treasury.Transfer
     }
 });
 
-app.MapPost("/api/treasury/safe-drop", async (Falah.Application.Treasury.SafeDropRequest request, SafeDropHandler handler, CancellationToken ct) =>
+api.MapPost("/api/treasury/safe-drop", async (Falah.Application.Treasury.SafeDropRequest request, SafeDropHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -817,7 +856,7 @@ app.MapPost("/api/treasury/safe-drop", async (Falah.Application.Treasury.SafeDro
     }
 });
 
-app.MapPost("/api/expenses", async (Falah.Application.Expenses.AddExpenseRequest request, AddExpenseHandler handler, CancellationToken ct) =>
+api.MapPost("/api/expenses", async (Falah.Application.Expenses.AddExpenseRequest request, AddExpenseHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -839,7 +878,7 @@ app.MapPost("/api/expenses", async (Falah.Application.Expenses.AddExpenseRequest
 });
 
 // AUD-04: a mistaken expense is cancelled by a linked reversal while its shift is open - see ReverseExpenseHandler.
-app.MapPost("/api/expenses/{id}/reverse", async (string id, Falah.Application.Expenses.ReverseExpenseRequest request, ReverseExpenseHandler handler, CancellationToken ct) =>
+api.MapPost("/api/expenses/{id}/reverse", async (string id, Falah.Application.Expenses.ReverseExpenseRequest request, ReverseExpenseHandler handler, CancellationToken ct) =>
 {
     if (request.ExpenseId != id) return Results.BadRequest(new { error = "رقم المصروف في الرابط لا يطابق الطلب." });
     try
@@ -880,14 +919,14 @@ app.MapGet("/api/expenses", async (string actorUserId, string? shiftId, string? 
 
 // ---- Employees (roster + financial ledger) ----
 
-app.MapPost("/api/employees", async (Falah.Application.Employees.CreateEmployeeRequest request, CreateEmployeeHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees", async (Falah.Application.Employees.CreateEmployeeRequest request, CreateEmployeeHandler handler, CancellationToken ct) =>
 {
     try { return Results.Ok(await handler.HandleAsync(request, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPut("/api/employees/{employeeId}", async (string employeeId, Falah.Application.Employees.UpdateEmployeeRequest body, UpdateEmployeeHandler handler, CancellationToken ct) =>
+api.MapPut("/api/employees/{employeeId}", async (string employeeId, Falah.Application.Employees.UpdateEmployeeRequest body, UpdateEmployeeHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -914,6 +953,10 @@ app.MapGet("/api/employees/{employeeId}/ledger", async (string employeeId, Emplo
 app.MapGet("/api/employees/{employeeId}/balance", async (string employeeId, EmployeeQueryService query, HttpContext http, CancellationToken ct) =>
     RequireOwner(http) ?? Results.Ok(new { employeeId, balancePiastres = await query.GetBalanceAsync(employeeId, ct) }));
 
+// PERF-0006 (2026-11-22): every balance in one read for the employees screen; same gate as one balance.
+app.MapGet("/api/employees/balances", async (EmployeeQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireOwner(http) ?? Results.Ok(await query.GetAllBalancesAsync(ct)));
+
 // Payroll/employee financial reporting by today/last-7/last-10/month/custom range - the reporting
 // side of the final business rule, now that payment is not tied to a payroll period. Gated on
 // reports_view like every other report.
@@ -924,7 +967,7 @@ app.MapGet("/api/employees/financial-report", async (string actorUserId, DateOnl
     return Results.Ok(await query.GetFinancialReportAsync(from, to, ct));
 });
 
-app.MapPost("/api/employees/{employeeId}/ledger-entries", async (string employeeId, Falah.Application.Employees.RecordManualLedgerEntryRequest body, RecordManualLedgerEntryHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees/{employeeId}/ledger-entries", async (string employeeId, Falah.Application.Employees.RecordManualLedgerEntryRequest body, RecordManualLedgerEntryHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -935,7 +978,7 @@ app.MapPost("/api/employees/{employeeId}/ledger-entries", async (string employee
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/employees/{employeeId}/cash-out", async (string employeeId, Falah.Application.Employees.RecordEmployeeCashOutRequest body, RecordEmployeeCashOutHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees/{employeeId}/cash-out", async (string employeeId, Falah.Application.Employees.RecordEmployeeCashOutRequest body, RecordEmployeeCashOutHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -951,7 +994,7 @@ app.MapPost("/api/employees/{employeeId}/cash-out", async (string employeeId, Fa
 // ledger balance at any time, any amount up to that balance, no payroll run required. See
 // PayEmployeeHandler's own doc comment for exactly how this differs from cash-out's "withdrawal"
 // kind (drawer-sourced, shift-scoped) and from Payroll's own bulk pay (period-run-gated).
-app.MapPost("/api/employees/{employeeId}/pay", async (string employeeId, Falah.Application.Employees.PayEmployeeRequest body, PayEmployeeHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees/{employeeId}/pay", async (string employeeId, Falah.Application.Employees.PayEmployeeRequest body, PayEmployeeHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -963,7 +1006,7 @@ app.MapPost("/api/employees/{employeeId}/pay", async (string employeeId, Falah.A
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/employees/{employeeId}/daily-wage", async (string employeeId, Falah.Application.Employees.RecordDailyWageRequest body, RecordDailyWageHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees/{employeeId}/daily-wage", async (string employeeId, Falah.Application.Employees.RecordDailyWageRequest body, RecordDailyWageHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -974,7 +1017,7 @@ app.MapPost("/api/employees/{employeeId}/daily-wage", async (string employeeId, 
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/employees/{employeeId}/overtime", async (string employeeId, Falah.Application.Employees.RecordOvertimeRequest body, RecordOvertimeHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees/{employeeId}/overtime", async (string employeeId, Falah.Application.Employees.RecordOvertimeRequest body, RecordOvertimeHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -985,7 +1028,7 @@ app.MapPost("/api/employees/{employeeId}/overtime", async (string employeeId, Fa
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/employees/{employeeId}/extra-shift", async (string employeeId, Falah.Application.Employees.RecordExtraShiftRequest body, RecordExtraShiftHandler handler, CancellationToken ct) =>
+api.MapPost("/api/employees/{employeeId}/extra-shift", async (string employeeId, Falah.Application.Employees.RecordExtraShiftRequest body, RecordExtraShiftHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -998,20 +1041,24 @@ app.MapPost("/api/employees/{employeeId}/extra-shift", async (string employeeId,
 
 // ---- Attendance ----
 
-app.MapPost("/api/attendance/check-in", async (Falah.Application.Employees.BiometricCheckInRequest request, BiometricCheckInHandler handler, CancellationToken ct) =>
+api.MapPost("/api/attendance/check-in", async (Falah.Application.Employees.BiometricCheckInRequest request, BiometricCheckInHandler handler, CancellationToken ct) =>
 {
-    var result = await handler.HandleAsync(request, ct);
-    return result is null ? Results.NotFound(new { error = "الموظف غير موجود." }) : Results.Ok(result);
+    try
+    {
+        var result = await handler.HandleAsync(request, ct);
+        return result is null ? Results.NotFound(new { error = "الموظف غير موجود." }) : Results.Ok(result);
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/attendance/check-out", async (Falah.Application.Employees.BiometricCheckOutRequest request, BiometricCheckOutHandler handler, CancellationToken ct) =>
+api.MapPost("/api/attendance/check-out", async (Falah.Application.Employees.BiometricCheckOutRequest request, BiometricCheckOutHandler handler, CancellationToken ct) =>
 {
     try { return Results.Ok(await handler.HandleAsync(request, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/attendance/{recordId}/correct", async (string recordId, Falah.Application.Employees.CorrectAttendanceRequest body, CorrectAttendanceHandler handler, CancellationToken ct) =>
+api.MapPost("/api/attendance/{recordId}/correct", async (string recordId, Falah.Application.Employees.CorrectAttendanceRequest body, CorrectAttendanceHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1027,7 +1074,7 @@ app.MapGet("/api/attendance", async (string? employeeId, DateOnly? date, Employe
 
 // ---- Payroll ----
 
-app.MapPost("/api/payroll-runs", async (Falah.Application.Employees.CreatePayrollRequest request, CreatePayrollHandler handler, CancellationToken ct) =>
+api.MapPost("/api/payroll-runs", async (Falah.Application.Employees.CreatePayrollRequest request, CreatePayrollHandler handler, CancellationToken ct) =>
 {
     try { return Results.Ok(await handler.HandleAsync(request, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
@@ -1047,7 +1094,7 @@ app.MapGet("/api/payroll-runs/{runId}", async (string runId, PayrollQueryService
 app.MapGet("/api/payroll-runs/{runId}/lines", async (string runId, PayrollQueryService query, HttpContext http, CancellationToken ct) =>
     RequireOwner(http) ?? Results.Ok(await query.ListLinesAsync(runId, ct)));
 
-app.MapPost("/api/payroll-runs/{runId}/transition", async (string runId, Falah.Application.Employees.TransitionPayrollRequest body, TransitionPayrollHandler handler, CancellationToken ct) =>
+api.MapPost("/api/payroll-runs/{runId}/transition", async (string runId, Falah.Application.Employees.TransitionPayrollRequest body, TransitionPayrollHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1058,7 +1105,7 @@ app.MapPost("/api/payroll-runs/{runId}/transition", async (string runId, Falah.A
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/payroll-runs/{runId}/pay", async (string runId, Falah.Application.Employees.PayPayrollRequest body, PayPayrollHandler handler, CancellationToken ct) =>
+api.MapPost("/api/payroll-runs/{runId}/pay", async (string runId, Falah.Application.Employees.PayPayrollRequest body, PayPayrollHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1072,7 +1119,7 @@ app.MapPost("/api/payroll-runs/{runId}/pay", async (string runId, Falah.Applicat
 
 // ---- Backup / Restore ----
 
-app.MapPost("/api/backups", async (Falah.Application.Backup.CreateBackupRequest request, CreateBackupHandler handler, CancellationToken ct) =>
+api.MapPost("/api/backups", async (Falah.Application.Backup.CreateBackupRequest request, CreateBackupHandler handler, CancellationToken ct) =>
 {
     try { return Results.Ok(await handler.HandleAsync(request, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
@@ -1089,7 +1136,7 @@ app.MapGet("/api/backups/{id}", async (string id, BackupQueryService query, Http
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/backups/{id}/verify", async (string id, Falah.Application.Backup.VerifyBackupRequest body, VerifyBackupHandler handler, CancellationToken ct) =>
+api.MapPost("/api/backups/{id}/verify", async (string id, Falah.Application.Backup.VerifyBackupRequest body, VerifyBackupHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1100,7 +1147,7 @@ app.MapPost("/api/backups/{id}/verify", async (string id, Falah.Application.Back
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/backups/{id}/restore", async (string id, Falah.Application.Backup.RestoreBackupRequest body, RestoreBackupHandler handler, CancellationToken ct) =>
+api.MapPost("/api/backups/{id}/restore", async (string id, Falah.Application.Backup.RestoreBackupRequest body, RestoreBackupHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1111,7 +1158,7 @@ app.MapPost("/api/backups/{id}/restore", async (string id, Falah.Application.Bac
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/inventory/items", async (Falah.Application.Inventory.CreateInventoryItemRequest request, CreateInventoryItemHandler handler, CancellationToken ct) =>
+api.MapPost("/api/inventory/items", async (Falah.Application.Inventory.CreateInventoryItemRequest request, CreateInventoryItemHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1128,7 +1175,7 @@ app.MapPost("/api/inventory/items", async (Falah.Application.Inventory.CreateInv
     }
 });
 
-app.MapPut("/api/inventory/items/{id}", async (string id, Falah.Application.Inventory.UpdateInventoryItemRequest body, UpdateInventoryItemHandler handler, CancellationToken ct) =>
+api.MapPut("/api/inventory/items/{id}", async (string id, Falah.Application.Inventory.UpdateInventoryItemRequest body, UpdateInventoryItemHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1156,7 +1203,7 @@ app.MapGet("/api/inventory/items/{id}/balance", async (string id, InventoryQuery
     Results.Ok(new { inventoryItemId = id, balanceMilliUnits = await query.GetStockBalanceAsync(id, ct) }));
 
 // Not a financial command: no money, no stock, no supplier. See the handler for why that matters.
-app.MapPut("/api/inventory/items/{id}/estimated-cost", async (string id, Falah.Application.Inventory.SetEstimatedCostRequest body, SetEstimatedCostHandler handler, CancellationToken ct) =>
+api.MapPut("/api/inventory/items/{id}/estimated-cost", async (string id, Falah.Application.Inventory.SetEstimatedCostRequest body, SetEstimatedCostHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1207,7 +1254,7 @@ app.MapGet("/api/inventory/items/{id}/shared-consumption", async (string id, Dat
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/inventory/count-adjustments", async (Falah.Application.Inventory.RecordCountAdjustmentRequest request, RecordCountAdjustmentHandler handler, CancellationToken ct) =>
+api.MapPost("/api/inventory/count-adjustments", async (Falah.Application.Inventory.RecordCountAdjustmentRequest request, RecordCountAdjustmentHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1228,7 +1275,7 @@ app.MapPost("/api/inventory/count-adjustments", async (Falah.Application.Invento
     }
 });
 
-app.MapPost("/api/inventory/waste", async (Falah.Application.Inventory.RecordWasteRequest request, RecordWasteHandler handler, CancellationToken ct) =>
+api.MapPost("/api/inventory/waste", async (Falah.Application.Inventory.RecordWasteRequest request, RecordWasteHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1249,7 +1296,7 @@ app.MapPost("/api/inventory/waste", async (Falah.Application.Inventory.RecordWas
     }
 });
 
-app.MapPost("/api/recipes", async (Falah.Application.Inventory.SaveRecipeRequest request, SaveRecipeHandler handler, CancellationToken ct) =>
+api.MapPost("/api/recipes", async (Falah.Application.Inventory.SaveRecipeRequest request, SaveRecipeHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1317,7 +1364,7 @@ app.MapGet("/api/recipes/{id}/cost-detail", async (string id, string actorUserId
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/prep-recipes", async (Falah.Application.Inventory.SavePrepRecipeRequest request, SavePrepRecipeHandler handler, CancellationToken ct) =>
+api.MapPost("/api/prep-recipes", async (Falah.Application.Inventory.SavePrepRecipeRequest request, SavePrepRecipeHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1344,7 +1391,7 @@ app.MapGet("/api/prep-recipes/{id}/cost", async (string id, string actorUserId, 
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/order-packaging-rules", async (Falah.Application.Inventory.SaveOrderPackagingRuleRequest request, SaveOrderPackagingRuleHandler handler, CancellationToken ct) =>
+api.MapPost("/api/order-packaging-rules", async (Falah.Application.Inventory.SaveOrderPackagingRuleRequest request, SaveOrderPackagingRuleHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1363,7 +1410,7 @@ app.MapPost("/api/order-packaging-rules", async (Falah.Application.Inventory.Sav
 
 app.MapGet("/api/order-packaging-rules", async (InventoryQueryService query, CancellationToken ct) => Results.Ok(await query.ListOrderPackagingRulesAsync(ct)));
 
-app.MapPost("/api/customers/upsert", async (Falah.Application.Customers.UpsertCustomerRequest request, UpsertCustomerHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/customers/upsert", async (Falah.Application.Customers.UpsertCustomerRequest request, UpsertCustomerHandler handler, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية حفظ بيانات العملاء.", "pos", "delivery_manage") is { } refused) return refused;
     try
@@ -1382,18 +1429,36 @@ app.MapPost("/api/customers/upsert", async (Falah.Application.Customers.UpsertCu
 app.MapGet("/api/customers/lookup", async (string phone, CustomerQueryService query, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية قراءة بيانات العملاء.", "pos", "delivery_manage") is { } refused) return refused;
-    var result = await query.FindByPhoneAsync(phone, ct);
+    var result = await query.FindByPhoneAsync(phone, ct, includeHidden: RequireOwner(http) is null);
     return result is null ? Results.NotFound() : Results.Ok(result);
 });
 
 app.MapGet("/api/customers/{id}", async (string id, CustomerQueryService query, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية قراءة بيانات العملاء.", "pos", "delivery_manage") is { } refused) return refused;
-    var result = await query.GetByIdAsync(id, ct);
+    var result = await query.GetByIdAsync(id, ct, includeHidden: RequireOwner(http) is null);
     return result is null ? Results.NotFound() : Results.Ok(result);
 });
 
-app.MapPost("/api/delivery/drivers", async (Falah.Application.Delivery.CreateDriverRequest request, CreateDriverHandler handler, CancellationToken ct) =>
+// CUS-0002 (owner decision 2026-11-22): the owner deletes a customer from staff screens; the record
+// stays stored and the owner still finds it. The handler checks the owner permission too.
+api.MapPost("/api/customers/{id}/hide", async (string id, Falah.Application.Customers.HideCustomerRequest request, HideCustomerHandler handler, HttpContext http, CancellationToken ct) =>
+{
+    if (RequireAnyPermission(http, "مسح العميل متاح للمالك فقط.") is { } refused) return refused;
+    if (!string.Equals(id, request.CustomerId, StringComparison.Ordinal))
+        return Results.UnprocessableEntity(new { error = "رقم العميل في الطلب غير مطابق." });
+    try
+    {
+        await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.Actor(http).Id }, ct);
+        return Results.Ok();
+    }
+    catch (Falah.Domain.Common.DomainException ex)
+    {
+        return Results.UnprocessableEntity(new { error = ex.Message });
+    }
+});
+
+api.MapPost("/api/delivery/drivers", async (Falah.Application.Delivery.CreateDriverRequest request, CreateDriverHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1422,14 +1487,14 @@ app.MapGet("/api/delivery/services", async (DeliveryQueryService query, Cancella
 app.MapGet("/api/delivery/services/all", async (DeliveryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListAllDeliveryServicesAsync(ct)));
 
-app.MapPost("/api/delivery/services", async (Falah.Application.Delivery.CreateDeliveryServiceRequest request, CreateDeliveryServiceHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/services", async (Falah.Application.Delivery.CreateDeliveryServiceRequest request, CreateDeliveryServiceHandler handler, CancellationToken ct) =>
 {
     try { return Results.Ok(await handler.HandleAsync(request, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPut("/api/delivery/services/{serviceId}", async (string serviceId, Falah.Application.Delivery.UpdateDeliveryServiceRequest body, UpdateDeliveryServiceHandler handler, CancellationToken ct) =>
+api.MapPut("/api/delivery/services/{serviceId}", async (string serviceId, Falah.Application.Delivery.UpdateDeliveryServiceRequest body, UpdateDeliveryServiceHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1440,7 +1505,7 @@ app.MapPut("/api/delivery/services/{serviceId}", async (string serviceId, Falah.
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/delivery/drivers/{driverId}/set-active", async (string driverId, Falah.Application.Delivery.SetDriverActiveRequest body, SetDriverActiveHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/drivers/{driverId}/set-active", async (string driverId, Falah.Application.Delivery.SetDriverActiveRequest body, SetDriverActiveHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1452,7 +1517,7 @@ app.MapPost("/api/delivery/drivers/{driverId}/set-active", async (string driverI
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/delivery/{id}/ready", async (string id, Falah.Application.Delivery.MarkDeliveryReadyRequest body, MarkDeliveryReadyHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/{id}/ready", async (string id, Falah.Application.Delivery.MarkDeliveryReadyRequest body, MarkDeliveryReadyHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1470,7 +1535,7 @@ app.MapPost("/api/delivery/{id}/ready", async (string id, Falah.Application.Deli
     }
 });
 
-app.MapPost("/api/delivery/{id}/assign", async (string id, Falah.Application.Delivery.AssignDeliveryRequest body, AssignDeliveryHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/{id}/assign", async (string id, Falah.Application.Delivery.AssignDeliveryRequest body, AssignDeliveryHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1492,7 +1557,7 @@ app.MapPost("/api/delivery/{id}/assign", async (string id, Falah.Application.Del
     }
 });
 
-app.MapPost("/api/delivery/{id}/reassign", async (string id, Falah.Application.Delivery.ReassignDeliveryRequest body, ReassignDeliveryHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/{id}/reassign", async (string id, Falah.Application.Delivery.ReassignDeliveryRequest body, ReassignDeliveryHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1514,7 +1579,7 @@ app.MapPost("/api/delivery/{id}/reassign", async (string id, Falah.Application.D
     }
 });
 
-app.MapPost("/api/delivery/{id}/result", async (string id, Falah.Application.Delivery.RecordDeliveryResultRequest body, RecordDeliveryResultHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/{id}/result", async (string id, Falah.Application.Delivery.RecordDeliveryResultRequest body, RecordDeliveryResultHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1536,7 +1601,7 @@ app.MapPost("/api/delivery/{id}/result", async (string id, Falah.Application.Del
     }
 });
 
-app.MapPost("/api/delivery/drivers/{driverId}/settle", async (string driverId, Falah.Application.Delivery.SettleDriverCustodyRequest body, SettleDriverCustodyHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/drivers/{driverId}/settle", async (string driverId, Falah.Application.Delivery.SettleDriverCustodyRequest body, SettleDriverCustodyHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1595,7 +1660,7 @@ app.MapGet("/api/delivery/drivers/{driverId}/daily-statement", async (string dri
     catch (ArgumentException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/delivery/drivers/{driverId}/daily-statement/print", async (string driverId, Falah.Application.Delivery.PrintDriverDailyStatementRequest request, FalahDbContext db, DeliveryQueryService query, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/delivery/drivers/{driverId}/daily-statement/print", async (string driverId, Falah.Application.Delivery.PrintDriverDailyStatementRequest request, FalahDbContext db, DeliveryQueryService query, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "ليس لديك صلاحية طباعة كشف السائق.", "reports_view", "delivery_manage") is { } refused) return refused;
     if (string.IsNullOrWhiteSpace(request.RequestId)) return Results.BadRequest(new { error = "رقم الطلب مطلوب." });
@@ -1630,7 +1695,7 @@ app.MapGet("/api/delivery/{id}", async (string id, DeliveryQueryService query, H
 app.MapGet("/api/delivery/{id}/timeline", async (string id, DeliveryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.GetTimelineAsync(id, ct)));
 
-app.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
+api.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
 {
     try
     {
@@ -1655,7 +1720,7 @@ app.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrde
     }
 });
 
-app.MapPost("/api/orders/refund", async (Falah.Application.Orders.RefundOrderRequest request, RefundOrderHandler handler, CancellationToken ct) =>
+api.MapPost("/api/orders/refund", async (Falah.Application.Orders.RefundOrderRequest request, RefundOrderHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1676,11 +1741,13 @@ app.MapPost("/api/orders/refund", async (Falah.Application.Orders.RefundOrderReq
     }
 });
 
-app.MapPost("/api/orders/confirm-electronic-payment", async (Falah.Application.Orders.ConfirmElectronicPaymentRequest request, ConfirmElectronicPaymentHandler handler, CancellationToken ct) =>
+api.MapPost("/api/orders/confirm-electronic-payment", async (Falah.Application.Orders.ConfirmElectronicPaymentRequest request, ConfirmElectronicPaymentHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
 {
     try
     {
         var result = await handler.HandleAsync(request, ct);
+        // PRT-0016 (owner decision 2026-11-22): the kitchen ticket held for this transfer prints now.
+        await autoPrint.TryReleaseHeldKitchenTicketsAsync(request.OrderId, request.CashierId, ct);
         return Results.Ok(result);
     }
     catch (Falah.Application.Orders.ConfirmConflictException ex)
@@ -1697,7 +1764,52 @@ app.MapPost("/api/orders/confirm-electronic-payment", async (Falah.Application.O
     }
 });
 
-app.MapPost("/api/orders/cancel-pending-electronic-payment", async (Falah.Application.Orders.CancelPendingElectronicPaymentRequest request, CancelPendingElectronicPaymentHandler handler, CancellationToken ct) =>
+// FIN-0051 (owner decision 2026-11-22): cancel a cash-on-delivery order before it leaves with a driver.
+api.MapPost("/api/orders/cancel-undispatched-delivery", async (Falah.Application.Orders.CancelUndispatchedDeliveryRequest request, CancelUndispatchedDeliveryHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(await handler.HandleAsync(request, ct)); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// UI-0025 (owner decision 2026-11-22): a pickup registered unpaid is paid when its customer collects it.
+api.MapPost("/api/orders/collect-pickup", async (Falah.Application.Orders.CollectPickupPaymentRequest request, CollectPickupPaymentHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
+{
+    try
+    {
+        var result = await handler.HandleAsync(request, ct);
+        // After the payment is committed, never inside it - the same rule as checkout's receipt.
+        var printed = result.WasReplayed || await autoPrint.TryPrintCollectionReceiptAsync(result.OrderId, request.CashierId, ct);
+        return Results.Ok(result with { PrintJobsQueued = printed });
+    }
+    catch (Falah.Application.Orders.ShiftNotOpenException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Application.Orders.CheckoutConflictException ex) { return Results.Conflict(new { error = ex.Message }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// UI-0025: a manager cancels a pickup whose customer never came; nothing was paid, so nothing is refunded.
+api.MapPost("/api/orders/cancel-uncollected-pickup", async (Falah.Application.Orders.CancelUncollectedPickupRequest request, CancelUncollectedPickupHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(new { orderId = request.OrderId, status = await handler.HandleAsync(request, ct) }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// UI-0025: the pickups waiting at the counter for their customer to pay and collect.
+app.MapGet("/api/orders/awaiting-collection", async (FalahDbContext db, HttpContext http, CancellationToken ct) =>
+{
+    if (RequireAnyPermission(http, "ليس لديك صلاحية عرض الطلبات.", "pos") is { } refused) return refused;
+    var rows = await db.Orders.AsNoTracking()
+        .Where(o => o.AwaitingCollection && o.Status != "cancelled")
+        .OrderBy(o => o.CreatedAtUtc)
+        .Select(o => new Falah.Application.Orders.AwaitingPickupDto(o.Id, o.OrderNumber, o.CustomerName, o.CustomerPhone,
+            o.TotalPiastres, o.CreatedAtUtc, o.RequestedPickupAtUtc))
+        .ToListAsync(ct);
+    return Results.Ok(rows);
+});
+
+api.MapPost("/api/orders/cancel-pending-electronic-payment", async (Falah.Application.Orders.CancelPendingElectronicPaymentRequest request, CancelPendingElectronicPaymentHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1718,7 +1830,7 @@ app.MapPost("/api/orders/cancel-pending-electronic-payment", async (Falah.Applic
 // guessing is free. Wrong PINs are limited per session, per machine and server-wide
 // (ApprovalPinAttemptGuard; RateLimit:ApprovalPin:*). Refused guesses get a 429 with a message the
 // till can show - the "login" limiter's bare 429 would not tell the cashier what happened.
-app.MapPost("/api/approvals/issue", async (Falah.Application.Approvals.IssueManagerApprovalRequest request, IssueManagerApprovalHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/approvals/issue", async (Falah.Application.Approvals.IssueManagerApprovalRequest request, IssueManagerApprovalHandler handler, HttpContext http, CancellationToken ct) =>
 {
     try
     {
@@ -1749,7 +1861,10 @@ app.MapPost("/api/approvals/issue", async (Falah.Application.Approvals.IssueMana
 // they actually did without turning this into a browsable record of previous shifts or other
 // cashiers' work. A real gap found during the legacy-parity audit: no list endpoint existed here
 // at all, so this permission boundary had no enforcement point to live on.
-app.MapGet("/api/orders", async (string actorUserId, FalahDbContext db, HttpContext http, CancellationToken ct) =>
+// Audit 2026-11-23, F-06: one Cairo date range (today when none is given) and at most `limit` rows (500 by
+// default, 2000 at most), newest first. The whole history in one response stopped fitting in the till's 10-second
+// call as the restaurant's history grew. Without orders_view_all the open shift's orders, as before.
+app.MapGet("/api/orders", async (string actorUserId, DateOnly? from, DateOnly? to, int? limit, FalahDbContext db, HttpContext http, CancellationToken ct) =>
 {
     if (RequireAnyPermission(http, "بيانات العملاء متاحة لمتلقي الطلبات فقط.", "pos", "delivery_manage") is { } refused) return refused;
     var actorUser = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == actorUserId, ct);
@@ -1762,7 +1877,15 @@ app.MapGet("/api/orders", async (string actorUserId, FalahDbContext db, HttpCont
         var openShift = await db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Status == "Open", ct);
         query = openShift is null ? query.Where(o => false) : query.Where(o => o.ShiftId == openShift.Id);
     }
-    var orders = await query.OrderByDescending(o => o.SequenceNumber).ToListAsync(ct);
+    else
+    {
+        var first = from ?? to ?? Falah.Domain.Common.BusinessClock.Today();
+        var last = to ?? first;
+        var (start, end) = Falah.Domain.Common.BusinessClock.UtcRangeForBusinessDates(first, last);
+        query = query.Where(o => o.CreatedAtUtc >= start && o.CreatedAtUtc < end);
+    }
+    var take = Math.Clamp(limit ?? 500, 1, 2000);
+    var orders = await query.OrderByDescending(o => o.SequenceNumber).Take(take).ToListAsync(ct);
     return Results.Ok(await OrderReadProjection.MapAsync(db, orders, ct));
 });
 
@@ -1772,7 +1895,9 @@ app.MapGet("/api/orders/{id}", async (string id, FalahDbContext db, HttpContext 
 {
     if (RequireAnyPermission(http, "بيانات العملاء متاحة لمتلقي الطلبات فقط.", "pos", "delivery_manage") is { } refused) return refused;
     var order = await db.Orders.AsNoTracking().Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id, ct);
-    return order is null ? Results.NotFound() : Results.Ok((await OrderReadProjection.MapAsync(db, new[] { order }, ct)).Single());
+    if (order is null) return Results.NotFound();
+    if (await RefuseOrderOutsideOpenShiftAsync(http, db, order, ct) is { } outside) return outside;
+    return Results.Ok((await OrderReadProjection.MapAsync(db, new[] { order }, ct)).Single());
 });
 
 // A cashier reads the order number off what they already see on screen/receipt - GUIDs are not
@@ -1785,9 +1910,10 @@ app.MapGet("/api/orders/lookup", async (string orderNumber, FalahDbContext db, H
     if (order is null && Falah.Domain.Orders.OrderNumberInput.TryParseSequence(orderNumber, out var sequence))
         order = await db.Orders.AsNoTracking().Include(o => o.Items)
             .Where(o => o.SequenceNumber == sequence).OrderByDescending(o => o.CreatedAtUtc).FirstOrDefaultAsync(ct);
-    return order is null
-        ? Results.NotFound(new { error = $"لا يوجد طلب بالرقم {orderNumber.Trim()}. تأكد من الرقم المطبوع على الإيصال." })
-        : Results.Ok((await OrderReadProjection.MapAsync(db, new[] { order }, ct)).Single());
+    if (order is null)
+        return Results.NotFound(new { error = $"لا يوجد طلب بالرقم {orderNumber.Trim()}. تأكد من الرقم المطبوع على الإيصال." });
+    if (await RefuseOrderOutsideOpenShiftAsync(http, db, order, ct) is { } outside) return outside;
+    return Results.Ok((await OrderReadProjection.MapAsync(db, new[] { order }, ct)).Single());
 });
 
 app.MapGet("/api/menu", async (MenuQueryService menu, CancellationToken ct) => Results.Ok(await menu.GetMenuAsync(ct)));
@@ -1802,7 +1928,7 @@ app.MapGet("/api/products/{id}/image", async (string id, FalahDbContext db, Canc
     return image is null ? Results.NotFound() : Results.File(image.Bytes, image.ContentType);
 });
 
-app.MapPut("/api/products/{id}/image", async (string id, Falah.Application.Menu.SetProductImageRequest body, SetProductImageHandler handler, CancellationToken ct) =>
+api.MapPut("/api/products/{id}/image", async (string id, Falah.Application.Menu.SetProductImageRequest body, SetProductImageHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1826,7 +1952,7 @@ app.MapDelete("/api/products/{id}/image", async (string id, string actorUserId, 
 // Narrowly-scoped write, kept alongside the full menu management CRUD below rather than folded
 // into it: assigns/clears one product's preparation station only, without needing to know or
 // resend every other field on the product - a lighter-weight path for exactly this one change.
-app.MapPut("/api/products/{id}/preparation-station", async (string id, Falah.Application.Printing.SetProductStationRequest request, SetProductStationHandler handler, CancellationToken ct) =>
+api.MapPut("/api/products/{id}/preparation-station", async (string id, Falah.Application.Printing.SetProductStationRequest request, SetProductStationHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1847,7 +1973,7 @@ app.MapPut("/api/products/{id}/preparation-station", async (string id, Falah.App
 
 app.MapGet("/api/categories/all", async (MenuQueryService query, CancellationToken ct) => Results.Ok(await query.ListAllCategoriesAsync(ct)));
 
-app.MapPost("/api/categories", async (Falah.Application.Menu.CreateCategoryRequest request, CreateCategoryHandler handler, CancellationToken ct) =>
+api.MapPost("/api/categories", async (Falah.Application.Menu.CreateCategoryRequest request, CreateCategoryHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1858,7 +1984,7 @@ app.MapPost("/api/categories", async (Falah.Application.Menu.CreateCategoryReque
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPut("/api/categories/{id}", async (string id, Falah.Application.Menu.UpdateCategoryRequest body, UpdateCategoryHandler handler, CancellationToken ct) =>
+api.MapPut("/api/categories/{id}", async (string id, Falah.Application.Menu.UpdateCategoryRequest body, UpdateCategoryHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1869,7 +1995,7 @@ app.MapPut("/api/categories/{id}", async (string id, Falah.Application.Menu.Upda
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/categories/{id}/active", async (string id, Falah.Application.Menu.SetCategoryActiveRequest body, SetCategoryActiveHandler handler, CancellationToken ct) =>
+api.MapPost("/api/categories/{id}/active", async (string id, Falah.Application.Menu.SetCategoryActiveRequest body, SetCategoryActiveHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1888,7 +2014,7 @@ app.MapGet("/api/products/{id}", async (string id, MenuQueryService query, Cance
     return product is null ? Results.NotFound() : Results.Ok(product);
 });
 
-app.MapPost("/api/products", async (Falah.Application.Menu.CreateProductRequest request, CreateProductHandler handler, CancellationToken ct) =>
+api.MapPost("/api/products", async (Falah.Application.Menu.CreateProductRequest request, CreateProductHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1899,7 +2025,7 @@ app.MapPost("/api/products", async (Falah.Application.Menu.CreateProductRequest 
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPut("/api/products/{id}", async (string id, Falah.Application.Menu.UpdateProductRequest body, UpdateProductHandler handler, CancellationToken ct) =>
+api.MapPut("/api/products/{id}", async (string id, Falah.Application.Menu.UpdateProductRequest body, UpdateProductHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1910,7 +2036,7 @@ app.MapPut("/api/products/{id}", async (string id, Falah.Application.Menu.Update
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/products/{id}/availability", async (string id, Falah.Application.Menu.SetProductAvailabilityRequest body, SetProductAvailabilityHandler handler, CancellationToken ct) =>
+api.MapPost("/api/products/{id}/availability", async (string id, Falah.Application.Menu.SetProductAvailabilityRequest body, SetProductAvailabilityHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1925,7 +2051,7 @@ app.MapPost("/api/products/{id}/availability", async (string id, Falah.Applicati
 
 app.MapGet("/api/tax-rules", async (TaxRuleQueryService query, CancellationToken ct) => Results.Ok(await query.ListAsync(ct)));
 
-app.MapPost("/api/tax-rules", async (Falah.Application.Pricing.CreateTaxRuleRequest request, CreateTaxRuleHandler handler, CancellationToken ct) =>
+api.MapPost("/api/tax-rules", async (Falah.Application.Pricing.CreateTaxRuleRequest request, CreateTaxRuleHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1936,7 +2062,7 @@ app.MapPost("/api/tax-rules", async (Falah.Application.Pricing.CreateTaxRuleRequ
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPut("/api/tax-rules/{id}", async (string id, Falah.Application.Pricing.UpdateTaxRuleRequest body, UpdateTaxRuleHandler handler, CancellationToken ct) =>
+api.MapPut("/api/tax-rules/{id}", async (string id, Falah.Application.Pricing.UpdateTaxRuleRequest body, UpdateTaxRuleHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1951,7 +2077,7 @@ app.MapPut("/api/tax-rules/{id}", async (string id, Falah.Application.Pricing.Up
 // Treasury/payment/printing; a drawer that fails to physically open can never affect what was
 // already sold or collected. See CashDrawerOpenEntity's own doc comment. ----
 
-app.MapPost("/api/cash-drawer/open", async (Falah.Application.CashDrawer.OpenCashDrawerRequest request, OpenCashDrawerHandler handler, CancellationToken ct) =>
+api.MapPost("/api/cash-drawer/open", async (Falah.Application.CashDrawer.OpenCashDrawerRequest request, OpenCashDrawerHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1963,7 +2089,7 @@ app.MapPost("/api/cash-drawer/open", async (Falah.Application.CashDrawer.OpenCas
 });
 
 // HW1: the print station wired to the drawer takes the open-drawer commands to send now (print_agent).
-app.MapPost("/api/cash-drawer/claim", async (Falah.Application.CashDrawer.ClaimCashDrawerKicksRequest request, CashDrawerKickQueue queue, IConfiguration configuration, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/cash-drawer/claim", async (Falah.Application.CashDrawer.ClaimCashDrawerKicksRequest request, CashDrawerKickQueue queue, IConfiguration configuration, HttpContext http, CancellationToken ct) =>
 {
     if (RequirePrintAgent(http) is { } refused) return refused;
     if (string.IsNullOrWhiteSpace(request.AgentId)) return Results.UnprocessableEntity(new { error = "معرّف جهاز الطباعة مطلوب." });
@@ -1971,7 +2097,7 @@ app.MapPost("/api/cash-drawer/claim", async (Falah.Application.CashDrawer.ClaimC
     return Results.Ok(await queue.ClaimAsync(request.AgentId.Trim(), Falah.Server.HttpContextActorExtensions.Actor(http).Name, maxAge, ct));
 });
 
-app.MapPost("/api/cash-drawer/report-result", async (Falah.Application.CashDrawer.ReportCashDrawerResultRequest request, ReportCashDrawerResultHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/cash-drawer/report-result", async (Falah.Application.CashDrawer.ReportCashDrawerResultRequest request, ReportCashDrawerResultHandler handler, HttpContext http, CancellationToken ct) =>
 {
     if (RequirePrintAgent(http) is { } refused) return refused;
     try
@@ -1983,7 +2109,7 @@ app.MapPost("/api/cash-drawer/report-result", async (Falah.Application.CashDrawe
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/cash-drawer/cash-movement", async (Falah.Application.CashDrawer.CashierCashMovementRequest request, CashierCashMovementHandler handler, CancellationToken ct) =>
+api.MapPost("/api/cash-drawer/cash-movement", async (Falah.Application.CashDrawer.CashierCashMovementRequest request, CashierCashMovementHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -1999,7 +2125,7 @@ app.MapPost("/api/cash-drawer/cash-movement", async (Falah.Application.CashDrawe
 
 app.MapGet("/api/price-rules", async (PriceRuleQueryService query, CancellationToken ct) => Results.Ok(await query.ListAsync(ct)));
 
-app.MapPost("/api/price-rules", async (Falah.Application.Pricing.SavePriceRuleRequest request, SavePriceRuleHandler handler, CancellationToken ct) =>
+api.MapPost("/api/price-rules", async (Falah.Application.Pricing.SavePriceRuleRequest request, SavePriceRuleHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2152,7 +2278,7 @@ app.MapGet("/api/users", async (FalahDbContext db, HttpContext http, Cancellatio
 // PIN brute-forcing - not a restaurant policy, just standard API hygiene for an unauthenticated,
 // low-entropy-secret endpoint. Wrong PINs are counted per machine and server-wide on top of that
 // (LoginAttemptGuard), and every attempt is written down with the machine it came from.
-app.MapPost("/api/auth/login-by-pin", async (Falah.Application.Users.LoginByPinRequest request, FalahDbContext db, Falah.Infrastructure.Authorization.SessionService sessions, Falah.Infrastructure.Authorization.LoginAttemptGuard guard, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/auth/login-by-pin", async (Falah.Application.Users.LoginByPinRequest request, FalahDbContext db, Falah.Infrastructure.Authorization.SessionService sessions, Falah.Infrastructure.Authorization.LoginAttemptGuard guard, HttpContext http, CancellationToken ct) =>
 {
     var source = ClientSource.Of(http.Connection.RemoteIpAddress);
     try
@@ -2221,7 +2347,7 @@ app.MapGet("/api/security/posture", async (HttpContext http, FalahDbContext db, 
 app.MapGet("/api/security/login-sources", async (HttpContext http, FalahDbContext db, Falah.Infrastructure.Authorization.LoginAttemptGuard guard, CancellationToken ct) =>
     await RequireUsersManageAsync(db, Falah.Server.HttpContextActorExtensions.ActorId(http), ct) ?? Results.Ok(await guard.ListAsync(ct)));
 
-app.MapPost("/api/security/login-sources/clear", async (Falah.Application.Users.ClearLoginSourceRequest request, HttpContext http, FalahDbContext db, Falah.Infrastructure.Authorization.LoginAttemptGuard guard, CancellationToken ct) =>
+api.MapPost("/api/security/login-sources/clear", async (Falah.Application.Users.ClearLoginSourceRequest request, HttpContext http, FalahDbContext db, Falah.Infrastructure.Authorization.LoginAttemptGuard guard, CancellationToken ct) =>
 {
     var actor = Falah.Server.HttpContextActorExtensions.Actor(http);
     var gate = await RequireUsersManageAsync(db, actor.Id, ct);
@@ -2241,7 +2367,7 @@ app.MapPost("/api/security/login-sources/clear", async (Falah.Application.Users.
 
 // Ends the session behind the presented token. Logging out has to actually stop the token working,
 // not merely clear the screen - a station left unlocked is exactly when that matters.
-app.MapPost("/api/auth/logout", async (HttpContext http, Falah.Infrastructure.Authorization.SessionService sessions, CancellationToken ct) =>
+api.MapPost("/api/auth/logout", async (HttpContext http, Falah.Infrastructure.Authorization.SessionService sessions, CancellationToken ct) =>
 {
     var header = http.Request.Headers.Authorization.ToString();
     var token = header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? header["Bearer ".Length..].Trim() : null;
@@ -2264,7 +2390,7 @@ app.MapGet("/api/users/{id}", async (string id, string actorUserId, FalahDbConte
 
 app.MapGet("/api/permissions/catalog", (UserManagementQueryService query) => Results.Ok(query.GetPermissionCatalog()));
 
-app.MapPost("/api/users", async (Falah.Application.Users.CreateUserRequest request, CreateUserHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/users", async (Falah.Application.Users.CreateUserRequest request, CreateUserHandler handler, HttpContext http, CancellationToken ct) =>
 {
     try
     {
@@ -2285,7 +2411,7 @@ app.MapPost("/api/users", async (Falah.Application.Users.CreateUserRequest reque
     }
 });
 
-app.MapPost("/api/users/{id}/active", async (string id, Falah.Application.Users.SetUserActiveRequest body, SetUserActiveHandler handler, CancellationToken ct) =>
+api.MapPost("/api/users/{id}/active", async (string id, Falah.Application.Users.SetUserActiveRequest body, SetUserActiveHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2303,7 +2429,7 @@ app.MapPost("/api/users/{id}/active", async (string id, Falah.Application.Users.
     }
 });
 
-app.MapPost("/api/users/{id}/change-pin", async (string id, Falah.Application.Users.ChangePinRequest body, ChangePinHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/users/{id}/change-pin", async (string id, Falah.Application.Users.ChangePinRequest body, ChangePinHandler handler, HttpContext http, CancellationToken ct) =>
 {
     try
     {
@@ -2325,7 +2451,7 @@ app.MapPost("/api/users/{id}/change-pin", async (string id, Falah.Application.Us
     }
 }).RequireRateLimiting("login"); // self-service path is proven only by the current PIN - same brute-force exposure as login itself
 
-app.MapPost("/api/users/{id}/permissions", async (string id, Falah.Application.Users.UpdateUserPermissionsRequest body, UpdateUserPermissionsHandler handler, CancellationToken ct) =>
+api.MapPost("/api/users/{id}/permissions", async (string id, Falah.Application.Users.UpdateUserPermissionsRequest body, UpdateUserPermissionsHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2471,7 +2597,7 @@ app.MapGet("/api/reports/delivery-outcomes", async (string actorUserId, DateOnly
 
 // Reprints a slip that belongs to no order (shift opening/handover, expense voucher). Creates a
 // print job and an audit entry; it never re-posts the document it reproduces.
-app.MapPost("/api/print-jobs/reprint-document", async (
+api.MapPost("/api/print-jobs/reprint-document", async (
     Falah.Application.Printing.ReprintDocumentRequest body,
     Falah.Infrastructure.Printing.ReprintDocumentHandler handler, CancellationToken ct) =>
 {
@@ -2493,7 +2619,7 @@ app.MapPost("/api/print-jobs/reprint-document", async (
     }
 });
 
-app.MapPost("/api/orders/{id}/print-jobs", async (string id, Falah.Application.Printing.CreatePrintJobsRequest body, CreatePrintJobsHandler handler, CancellationToken ct) =>
+api.MapPost("/api/orders/{id}/print-jobs", async (string id, Falah.Application.Printing.CreatePrintJobsRequest body, CreatePrintJobsHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2518,7 +2644,7 @@ app.MapPost("/api/orders/{id}/print-jobs", async (string id, Falah.Application.P
 app.MapGet("/api/orders/{id}/print-jobs", async (string id, PrintJobQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListJobsForOrderAsync(id, ct)));
 
-app.MapPost("/api/print-jobs/{id}/report-result", async (string id, Falah.Application.Printing.ReportPrintJobResultRequest body, ReportPrintJobResultHandler handler, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/print-jobs/{id}/report-result", async (string id, Falah.Application.Printing.ReportPrintJobResultRequest body, ReportPrintJobResultHandler handler, HttpContext http, CancellationToken ct) =>
 {
     if (RequirePrintAgent(http) is { } refused) return refused;
     try
@@ -2547,7 +2673,7 @@ app.MapGet("/api/print-jobs/pending", async (string route, PrintJobQueryService 
 
 // What an agent polls now: the pending jobs it will print, claimed for a lease so a second agent on
 // the same route (another machine) is never handed them. /pending stays for agents built before this.
-app.MapPost("/api/print-jobs/claim", async (Falah.Application.Printing.ClaimPrintJobsRequest request, PrintJobQueryService query, IConfiguration configuration, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/print-jobs/claim", async (Falah.Application.Printing.ClaimPrintJobsRequest request, PrintJobQueryService query, IConfiguration configuration, HttpContext http, CancellationToken ct) =>
 {
     if (RequirePrintAgent(http) is { } refused) return refused;
     if (string.IsNullOrWhiteSpace(request.Route) || string.IsNullOrWhiteSpace(request.AgentId))
@@ -2558,7 +2684,7 @@ app.MapPost("/api/print-jobs/claim", async (Falah.Application.Printing.ClaimPrin
     return Results.Ok(await query.ClaimPendingJobsForRouteAsync(request.Route, request.AgentId.Trim(), lease, ct));
 });
 
-app.MapPost("/api/print-jobs/{id}/start", async (string id, Falah.Application.Printing.StartPrintJobRequest request, PrintJobQueryService query, HttpContext http, CancellationToken ct) =>
+api.MapPost("/api/print-jobs/{id}/start", async (string id, Falah.Application.Printing.StartPrintJobRequest request, PrintJobQueryService query, HttpContext http, CancellationToken ct) =>
 {
     if (RequirePrintAgent(http) is { } refused) return refused;
     if (string.IsNullOrWhiteSpace(request.ClaimId)) return Results.UnprocessableEntity(new { error = "حجز الطباعة مطلوب." });
@@ -2578,7 +2704,7 @@ app.MapGet("/api/print-jobs/{id}/ticket", async (string id, PrintJobQueryService
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/suppliers", async (Falah.Application.Purchasing.AddSupplierRequest request, AddSupplierHandler handler, CancellationToken ct) =>
+api.MapPost("/api/suppliers", async (Falah.Application.Purchasing.AddSupplierRequest request, AddSupplierHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2608,7 +2734,7 @@ app.MapGet("/api/suppliers/{id}", async (string id, PurchasingQueryService query
 app.MapGet("/api/suppliers/{id}/ledger", async (string id, PurchasingQueryService query, HttpContext http, CancellationToken ct) =>
     RequireOwner(http) ?? Results.Ok(await query.GetSupplierLedgerAsync(id, ct)));
 
-app.MapPost("/api/purchases", async (Falah.Application.Purchasing.ReceivePurchaseRequest request, ReceivePurchaseHandler handler, CancellationToken ct) =>
+api.MapPost("/api/purchases", async (Falah.Application.Purchasing.ReceivePurchaseRequest request, ReceivePurchaseHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2643,7 +2769,7 @@ app.MapGet("/api/purchases/{id}", async (string id, PurchasingQueryService query
     return purchase is null ? Results.NotFound() : Results.Ok(purchase);
 });
 
-app.MapPut("/api/purchases/{id}/due-date", async (string id, Falah.Application.Purchasing.SetPurchaseDueDateRequest body, SetPurchaseDueDateHandler handler, CancellationToken ct) =>
+api.MapPut("/api/purchases/{id}/due-date", async (string id, Falah.Application.Purchasing.SetPurchaseDueDateRequest body, SetPurchaseDueDateHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2653,7 +2779,7 @@ app.MapPut("/api/purchases/{id}/due-date", async (string id, Falah.Application.P
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/purchases/{id}/payments", async (string id, Falah.Application.Purchasing.PayPurchaseRequest body, PayPurchaseHandler handler, CancellationToken ct) =>
+api.MapPost("/api/purchases/{id}/payments", async (string id, Falah.Application.Purchasing.PayPurchaseRequest body, PayPurchaseHandler handler, CancellationToken ct) =>
 {
     try
     {
@@ -2679,7 +2805,7 @@ app.MapPost("/api/purchases/{id}/payments", async (string id, Falah.Application.
 // Every one reads the actor from the session (the body's actorUserId is already checked against it by the
 // middleware, and replaced here so nothing downstream can trust the body).
 
-app.MapPost("/api/treasury/movements/{id}/correct", async (string id, Falah.Application.Treasury.CorrectTreasuryMovementRequest request, HttpContext http, CorrectTreasuryMovementHandler handler, CancellationToken ct) =>
+api.MapPost("/api/treasury/movements/{id}/correct", async (string id, Falah.Application.Treasury.CorrectTreasuryMovementRequest request, HttpContext http, CorrectTreasuryMovementHandler handler, CancellationToken ct) =>
 {
     if (request.MovementId != id) return Results.BadRequest(new { error = "رقم الحركة في الرابط لا يطابق الطلب." });
     try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
@@ -2688,7 +2814,7 @@ app.MapPost("/api/treasury/movements/{id}/correct", async (string id, Falah.Appl
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
-app.MapPost("/api/purchases/{id}/credits", async (string id, Falah.Application.Purchasing.RecordSupplierCreditRequest request, HttpContext http, RecordSupplierCreditHandler handler, CancellationToken ct) =>
+api.MapPost("/api/purchases/{id}/credits", async (string id, Falah.Application.Purchasing.RecordSupplierCreditRequest request, HttpContext http, RecordSupplierCreditHandler handler, CancellationToken ct) =>
 {
     if (request.PurchaseId != id) return Results.BadRequest(new { error = "رقم الفاتورة في الرابط لا يطابق الطلب." });
     try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
@@ -2704,7 +2830,7 @@ app.MapGet("/api/delivery/collection-shortfalls", async (string actorUserId, Fal
     return Results.Ok(await handler.ListAsync(ct));
 });
 
-app.MapPost("/api/delivery/{deliveryId}/collection-shortfall/classify", async (string deliveryId, Falah.Application.Delivery.ClassifyCollectionShortfallRequest request, HttpContext http, ClassifyCollectionShortfallHandler handler, CancellationToken ct) =>
+api.MapPost("/api/delivery/{deliveryId}/collection-shortfall/classify", async (string deliveryId, Falah.Application.Delivery.ClassifyCollectionShortfallRequest request, HttpContext http, ClassifyCollectionShortfallHandler handler, CancellationToken ct) =>
 {
     if (request.DeliveryId != deliveryId) return Results.BadRequest(new { error = "رقم التوصيل في الرابط لا يطابق الطلب." });
     try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
@@ -2719,7 +2845,7 @@ app.MapGet("/api/shifts/handovers/pending", async (string actorUserId, FalahDbCo
     return Results.Ok(await handler.ListUnconfirmedAsync(ct));
 });
 
-app.MapPost("/api/shifts/{id}/handover/acknowledge", async (string id, Falah.Application.Shifts.AcknowledgeShiftHandoverRequest request, HttpContext http, AcknowledgeShiftHandoverHandler handler, CancellationToken ct) =>
+api.MapPost("/api/shifts/{id}/handover/acknowledge", async (string id, Falah.Application.Shifts.AcknowledgeShiftHandoverRequest request, HttpContext http, AcknowledgeShiftHandoverHandler handler, CancellationToken ct) =>
 {
     if (request.ShiftId != id) return Results.BadRequest(new { error = "رقم الوردية في الرابط لا يطابق الطلب." });
     try { return Results.Ok(await handler.HandleAsync(request with { ActorUserId = Falah.Server.HttpContextActorExtensions.ActorId(http) }, ct)); }
@@ -2799,6 +2925,20 @@ static bool CanExportReport(HttpContext http, string reportKey)
 static bool CanReadCosts(HttpContext http) => RequireOwner(http) is null;
 static Falah.Application.Settings.SettingsDto SettingsForReader(Falah.Application.Settings.SettingsDto settings, HttpContext http) =>
     RequireAnyPermission(http, "", "settings_manage") is null ? settings : settings with { CashDiscrepancyThresholdPiastres = 0 };
+
+// Owner decision 2026-11-23 (independent audit F-08): without orders_view_all, a user opens only the orders of the
+// shift that is open now - the rule GET /api/orders already applied to the list - plus unfinished work an earlier
+// shift left (a pickup waiting to be paid, a transfer waiting to be confirmed). Opening by id or by number used
+// to return any order ever taken, with the customer's name, phone and address.
+static async Task<IResult?> RefuseOrderOutsideOpenShiftAsync(HttpContext http, FalahDbContext db, OrderEntity order, CancellationToken ct)
+{
+    if (RequireAnyPermission(http, "", "orders_view_all") is null) return null;
+    if (order.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire
+        && (order.AwaitingCollection || order.ElectronicPaymentStatus == "pending")) return null;
+    var openShiftId = await db.Shifts.AsNoTracking().Where(s => s.Status == "Open").Select(s => s.Id).FirstOrDefaultAsync(ct);
+    return openShiftId is not null && order.ShiftId == openShiftId ? null
+        : Results.UnprocessableEntity(new { error = "الطلب ده من وردية سابقة. فتحه محتاج صلاحية عرض كل الطلبات (مدير)." });
+}
 
 static IResult? RequirePrintAgent(HttpContext http) =>
     RequireAnyPermission(http, "هذه العملية لوكيل الطباعة فقط.", "print_agent");

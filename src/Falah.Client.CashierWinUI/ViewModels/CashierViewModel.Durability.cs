@@ -57,6 +57,7 @@ public partial class CashierViewModel
         CashDrawerOperation => "فتح الدرج",
         ElectronicConfirmOperation => "تأكيد تحويل إلكتروني",
         ElectronicCancelOperation => "إلغاء طلب بانتظار التحويل",
+        CollectOperation => "تحصيل طلب استلام",
         _ => operation,
     };
 
@@ -86,6 +87,7 @@ public partial class CashierViewModel
                 case SafeDropOperation: _pendingSafeDrop = null; SafeDropError = null; break;
                 case CashMovementOperation: _pendingCashMovement = null; CashMovementError = null; break;
                 case CashDrawerOperation: _pendingCashDrawer = null; CashDrawerError = null; break;
+                case CollectOperation: _pendingCollect = null; CollectError = null; break;
                 case ElectronicConfirmOperation: _pendingElectronicConfirm.DiscardAfterReview(true); PendingPaymentActionError = null; continue;
                 case ElectronicCancelOperation: _pendingElectronicCancel.DiscardAfterReview(true); PendingPaymentActionError = null; continue;
             }
@@ -166,6 +168,8 @@ public partial class CashierViewModel
             CashDrawerError = unresolved;
             IsCashDrawerOpen = true;
         }
+
+        RecoverUnresolvedCollection();
 
         // A transfer confirm/cancel kept from before the restart: its buttons need the checkout
         // result the restart wiped, so it is surfaced here to be checked and let go, never resent alone.

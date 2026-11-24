@@ -7,8 +7,8 @@ namespace Falah.Client.CallCenterWinUI.ViewModels;
 
 /// <summary>Root view model for the Call Center station: decides Login vs the order-intake screen,
 /// owns the persistent app header, and polls server health - same shape as CashierWinUI's own
-/// MainViewModel, deliberately simplified since this station has no management shell to route into
-/// (it does exactly one job) and never opens a shift of its own.</summary>
+/// MainViewModel, simplified: three screens (order desk, order history, delivery board) and no shift
+/// of its own.</summary>
 public partial class MainViewModel : ObservableObject
 {
     private readonly AppSession _session;
@@ -19,6 +19,40 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isOnline = true;
     [ObservableProperty] private bool _isLoggedIn;
     [ObservableProperty] private bool _isCloseBlocked;
+
+    /// <summary>Which screen of the station is shown: "desk" (taking an order), "orders" (order history) or
+    /// "delivery" (the dispatch board). Owner request 2026-11-24: the Call Center manages its deliveries too.</summary>
+    [ObservableProperty] private string _section = "desk";
+
+    /// <summary>The board's actions are delivery_manage on the server; without it the tab is not offered.</summary>
+    public bool CanSeeDelivery => _session.HasPermission("delivery_manage");
+
+    [RelayCommand]
+    private void Navigate(string section)
+    {
+        if (!IsLoggedIn) return;
+        switch (section)
+        {
+            case "orders":
+                var orders = _session.OrderHistory;
+                orders.RefreshPermissions();
+                Section = section;
+                CurrentView = orders;
+                _ = orders.LoadAsync();
+                break;
+            case "delivery" when CanSeeDelivery:
+                var board = _session.DeliveryBoard;
+                board.RefreshPermissions();
+                Section = section;
+                CurrentView = board;
+                _ = board.LoadAsync();
+                break;
+            default:
+                Section = "desk";
+                CurrentView = _session.GetOrderDesk(Header);
+                break;
+        }
+    }
 
     public HeaderViewModel Header { get; }
 
@@ -62,6 +96,7 @@ public partial class MainViewModel : ObservableObject
     private void ShowLogin(string? errorMessage = null)
     {
         IsLoggedIn = false;
+        Section = "desk";
         var vm = new LoginViewModel(_session) { ErrorMessage = errorMessage };
         vm.LoggedIn += OnLoggedIn;
         CurrentView = vm;
@@ -81,6 +116,11 @@ public partial class MainViewModel : ObservableObject
         }
 
         Header.Refresh();
+        // Built at every login, before anything else: a delivery command an earlier run left unanswered is read
+        // back from disk here, and until it is retried the station cannot be locked.
+        _ = _session.DeliveryBoard;
+        OnPropertyChanged(nameof(CanSeeDelivery));
+        Section = "desk";
         IsLoggedIn = true;
         var vm = _session.GetOrderDesk(Header);
         CurrentView = vm;

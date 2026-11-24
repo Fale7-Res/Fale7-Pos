@@ -153,7 +153,7 @@
                             <StackPanel Spacing="14">
                                 <TextBlock Text="{Binding EditorTitle}" Style="{StaticResource SectionTitleText}" TextWrapping="Wrap"/>
 
-                                <TextBox Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                <TextBox MaxLength="200" Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                          Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                                 <TextBox Header="الأيقونة (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
@@ -277,7 +277,7 @@
                                                             <ColumnDefinition Width="170"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBox PlaceholderText="اسم الحجم" MinHeight="44"
+                                                        <TextBox MaxLength="200" PlaceholderText="اسم الحجم" MinHeight="44"
                                                                  IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
                                                                  Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                                         <TextBox Grid.Column="1" PlaceholderText="السعر" MinHeight="44" InputScope="Number"

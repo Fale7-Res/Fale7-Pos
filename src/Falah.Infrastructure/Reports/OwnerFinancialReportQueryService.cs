@@ -65,7 +65,7 @@ public sealed class OwnerFinancialReportQueryService
     {
         var cancelled = OrderStatus.Cancelled.ToWireString();
         var entities = await _db.Orders.AsNoTracking().Include(o => o.Items).Include(o => o.Refunds)
-            .Where(o => o.Status != cancelled && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
+            .Where(o => o.Status != cancelled && !o.AwaitingCollection && o.CreatedAtUtc >= start && o.CreatedAtUtc < end)
             .ToListAsync(ct);
         var orders = entities.Select(OrderMapper.ToDomain).ToList();
         var ids = orders.Select(o => o.Id).ToList();

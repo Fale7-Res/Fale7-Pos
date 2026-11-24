@@ -145,7 +145,7 @@ public static class SalesRules
         var tax = SumMoney(orders, o => o.TaxAmount);
         var refundTaxImpact = Money.FromPiastres(refundsInPeriod.Sum(r =>
             r.Amount.IsPositive && r.OrderTotal.IsPositive && r.OrderTaxAmount.IsPositive
-                ? (long)Math.Round(r.OrderTaxAmount.Piastres * (decimal)r.Amount.Piastres / r.OrderTotal.Piastres)
+                ? (long)Math.Round(r.OrderTaxAmount.Piastres * (decimal)r.Amount.Piastres / r.OrderTotal.Piastres, MidpointRounding.AwayFromZero)
                 : 0));
         return new TaxReport(gross, taxable, tax, refundTaxImpact, tax - refundTaxImpact);
     }

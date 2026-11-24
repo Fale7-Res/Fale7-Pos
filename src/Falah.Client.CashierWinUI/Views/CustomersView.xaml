@@ -24,7 +24,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox Style="{StaticResource SearchBoxStyle}" MinHeight="44" MaxWidth="420" HorizontalAlignment="Right"
+            <TextBox MaxLength="30" Style="{StaticResource SearchBoxStyle}" MinHeight="44" MaxWidth="420" HorizontalAlignment="Right"
                      InputScope="TelephoneNumber" PlaceholderText="رقم هاتف العميل..."
                      Text="{Binding PhoneQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Grid.Column="1" Content="بحث" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
@@ -33,12 +33,30 @@
 
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="28,0,28,24">
             <StackPanel Spacing="16">
+                <TextBlock Text="{Binding DeleteMessage}" TextWrapping="Wrap" FontWeight="SemiBold"
+                           AutomationProperties.AutomationId="Customer_DeleteMessage"/>
 
                 <Border Style="{StaticResource PageCardStyle}"
                         Visibility="{Binding HasCustomer, Converter={StaticResource BoolToVisibleConverter}}">
                     <StackPanel Spacing="10">
                         <TextBlock Text="{Binding Customer.Name}" Style="{StaticResource SectionTitleText}"/>
                         <TextBlock Text="{Binding Customer.Phone}" Style="{StaticResource MutedText}"/>
+                        <!-- CUS-0002: the owner sees a deleted customer, marked; staff never find one. -->
+                        <TextBlock Text="العميل ده ممسوح من شاشات الموظفين وبياناته محفوظة عندك. لو طلب تاني برقمه بيرجع تلقائي."
+                                   TextWrapping="Wrap" Foreground="{ThemeResource DangerBrush}"
+                                   Visibility="{Binding IsHiddenCustomer, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <Button Content="مسح العميل" Command="{Binding RequestDeleteCommand}" Style="{StaticResource DangerButtonStyle}"
+                                AutomationProperties.AutomationId="Customer_Delete" AutomationProperties.Name="مسح العميل"
+                                Visibility="{Binding CanDeleteCustomer, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <StackPanel Spacing="8" Visibility="{Binding IsDeleteConfirmOpen, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock TextWrapping="Wrap"><Run Text="متأكد إنك عايز تمسح "/><Run Text="{Binding Customer.Name}" FontWeight="Bold"/><Run Text="؟ الموظفين مش هيلاقوه تاني، وبياناته وعناوينه وطلباته هتفضل محفوظة عندك."/></TextBlock>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="أيوه امسحه" Command="{Binding ConfirmDeleteCommand}" Style="{StaticResource DangerButtonStyle}"
+                                        AutomationProperties.AutomationId="Customer_DeleteConfirm" AutomationProperties.Name="تأكيد مسح العميل"/>
+                                <Button Content="لأ، رجوع" Command="{Binding CancelDeleteCommand}" Style="{StaticResource SecondaryButtonStyle}"
+                                        AutomationProperties.AutomationId="Customer_DeleteCancel" AutomationProperties.Name="إلغاء مسح العميل"/>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

@@ -22,7 +22,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <controls:ModalHeaderView Padding="24,18" Title="بيانات العميل والتوصيل"
+                <controls:ModalHeaderView Padding="24,18" Title="{Binding CustomerEditorTitle}"
                                           CloseCommand="{Binding CloseDeliveryEditorCommand}"/>
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -32,7 +32,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Header="رقم الهاتف" InputScope="TelephoneNumber" MinHeight="44"
+                            <TextBox MaxLength="30" Header="رقم الهاتف" InputScope="TelephoneNumber" MinHeight="44"
                                      Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                             <Button Grid.Column="1" Content="بحث عن العميل" VerticalAlignment="Bottom" MinHeight="44"
                                     Style="{StaticResource SecondaryButtonStyle}" Command="{Binding LookupCustomerCommand}"/>
@@ -42,9 +42,32 @@
                         <TextBlock Text="{Binding CustomerLookupNote}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
                                    Visibility="{Binding CustomerLookupNote, Converter={StaticResource NullToCollapsedConverter}}"/>
 
-                        <TextBox Header="اسم العميل" MinHeight="44"
+                        <TextBox MaxLength="200" Header="اسم العميل" MinHeight="44"
                                  Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
+                        <!-- Pickup: the name and phone are enough; a time only if the customer named one. -->
+                        <StackPanel Spacing="10" Visibility="{Binding IsPickup, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="موعد الاستلام (اختياري)" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+                            <TextBlock Text="سيبه فاضي لو العميل جاي على طول. لو حدد ميعاد، اختار اليوم والساعة الاتنين."
+                                       Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Not bound: a bound null reaches the pickers as 1/1/1926 and 0:00 (see the code-behind). -->
+                                <CalendarDatePicker x:Name="PickupDatePicker" Header="اليوم" PlaceholderText="اختر اليوم" HorizontalAlignment="Stretch" MinHeight="44"
+                                                    AutomationProperties.AutomationId="CallCenter_PickupDate" DateChanged="OnPickupDateChanged"/>
+                                <TimePicker x:Name="PickupTimePicker" Grid.Column="1" Header="الساعة" HorizontalAlignment="Stretch" MinHeight="44" MinuteIncrement="5"
+                                            AutomationProperties.AutomationId="CallCenter_PickupTime" SelectedTimeChanged="OnPickupTimeChanged"/>
+                                <Button Grid.Column="2" Content="بدون موعد" VerticalAlignment="Bottom" MinHeight="44"
+                                        Style="{StaticResource GhostButtonStyle}" Command="{Binding ClearPickupTimeCommand}"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Delivery: the address and the zone that sets the fee. -->
+                        <StackPanel Spacing="14" Visibility="{Binding IsDelivery, Converter={StaticResource BoolToVisibleConverter}}">
                         <ComboBox Header="عنوان محفوظ" HorizontalAlignment="Stretch" MinHeight="44"
                                   ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}"
                                   Visibility="{Binding SavedAddresses.Count, Converter={StaticResource CountToVisibleConverter}}">
@@ -88,13 +111,14 @@
 
                         <TextBox Header="علامة مميزة" MinHeight="44"
                                  Text="{Binding DeliveryLandmark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Header="ملاحظات التوصيل" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
+                        <TextBox MaxLength="500" Header="ملاحظات التوصيل" MinHeight="44" TextWrapping="Wrap" AcceptsReturn="True"
                                  Text="{Binding DeliveryNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{Binding DeliveryServicesError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"
                                    Visibility="{Binding DeliveryServicesError, Converter={StaticResource NullToCollapsedConverter}}"/>
                         <Button Content="تحديث خدمات التوصيل" Style="{StaticResource GhostButtonStyle}" MinHeight="44"
                                 HorizontalAlignment="Right" Command="{Binding LoadDeliveryServicesCommand}"/>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -103,7 +127,7 @@
                         <TextBlock Text="{Binding DeliveryError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                    TextWrapping="Wrap" TextAlignment="Center"
                                    Visibility="{Binding DeliveryError, Converter={StaticResource NullToCollapsedConverter}}"/>
-                        <Button Content="حفظ بيانات التوصيل" HorizontalAlignment="Stretch" MinHeight="52"
+                        <Button Content="حفظ البيانات" HorizontalAlignment="Stretch" MinHeight="52"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SaveDeliveryDetailsCommand}"/>
                     </StackPanel>
                 </Border>

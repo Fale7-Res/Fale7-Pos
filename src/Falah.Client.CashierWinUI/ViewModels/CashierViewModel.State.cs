@@ -18,10 +18,11 @@ public partial class CashierViewModel
     partial void OnIsCancellingElectronicPaymentChanged(bool value) => RefreshOperationState();
     public bool IsOperationBusy => IsRefunding || IsProcessingCheckout || IsOpeningShift || IsClosingShift || IsSubmittingExpense ||
         IsSubmittingSafeDrop || IsSubmittingCashMovement || IsSubmittingCashDrawer || IsReprinting ||
-        IsConfirmingElectronicPayment || IsCancellingElectronicPayment;
+        IsConfirmingElectronicPayment || IsCancellingElectronicPayment || IsCollecting || IsCancellingPickup;
     public bool CanEditOperation => !IsOperationBusy && _pendingRefund is null && _pendingReprint is null && _pendingCheckout is null && _pendingExpense is null &&
         _pendingSafeDrop is null && _pendingCashMovement is null && _pendingCashDrawer is null &&
-        _pendingOpenShift is null && _pendingCloseShift is null && !_pendingElectronicConfirm.HasPending && !_pendingElectronicCancel.HasPending;
+        _pendingOpenShift is null && _pendingCloseShift is null && !_pendingElectronicConfirm.HasPending && !_pendingElectronicCancel.HasPending &&
+        _pendingCollect is null;
     // Read afresh by keyboard accelerators; no shortcut may reach the cart behind a dialog.
     public bool IsAnyModalOpen => IsCheckoutOpen || IsVariantPickerOpen || IsDeliveryEditorOpen || IsAddExpenseOpen
         || IsSafeDropOpen || IsCashMovementOpen || IsCashDrawerOpen || IsCashCountOpen || IsOrderLookupOpen
@@ -33,10 +34,13 @@ public partial class CashierViewModel
     public bool IsCashOnDelivery => IsDelivery && !IsSplitPaymentEnabled && PaymentMethod == "cash" && GrandTotalPiastres > 0;
     public bool CanEnterTender => CanEditOperation && !IsCashOnDelivery && !IsSplitPaymentEnabled && PaymentMethod == "cash";
     public string TenderLabel => IsCashOnDelivery ? "يُحصّل عند التوصيل بالجنيه" : "المبلغ المستلم بالجنيه";
+    /// <summary>Audit 2026-11-23, F-07: whether the checkout header shows the change - a cash payment taken now. Unlike
+    /// CanEnterTender it stays true while the payment is being sent, so the figure does not vanish mid-sale.</summary>
+    public bool ShowsChangeDue => !IsCashOnDelivery && !IsSplitPaymentEnabled && PaymentMethod == "cash";
     private void NotifyPaymentPresentation()
     {
         OnPropertyChanged(nameof(UsesWallet)); OnPropertyChanged(nameof(IsCashOnDelivery));
-        OnPropertyChanged(nameof(CanEnterTender)); OnPropertyChanged(nameof(TenderLabel));
+        OnPropertyChanged(nameof(CanEnterTender)); OnPropertyChanged(nameof(TenderLabel)); OnPropertyChanged(nameof(ShowsChangeDue));
     }
     partial void OnPaymentMethodChanged(string value) => NotifyPaymentPresentation();
     partial void OnSplitMethod1Changed(string value) => OnPropertyChanged(nameof(UsesWallet));
@@ -55,8 +59,10 @@ public partial class CashierViewModel
     public string TaxLabel => _taxRule?.Mode == Falah.Domain.Financial.TaxMode.Inclusive ? "الضريبة (مشمولة)" : "الضريبة";
     public string TaxDisplay => CashInput.Format(Falah.Domain.Financial.TaxEngine.Calculate(
         Falah.Domain.Common.Money.FromPiastres(Math.Max(0, CartSubtotalPiastres - DiscountAmountPiastres)), _taxRule).Tax.Piastres) + " ج";
-    public string CheckoutTitle => LastCheckoutResult?.Status == "cancelled" ? "تم إلغاء الطلب" : IsElectronicPaymentPending ? "بانتظار تأكيد التحويل" : "تم تسجيل الطلب";
-    public string CheckoutSubtitle => IsElectronicPaymentPending ? "الطلب مسجل؛ المبلغ لم يُحصّل بعد" : "راجع رقم الطلب والمبلغ المسجل";
+    public string CheckoutTitle => LastCheckoutResult?.Status == "cancelled" ? "تم إلغاء الطلب" : IsElectronicPaymentPending ? "بانتظار تأكيد التحويل"
+        : LastCheckoutResult is { AwaitingCollection: true } ? "اتسجل طلب الاستلام" : "تم تسجيل الطلب";
+    public string CheckoutSubtitle => IsElectronicPaymentPending ? "الطلب مسجل؛ المبلغ لم يُحصّل بعد"
+        : LastCheckoutResult is { AwaitingCollection: true } ? "راح المطبخ. العميل هيدفع وهو بيستلم - حصّله من «البحث عن طلب»." : "راجع رقم الطلب والمبلغ المسجل";
 
     /// <summary>Shown only when the sale succeeded but its tickets could not be queued. The sale is
     /// never failed for a printing problem, so without this line a ticket that never reached the

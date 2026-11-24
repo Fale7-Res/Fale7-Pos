@@ -270,7 +270,7 @@ public partial class CallCenterViewModel : ObservableObject
     {
         get
         {
-            var deliveryFee = SelectedDeliveryService?.FeePiastres ?? 0;
+            var deliveryFee = DeliveryFeePiastres;
             var taxed = Falah.Domain.Financial.TaxEngine.Calculate(Falah.Domain.Common.Money.FromPiastres(CartSubtotalPiastres), _taxRule);
             var total = taxed.Final.Piastres + deliveryFee;
             return total > 0 ? total : 0;

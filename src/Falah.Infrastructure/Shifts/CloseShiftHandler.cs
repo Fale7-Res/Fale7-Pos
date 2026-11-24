@@ -49,6 +49,7 @@ public sealed class CloseShiftHandler
 
     public async Task<CloseShiftResult> HandleAsync(CloseShiftRequest request, CancellationToken ct = default)
     {
+        Falah.Domain.Common.InputRules.AssertRequestId(request.CloseRequestId);   // QA-03 (audit 2026-11-23)
         var existing = await FindExistingAsync(request.CloseRequestId, ct);
         if (existing is not null) return ToResult(existing, wasReplayed: true);
 
@@ -113,7 +114,15 @@ public sealed class CloseShiftHandler
             if (blindResult.IsRecount && approval is null)
                 throw new DomainException(Shift.RecountNeedsManagerMessage);
 
-            AuthorizationPolicy.AuthorizeShiftClose(_approvalRegistry, actor, approval, blindResult.RequiresManagerApproval);
+            // Independent audit 2026-11-23, F-05: an approval that is presented is always checked and spent, and
+            // only a checked one is written down as the authoriser. AuthorizeShiftClose skipped the check for a
+            // closer holding shifts_manage, yet the record named whichever approver the request claimed - so a
+            // made-up approval id put the owner's name on a shortage the owner never saw.
+            AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "shifts_blind_close");
+            var approver = approval is null ? null
+                : AuthorizationPolicy.ValidateApproval(_approvalRegistry, "shifts_manage", approval, actor.Id);
+            if (blindResult.RequiresManagerApproval && approver is null && !AuthorizationPolicy.HasPermission(actor, "shifts_manage"))
+                throw new DomainException("ليس لديك صلاحية تنفيذ هذه العملية.");
             if (lastDeclared != actual.Piastres)
             {
                 _db.ControlAuditEvents.Add(new ControlAuditEventEntity
@@ -123,7 +132,7 @@ public sealed class CloseShiftHandler
                     CreatedAtUtc = DateTimeOffset.UtcNow,
                 });
             }
-            var authorizedByName = approval?.ApproverName;
+            var authorizedByName = approver?.ApproverName;
 
             var now = DateTimeOffset.UtcNow;
             var difference = blindResult.Difference;

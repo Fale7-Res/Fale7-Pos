@@ -185,6 +185,19 @@ public sealed class PrintJobQueryService
             _ => throw new InvalidOperationException($"مسار طباعة غير معروف: {route}"),
         };
 
+        // PRT-0008 (owner decision 2026-11-22): "عدد نسخ الإيصال" - the till receipt's first print comes out
+        // as that many copies, cut apart. A reprint or an automatic retry is one copy, marked as such.
+        if (route == PrintRoute.Receipt && !job.IsReprint && job.AttemptCount == 0)
+        {
+            var copies = Math.Clamp((await _settings.GetAsync(ct)).NumberOfReceiptCopies, 1, 5);
+            if (copies > 1)
+            {
+                var lines = new List<TicketElement>(composed.Lines);
+                for (var copy = 2; copy <= copies; copy++) { lines.Add(new TicketCut()); lines.AddRange(composed.Lines); }
+                composed = composed with { Lines = lines };
+            }
+        }
+
         return ToDto(MarkIfReprint(composed, job));
     }
 
@@ -217,7 +230,8 @@ public sealed class PrintJobQueryService
     /// than inside each composition so no route can be reproduced silently - and applied at compose
     /// time, so a reprint job that is retried by the agent keeps saying it is a reprint.</summary>
     private static ComposedTicket MarkIfReprint(ComposedTicket composed, PrintJobEntity job) =>
-        job.IsReprint ? PrintRules.MarkAsReprint(composed, job.CreatedAtUtc, job.CreatedBy) : composed;
+        // PRT-0013: a ticket printed again after a failed attempt is marked too, so a copy is never taken for a new order.
+        job.IsReprint || job.AttemptCount > 0 ? PrintRules.MarkAsReprint(composed, job.CreatedAtUtc, job.CreatedBy) : composed;
 
     /// <summary>Shared by both shift slips: who the shift belongs to, and the short code that lets
     /// its opening and closing papers be matched without printing an internal id.</summary>

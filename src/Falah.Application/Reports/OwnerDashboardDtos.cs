@@ -214,7 +214,12 @@ public sealed record SystemHealthDto(
     double? LastBackupAgeHours,
     string? LastBackupVerificationStatus,
     int FailedBackupCount,
-    IReadOnlyList<PrintRouteHealthDto> PrintRoutes);
+    IReadOnlyList<PrintRouteHealthDto> PrintRoutes,
+    /// <summary>OPS-0006: free space on the disk the backups go to (Backup:DefaultDirectory); null when
+    /// that disk cannot be read. Low when under Backup:MinimumFreeMegabytes (default 5 GB) or under
+    /// three times the last backup's size, whichever is larger.</summary>
+    long? BackupDiskFreeBytes = null,
+    bool BackupDiskLow = false);
 
 /// <param name="LastSuccessAtUtc">The last time this route is known to have physically printed.
 /// Null means it has never reported a success - a printer nobody has proved works.</param>

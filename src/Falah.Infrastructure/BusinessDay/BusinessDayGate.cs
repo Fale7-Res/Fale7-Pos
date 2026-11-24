@@ -39,7 +39,7 @@ public static class BusinessDayGate
 
         var result = new Microsoft.Data.SqlClient.SqlParameter("@creationLock", System.Data.SqlDbType.Int) { Direction = System.Data.ParameterDirection.Output };
         await db.Database.ExecuteSqlRawAsync(
-            "EXEC @creationLock = sys.sp_getapplock @Resource=N'FalahBusinessDayCreation', @LockMode=N'Exclusive', @LockOwner=N'Transaction', @LockTimeout=15000",
+            "EXEC @creationLock = sys.sp_getapplock @Resource=N'FalahBusinessDayCreation', @LockMode=N'Exclusive', @LockOwner=N'Transaction', @LockTimeout=" + Falah.Infrastructure.Persistence.LockTimeouts.Milliseconds,   // audit 2026-11-23, F-09: under the till's 10 s
             new object[] { result }, ct);
         if (result.Value is not int code || code < 0)
             throw new DomainException("تعذر بدء يوم العمل بسبب عملية متزامنة. أعد المحاولة.");

@@ -42,6 +42,10 @@ public sealed class OpenBusinessDayHandler
             .ToList();
 
         var businessDate = request.BusinessDate ?? BusinessClock.BusinessDate(now);
+        // Audit 2026-11-23, F-02: the same refusal the shift-open path already makes (BusinessDayGate), plus
+        // future dates.
+        BusinessDayRules.AssertOpenableDate(businessDate, BusinessClock.BusinessDate(now),
+            await _db.BusinessDays.AsNoTracking().AnyAsync(d => d.BusinessDate == businessDate && d.Status == nameof(BusinessDayStatus.Closed), ct));
         var day = BusinessDayRules.Open($"day-{Guid.NewGuid():N}", businessDate, request.OpenedByUserId, now, activeDays);
 
         var entity = new BusinessDayEntity

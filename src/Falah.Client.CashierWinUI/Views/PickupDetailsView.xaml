@@ -11,9 +11,9 @@
    <StackPanel Grid.Row="1" Padding="24,0,24,20" Spacing="14">
     <TextBlock Text="اسم العميل ورقم هاتفه، عشان نعرف الطلب ده بتاع مين وقت الاستلام."
                TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
-    <TextBox AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
+    <TextBox MaxLength="30" AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
              Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-    <TextBox AutomationProperties.AutomationId="Pickup_Name" IsEnabled="{Binding CanEditOperation}" Header="اسم العميل"
+    <TextBox MaxLength="200" AutomationProperties.AutomationId="Pickup_Name" IsEnabled="{Binding CanEditOperation}" Header="اسم العميل"
              Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <TextBlock Text="موعد الاستلام (اختياري) - سيبه فاضي لو العميل جاي دلوقتي." TextWrapping="Wrap"
                FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
@@ -24,6 +24,13 @@
      <TimePicker x:Name="PickupTimePicker" Grid.Column="1" AutomationProperties.AutomationId="Pickup_Time" Header="الوقت" HorizontalAlignment="Stretch"
                  ClockIdentifier="24HourClock" IsEnabled="{Binding CanEditOperation}" SelectedTimeChanged="OnPickupTimeChanged"/>
     </Grid>
+    <!-- UI-0025 (owner decision 2026-11-22): register now, the customer pays when collecting. -->
+    <ToggleSwitch AutomationProperties.AutomationId="Pickup_PayOnCollection" AutomationProperties.Name="العميل يدفع وهو بيستلم"
+                  IsEnabled="{Binding CanEditOperation}" Header="الدفع" IsOn="{Binding PayOnCollection, Mode=TwoWay}"
+                  OnContent="العميل يدفع وهو بيستلم" OffContent="يدفع دلوقتي"/>
+    <TextBlock Text="الطلب هيروح المطبخ دلوقتي، ومش هيتحسب مبيعات غير لما العميل يدفع. لو ما جاش، اليوم مش هيتقفل غير لما المدير يلغيه."
+               TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"
+               Visibility="{Binding PayOnCollection, Converter={StaticResource BoolToVisibleConverter}}"/>
     <TextBlock Text="{Binding PickupError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"
                Visibility="{Binding PickupError, Converter={StaticResource NullToCollapsedConverter}}"/>
    </StackPanel>

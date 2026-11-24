@@ -18,13 +18,17 @@ public sealed record CreatePrintJobsRequest(
     /// <summary>Why this was reprinted, in the cashier's words. Recorded in the audit trail; the
     /// paper itself says only that it is a reprint, by whom and when. Trailing optional so every
     /// existing caller keeps compiling.</summary>
-    string? Reason = null);
+    string? Reason = null,
+    /// <summary>SEC-0030 (owner decision 2026-11-22): a reprint needs print_reprint, or a manager's
+    /// approval issued for that action.</summary>
+    string? ManagerApprovalId = null, string? ManagerApproverUserId = null);
 
 /// <summary>Reprints a slip that belongs to no order - a shift opening or handover slip, or an
 /// expense voucher. The original is queued by the handler that wrote the document; this is the
 /// "print it again" path, and its paper is marked as a reprint.</summary>
 public sealed record ReprintDocumentRequest(
-    string RequestId, string DocumentKind, string DocumentId, string ActorUserId, string? Reason = null);
+    string RequestId, string DocumentKind, string DocumentId, string ActorUserId, string? Reason = null,
+    string? ManagerApprovalId = null, string? ManagerApproverUserId = null);
 
 public sealed record PrintJobDto(
     string Id, string OrderId, string OrderNumber, string Route, string Status, int AttemptCount,

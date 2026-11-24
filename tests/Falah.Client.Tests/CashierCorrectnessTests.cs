@@ -80,6 +80,32 @@ public class CashierCorrectnessTests
         Assert.Equal(2, bodies.Count); Assert.Equal(bodies[0], bodies[1]);
     }
 
+    /// <summary>UI review 2026-11-24: an expense and a drawer cash-in were recorded, and the dialog simply vanished -
+    /// the cashier could not tell a recorded expense from a dialog that was closed. The till's last-action line says so.</summary>
+    [Fact]
+    public async Task A_recorded_expense_is_confirmed_on_the_till()
+    {
+        var (vm, _) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) {
+            Content = JsonContent.Create(new Falah.Application.Expenses.AddExpenseResult("e1", "نظافة ومطهرات", 3000, "tre-drawer", true, "tm1", false)) }));
+        vm.OpenAddExpenseCommand.Execute(null);
+        vm.ExpenseAmountText = "30"; vm.ExpenseDescription = "صابون";
+        await vm.SubmitExpenseCommand.ExecuteAsync(null);
+        Assert.False(vm.IsAddExpenseOpen);
+        Assert.Equal("تم تسجيل مصروف 30.00 ج", vm.LastSaleNote);
+    }
+
+    [Fact]
+    public async Task A_recorded_cash_in_is_confirmed_on_the_till()
+    {
+        var (vm, _) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) {
+            Content = JsonContent.Create(new Falah.Application.CashDrawer.CashierCashMovementResult("tm1", "cash_in", 10000, false)) }));
+        vm.OpenCashMovementCommand.Execute("cash_in");
+        vm.CashMovementAmountText = "100"; vm.CashMovementReason = "فكة";
+        await vm.SubmitCashMovementCommand.ExecuteAsync(null);
+        Assert.False(vm.IsCashMovementOpen);
+        Assert.Equal("تم تسجيل إيداع نقدي في الدرج 100.00 ج", vm.LastSaleNote);
+    }
+
     [Theory]
     [InlineData("null")] [InlineData("not-json")]
     public async Task Malformed_success_response_is_unresolved(string body)
@@ -242,6 +268,32 @@ public class CashierCorrectnessTests
         Assert.Empty(vm.Cart);
         Assert.False(vm.IsCheckoutOpen);
         if (!cardShown) Assert.True(vm.CanUseWorkspaceShortcuts);   // the next order can start at once
+    }
+
+    // Independent audit 2026-11-23, F-07: with no card after a paid sale (owner, 2026-11-19) and the dialog's change
+    // row scrolled out of sight, the cashier never saw the change. The footer now keeps one quiet line - the order
+    // number and the change - until the next payment is opened.
+    [Fact]
+    public async Task After_a_paid_sale_the_footer_says_the_order_number_and_the_change_until_the_next_payment()
+    {
+        var (vm, _) = Create(r => Task.FromResult(r.RequestUri!.AbsolutePath == "/api/orders/checkout"
+            ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(
+                """{"orderId":"o1","orderNumber":"#0128","sequenceNumber":128,"totalPiastres":4500,"amountPaidPiastres":10000,"changeDuePiastres":5500,"status":"completed","isPaid":true,"electronicPaymentStatus":null,"wasReplayed":false,"printJobsQueued":true}""",
+                System.Text.Encoding.UTF8, "application/json") }
+            : new HttpResponseMessage(HttpStatusCode.NotFound)));
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 4500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        vm.AmountPaidText = "100";
+
+        await vm.SubmitPaymentCommand.ExecuteAsync(null);
+
+        Assert.False(vm.HasCheckoutResult);
+        Assert.Contains("#0128", vm.LastSaleNote);
+        Assert.Contains("55.00", vm.LastSaleNote);
+
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 4500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        Assert.Null(vm.LastSaleNote);
     }
 
     private static (CashierViewModel, AppSession) Create(Func<HttpRequestMessage, Task<HttpResponseMessage>> send)

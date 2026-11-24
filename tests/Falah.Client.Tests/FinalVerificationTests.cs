@@ -365,7 +365,7 @@ public class FinalVerificationTests
             if (bodies.Count == 1) throw new HttpRequestException("response lost");
             if (bodies.Count == 2) return Json("{\"error\":\"unavailable\"}", HttpStatusCode.Forbidden);
             return Json("{\"jobs\":[],\"wasReplayed\":true}");
-        }))) { CurrentUser = new("actor", "اختبار", "cashier", new[] { "pos" }) };
+        }))) { CurrentUser = new("actor", "اختبار", "cashier", new[] { "pos", "print_reprint" }) };
         var vm = session.GetOrderDesk(new());
         vm.IsOrderLookupOpen = true;
         vm.LookedUpOrder = System.Text.Json.JsonSerializer.Deserialize<Falah.Application.Orders.OrderDetailsDto>(

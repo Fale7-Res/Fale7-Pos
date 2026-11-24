@@ -32,8 +32,12 @@ public sealed partial class ApiClient
 
     public ApiClient(string baseAddress = "http://localhost:5151")
     {
-        _http = new HttpClient { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
-        _exportHttp = new HttpClient { BaseAddress = _http.BaseAddress, Timeout = TimeSpan.FromMinutes(3) };
+        // Runtime logging audit 2026-11-23: every call carries a correlation id and failures are written
+        // to the station log (CorrelationLoggingHandler).
+        _http = new HttpClient(new Falah.Client.Diagnostics.CorrelationLoggingHandler(new HttpClientHandler()))
+        { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        _exportHttp = new HttpClient(new Falah.Client.Diagnostics.CorrelationLoggingHandler(new HttpClientHandler()))
+        { BaseAddress = _http.BaseAddress, Timeout = TimeSpan.FromMinutes(3) };
     }
 
     /// <summary>Where product photos are fetched from. Images are the one thing this client loads
@@ -77,6 +81,10 @@ public sealed partial class ApiClient
             var body = await response.Content.ReadFromJsonAsync<ErrorBody>(cancellationToken: ct);
             message = body?.error;
             retryable = body?.retryable;
+            // QA-01 (audit 2026-11-23): the server's message asks the employee to quote the reference -
+            // so it is shown. It is the same value the server logged and this station's log line carries.
+            if (message is not null && !string.IsNullOrWhiteSpace(body?.reference))
+                message = $"{message} (الرقم المرجعي: {body!.reference})";
         }
         catch
         {
@@ -158,10 +166,13 @@ public sealed partial class ApiClient
         ReadAsync<Falah.Application.Settings.SettingsDto>(() => _http.GetAsync("/api/settings", ct), ct);
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> LookupCustomerAsync(string phone, CancellationToken ct = default) =>
         ReadAsync<Falah.Application.Customers.CustomerDto>(() => _http.GetAsync($"/api/customers/lookup?phone={Uri.EscapeDataString(phone)}", ct), ct);
+    /// <summary>CUS-0002: owner only; the server hides the customer from staff and keeps the record.</summary>
+    public Task<ApiResult<bool>> HideCustomerAsync(Falah.Application.Customers.HideCustomerRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/customers/{Uri.EscapeDataString(request.CustomerId)}/hide", request, ct), ct);
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
-    private sealed record ErrorBody(string? error, bool? retryable = null);
+    private sealed record ErrorBody(string? error, bool? retryable = null, string? reference = null);
 
     /// <summary>The session token this client presents on every later request. Set once at login
     /// and cleared at logout; without it the server refuses everything, which is the point - the
@@ -220,6 +231,18 @@ public sealed partial class ApiClient
         return await SendAsync<CheckoutOrderResult>(() => _http.PostAsJsonAsync("/api/orders/checkout", request, ct), ct);
     }
 
+    /// <summary>UI-0025: the customer pays for an awaiting pickup at collection.</summary>
+    public Task<ApiResult<CheckoutOrderResult>> CollectPickupAsync(CollectPickupPaymentRequest request, CancellationToken ct = default) =>
+        SendAsync<CheckoutOrderResult>(() => _http.PostAsJsonAsync("/api/orders/collect-pickup", request, ct), ct);
+
+    /// <summary>UI-0025: a manager cancels a pickup whose customer never came (nothing to refund).</summary>
+    public Task<ApiResult<bool>> CancelUncollectedPickupAsync(CancelUncollectedPickupRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync("/api/orders/cancel-uncollected-pickup", request, ct), ct);
+
+    /// <summary>UI-0025: the pickups waiting at the counter to be paid and collected.</summary>
+    public Task<ApiResult<List<AwaitingPickupDto>>> GetAwaitingPickupsAsync(CancellationToken ct = default) =>
+        ReadAsync<List<AwaitingPickupDto>>(() => _http.GetAsync("/api/orders/awaiting-collection", ct), ct);
+
     public async Task<ApiResult<RefundOrderResult>> RefundAsync(RefundOrderRequest request, CancellationToken ct = default)
     {
         return await SendAsync<RefundOrderResult>(() => _http.PostAsJsonAsync("/api/orders/refund", request, ct), ct);
@@ -242,9 +265,14 @@ public sealed partial class ApiClient
 
     /// <summary>Scope is decided server-side: without orders_view_all the caller gets only the
     /// currently-open shift's orders.</summary>
-    public Task<ApiResult<IReadOnlyList<OrderDetailsDto>>> GetOrdersAsync(string actorUserId, CancellationToken ct = default) =>
+    /// <summary>Audit 2026-11-23, F-06: a Cairo date range and a row cap - the whole history in one call stopped
+    /// fitting in the call's timeout as the restaurant's history grew.</summary>
+    public Task<ApiResult<IReadOnlyList<OrderDetailsDto>>> GetOrdersAsync(string actorUserId, DateOnly? from = null, DateOnly? to = null,
+        int? limit = null, CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<OrderDetailsDto>>(() => _http.GetAsync(
-            $"/api/orders?actorUserId={Uri.EscapeDataString(actorUserId)}", ct), ct);
+            $"/api/orders?actorUserId={Uri.EscapeDataString(actorUserId)}"
+            + (from is { } f ? $"&from={f:yyyy-MM-dd}" : "") + (to is { } t ? $"&to={t:yyyy-MM-dd}" : "")
+            + (limit is { } l ? $"&limit={l}" : ""), ct), ct);
 
     // ---------------- Menu / tax / pricing ----------------
 
@@ -378,6 +406,10 @@ public sealed partial class ApiClient
         ReadAsync<IReadOnlyList<Falah.Application.Employees.EmployeeDto>>(() => _http.GetAsync("/api/employees", ct), ct);
 
     public sealed record EmployeeBalanceDto(string EmployeeId, long BalancePiastres);
+
+    /// <summary>PERF-0006: every employee's balance in one request (an absent id means 0).</summary>
+    public Task<ApiResult<Dictionary<string, long>>> GetEmployeeBalancesAsync(CancellationToken ct = default) =>
+        ReadAsync<Dictionary<string, long>>(() => _http.GetAsync("/api/employees/balances", ct), ct);
 
     public Task<ApiResult<EmployeeBalanceDto>> GetEmployeeBalanceAsync(string employeeId, CancellationToken ct = default) =>
         ReadAsync<EmployeeBalanceDto>(() => _http.GetAsync($"/api/employees/{Uri.EscapeDataString(employeeId)}/balance", ct), ct);
@@ -668,6 +700,10 @@ public sealed partial class ApiClient
     /// the live board. See DeliveryQueryService.ListDispatchBoardAsync.</summary>
     public Task<ApiResult<IReadOnlyList<DeliveryDto>>> GetDispatchBoardAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<DeliveryDto>>(() => _http.GetAsync("/api/delivery/board", ct), ct);
+
+    /// <summary>FIN-0051: cancel a cash-on-delivery order before it is handed to a driver.</summary>
+    public Task<ApiResult<CancelUndispatchedDeliveryResult>> CancelUndispatchedDeliveryAsync(CancelUndispatchedDeliveryRequest request, CancellationToken ct = default) =>
+        SendAsync<CancelUndispatchedDeliveryResult>(() => _http.PostAsJsonAsync("/api/orders/cancel-undispatched-delivery", request, ct), ct);
 
     public Task<ApiResult<bool>> MarkDeliveryReadyAsync(MarkDeliveryReadyRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/delivery/{Uri.EscapeDataString(request.DeliveryId)}/ready", request, ct), ct);

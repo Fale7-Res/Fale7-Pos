@@ -22,11 +22,22 @@ public partial class CashierViewModel
         || (!_session.CanApproveOwn("orders_refund") && CashInput.TryParse(RefundAmountText, out var amount)
             && Falah.Domain.Orders.RefundRules.NeedsManagerApproval(Falah.Domain.Common.Money.FromPiastres(amount)));
     partial void OnRefundAmountTextChanged(string value) => OnPropertyChanged(nameof(RefundNeedsApproval));
-    public bool CanRefundOrder => OrderLookupResult is { PaymentMethod: not "multi" } order
+    // FIN-0005 (owner decision 2026-11-22): a split-paid order is refunded too, through ONE of its methods.
+    public bool CanRefundOrder => OrderLookupResult is { } order
         && (order.IsPaid || order.CustomerFundsCollected)
         && !string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase)
         && order.TotalPiastres > order.RefundAmountPiastres;
     public bool LookupHasPendingPayment => OrderLookupResult?.ElectronicPaymentStatus == "pending";
+
+    /// <summary>FIN-0005: for a split-paid order, the methods it was paid with - the money goes back
+    /// through the one the cashier picks (the server checks it is one of them).</summary>
+    public IReadOnlyList<RefundMethodChoice> RefundMethodChoices =>
+        OrderLookupResult is { PaymentMethod: "multi", SplitPayments: { Count: > 0 } splits }
+            ? splits.Select(s => s.Method).Distinct().Select(m => new RefundMethodChoice(m, MethodLabel(m))).ToList()
+            : Array.Empty<RefundMethodChoice>();
+    public bool NeedsRefundMethod => RefundMethodChoices.Count > 0;
+    [ObservableProperty] private RefundMethodChoice? _selectedRefundMethod;
+    public sealed record RefundMethodChoice(string Method, string Label);
 
     /// <summary>How a split-paid order was actually paid. The server has recorded the breakdown all
     /// along and no screen has ever shown it, so an order looked up later said only "multi" - and
@@ -36,6 +47,8 @@ public partial class CashierViewModel
     {
         get
         {
+            // UI-0025: an awaiting pickup's stored method is only a placeholder until it is paid.
+            if (OrderLookupResult is { AwaitingCollection: true }) return "لسه ما اتدفعش - يدفع وهو بيستلم";
             if (OrderLookupResult?.SplitPayments is not { Count: > 0 } splits)
                 return OrderLookupResult is { } o ? MethodLabel(o.PaymentMethod) : "";
             return string.Join(" + ", splits.Select(s => $"{MethodLabel(s.Method)} {CashInput.Format(s.AmountPiastres)} ج"));
@@ -77,6 +90,9 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(LookupPaymentBreakdown)); OnPropertyChanged(nameof(HasLookupPaymentBreakdown));
         OnPropertyChanged(nameof(LookupTableLine)); OnPropertyChanged(nameof(HasLookupTable));
         OnPropertyChanged(nameof(LookupRequestedPickupLine)); OnPropertyChanged(nameof(HasLookupRequestedPickup));
+        OnPropertyChanged(nameof(RefundMethodChoices)); OnPropertyChanged(nameof(NeedsRefundMethod));
+        SelectedRefundMethod = null;
+        ResetCollectFor(value);
     }
 
     [RelayCommand] private void OpenRefund()
@@ -105,11 +121,12 @@ public partial class CashierViewModel
                     amount > order.TotalPiastres - order.RefundAmountPiastres)
                 { RefundError = "أدخل مبلغاً ضمن الرصيد المتاح للاسترداد."; return; }
                 if (string.IsNullOrWhiteSpace(RefundReason)) { RefundError = "أدخل سبب الاسترداد."; return; }
+                if (NeedsRefundMethod && SelectedRefundMethod is null) { RefundError = "اختار الطريقة اللي الفلوس هترجع بيها."; return; }
                 var (approvalId, approver, ok) = await ResolveManagerApprovalIfNeededAsync(RefundNeedsApproval,
                     RefundManagerPin, "orders_refund", RefundReason, e => RefundError = e);
                 if (!ok) return;
                 var request = new RefundOrderRequest(_refundRequestId, order.Id, amount, RefundReason,
-                    _session.CurrentUser!.Id, approvalId, approver);
+                    _session.CurrentUser!.Id, approvalId, approver, RefundMethod: SelectedRefundMethod?.Method);
                 await CompleteRefundAsync(request, false);
             }
             else await CompleteRefundAsync(_pendingRefund, true);

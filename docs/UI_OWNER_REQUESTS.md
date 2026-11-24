@@ -458,3 +458,126 @@ Charcoal-station XP-D200N to be integrated. Spec (with Amendments 1 and 2):
 - **Evidence:** `CashierCorrectnessTests.After_payment_the_confirmation_card_shows_only_when_something_is_left_to_do`
   (red first, then green); Client 441/441; Cashier x64 builds; relaunched on the trial server for the owner.
 - **Not changed:** the Call Center desk's own post-order card.
+
+## Real-server trial requests — Claude, 2026-11-23/24
+
+- **Call Center manages deliveries (owner choice "1-ب").** The Call Center station now has three
+  sections in a bar under its header: تسجيل طلب (the order desk, unchanged), الطلبات (order
+  history, the cashier's screen: open shift only without `orders_view_all`, dates with it) and
+  التوصيل والسائقون (the cashier's dispatch board: mark ready, assign a driver, record the result,
+  cancel before dispatch, driver account and settlement, driver statistics, the driver daily
+  statement and its paper). The delivery section is offered only with `delivery_manage`; the server
+  checks every action as before. Adding or retiring drivers and delivery services stays in the
+  cashier's Control Center. The screens are ported from `Falah.Client.CashierWinUI`
+  (same view models, same endpoints, same request ids); a delivery command left unanswered by an
+  earlier run is kept on the station's disk, blocks the lock, and is retried from a banner on the
+  board with its own request id.
+  Evidence: `CallCenterDeliverySectionTests` (4: tab needs `delivery_manage`; dispatcher reaches the
+  board; a retained assignment blocks the lock until retried with its original id; the next operator
+  does not see the last one's orders); Client 482/482; Call Center x64 builds; run on the trial server
+  2026-11-24: board, driver account and statistics, driver statement and order history all loaded
+  as the manager. No delivery write was made on the real database from this check.
+- **Call Center desk: delivery or pickup, and payment that says who is paid (2026-11-24).** The owner
+  read the cash button "عند الاستلام" as "pickup" and could not find pickup at all: the desk only
+  ever sent deliveries. Now the first choice on the desk is the order type, "توصيل للبيت" or
+  "استلام من المطعم"; the title, the customer form and the submit button follow it. A pickup asks
+  only the name and phone, plus an optional day and time; it carries no delivery fee. Payment is
+  "كاش مع الطيار" (delivery) or "يدفع في المطعم" (pickup, sent as `PayOnCollection`: the order goes to
+  the kitchen now and the cashier takes the money when the customer comes, UI-0025), "تحويل
+  إنستاباي" or "محفظة إلكترونية"; one line under the buttons says what happens to the money. The
+  totals show the items, the delivery fee (delivery only) and the total. The desk's panel was
+  tightened so the items keep their room. The pickup pickers are set from code-behind, not bound
+  (bound, they showed "1/1/1926" and "12:00 AM", as the cashier's did on 2026-11-08).
+  Evidence: `CallCenterPickupOrderTests` (4, red first: pickup paid at the counter is sent as an
+  unpaid pickup with no address and no fee; pickup by InstaPay is a claimed transfer; delivery still
+  needs its address and says "كاش مع الطيار"; the pickers are not bound); Client 486/486; Call Center
+  x64 builds; both modes and the pickup form checked on the trial server. No order was placed on the
+  real database from this check.
+- **Call Center: no payment buttons, and the till's look (2026-11-24, later the same night).** The owner
+  found the three payment buttons clutter: the desk now shows one line instead ("الدفع: كاش مع الطيار
+  لما الأكل يوصل" / "الدفع: في المطعم لما العميل ييجي ياخد الطلب"), and every phone order is cash to the
+  driver or paid at the counter. InstaPay and wallet are no longer taken by phone (the view model still
+  sends them if set; nothing on screen sets them). The owner also asked for one look across both
+  stations: the Call Center's order panel was rewritten in the shape of the till's `CartPanelView` -
+  same header and count badge, same order-type segments ("استلام من المطعم" / "توصيل"), same
+  details button, same two-row items, same footer rows (الأصناف, التوصيل, الإجمالي) and buttons.
+  Client 486/486; Call Center x64 builds; checked on the trial server with two items in the cart
+  (removed again; nothing was sent).
+- **Cashier cart reorganised (request 2).** Two rows per item instead of four (name, line total and ×;
+  then quantity, a "ملاحظات" button holding the kitchen notes, and the unit price), a smaller title
+  and empty state, a tighter footer, and the last sale's number and change beside "إلغاء الطلب".
+  Every touch target stays 44 px. Built; not yet confirmed by the owner on the till.
+- **Safe drop removed from عمليات الكاشير (request 4).** The menu item is gone; the dialog and its
+  view model stay so a safe drop left in flight by an earlier run can still be resolved.
+- **Printing after a permission change.** Fixed server-side (`IsolationLevelResetInterceptor`); see
+  `IsolationLevelLeakTests`.
+  Before handover (2026-11-24) the owner asked for protection against more defects of this kind.
+  Every SQL session setting in the server was searched: only those two SERIALIZABLE commands change
+  one, and the interceptor resets every connection, so the class is closed. `MixedStationTrafficTests`
+  now sends every everyday station call (till, call center, dispatcher, all six print routes, the
+  screens' reads) as the very next request after every back-office action, and the same mix
+  concurrently. Red proof: without the interceptor it fails with exactly the 12 print claims after
+  the permission change and the deactivation; with it, 2/2 green. Full integration suite on commit
+  `ffa0b09` (scratch copy, 2026-11-24): 1137/1137 passed in 2 h 18 m (the two new mixed-traffic tests
+  were run separately, above).
+
+### Full UI review before handover — Claude, 2026-11-24
+
+Owner: "review everything in the interface - every screen and every button." Run on a Development server
+against its own database `FalahUiReview_20261124` (demo seed; never `Falah`), both clients driven with
+`winapp ui` (screenshots and element dumps under the session scratchpad, `uireview\shots`).
+
+- **Static pass.** Every `Command` binding resolves (Cashier 627 controls / 47 views, Call Center 116 / 14);
+  every `{Binding}` name exists (script false positives checked by hand).
+- **Every Cashier page opens** (24 back-office pages + till) with its empty state, then again with data.
+- **One trading day through the screens:** open day -> treasury deposit -> open shift (refused first with a
+  clear message: main treasury empty) -> cash sale with quantity +, change 85 -> sized item + card sale ->
+  expense -> drawer cash-in -> drawer balance 1,185 (= 1,000 + 115 - 30 + 100) -> order lookup, reprint,
+  refund 25 -> add driver and delivery service -> Call Center delivery (fee 15) and two pickups -> ready,
+  assign, delivered, driver settlement 45, driver statement -> pickups collected at the till -> shift close
+  expected 1,295 = counted, difference 0 -> day checklist -> day closed -> dashboard, reports, daily
+  statement, daily summary, financial control, shifts, audit, printing. Every figure agreed across screens
+  (net 295, main treasury 4,195 = 5,000 - 1,000 float - 100 + 295).
+
+Fixed (test first, red then green):
+- Call Center confirmation said "السائق يحصّل المبلغ عند التسليم" for a pickup; lookup of an unpaid pickup
+  said "تحصيل عند التسليم". Now from the registered order (`CallCenterPickupOrderTests`, 3 new).
+- Shift close statement listed a settled cash delivery under "طلبات غير مدفوعة" (IsPaid stays false after
+  the driver settles). Now uses the settled-custody rule `OrderReadProjection` already uses
+  (`DriverFeeSettlementAndHandoverTests.A_settled_cash_delivery_is_not_listed_as_unpaid...`; shift
+  statement classes 22/22).
+- Expense and drawer cash-in/out closed silently; the till's last-action line now confirms
+  ("تم تسجيل مصروف 12.00 ج") (`CashierCorrectnessTests`, 2 new).
+- Control Center kept the closed day's "تقرير الإغلاق المحفوظ" on a newly opened day (clearing the snapshot
+  did not notify the card) (`ControlCenterWriteSafetyTests`, 1 new); the day picker now shows the state
+  ("2026-11-24 · مغلق") because a 24-hour day can share its date with the next.
+- Drawer modals (cash in/out, drawer balance, cash drawer, safe drop) stretched to full height; centred.
+  Daily summary's net-sales caption was clipped; wraps.
+Client tests 492/492; solution builds with 0 errors. All verified on screen after the fix.
+
+Seen, not changed (owner's call):
+- Orders never leave "قيد التحضير" (no kitchen step moves them; a delivered, settled order still reads
+  so in the Orders lists). Display-only change possible if wanted.
+- Payment-method rows (نقدًا/بطاقة…) exclude cash a driver collected; they add to 235 against net 295 on
+  this day's sheets. The figures are as defined in `METRIC_DEFINITIONS.md`; a "مع السائقين" row is a
+  question for the accountant.
+- Audit log details show raw piastres and internal ids ("tre-drawer", "129500"); its two filters start
+  blank rather than "الكل". With no delivery service defined, the delivery-service list is empty with no
+  hint. The Control Center's "عدّ النقدية" refuses after the last shift closes (the closing checklist's
+  "عد درج النقدية" is a tick, not that dialog).
+
+Committed as `b254c6a`. Full integration suite on that commit (scratch copy, 2026-11-24): 1140/1140 passed
+in 2 h 14 m; domain 606/606, client 492/492, solution 0 errors. The Setup.exe on disk before this
+(`F20DECCB3A21A4A9`, 2026-11-22) predates `ffa0b09` and this commit; installing the new one applies four
+additive migrations (wage history, customer hidden, frozen food cost, pickup pay on collection), so it
+follows `docs/DEPLOYMENT.md` §0 (verified backup first, service stopped outside a shift).
+New installer from `b254c6a` (clean tree): `artifacts/install/Falah-Setup-8D86E5EB054CFE52.exe` (417 MB,
+SHA-256 `DE635B3941473BC6D982F453663645B96EB3E8DA6CE8CE1FD3D941BC13AE0266`); server version
+`8D86E5EB054CFE52-b254c6a`; its `migrations-idempotent.sql` includes `20261123064520_AddPickupPayOnCollection`.
+
+**Commit IDs rewritten before the first push (2026-11-24).** GitHub refused the branch because
+`docs/archive/documentation-20261108.zip` (107 MB, ignored since 2026-11-10) was in its history; the 16
+unpushed commits were rewritten without that one file (trees otherwise identical; old history kept locally
+as tag `backup/closeout-before-rewrite-20261124`). Earlier documents and the installer's version stamp use
+the old IDs: `76a7d5f`→`81e5385`, `14f1726`→`a18556c`, `d386164`→`7e902ba`, `e0a097f`→`e731e8c`,
+`ebbe217`→`1657d0b`, `a023f7a`→`9c474cf`, `ffa0b09`→`a348366`, `b254c6a`→`25eec06`, `e80d963`→`14dc168`.

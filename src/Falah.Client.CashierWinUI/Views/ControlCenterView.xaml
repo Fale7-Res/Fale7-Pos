@@ -26,9 +26,15 @@
                 </TextBlock>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <ComboBox ItemsSource="{Binding Days}" DisplayMemberPath="BusinessDate" MinHeight="44" MinWidth="140"
+                <!-- Date and state: a 24-hour restaurant can open a second business day on the same calendar date, and two
+                     bare "2026-11-24" entries could not be told apart (UI review 2026-11-24). -->
+                <ComboBox ItemsSource="{Binding Days}" MinHeight="44" MinWidth="180"
                           SelectedItem="{Binding SelectedHistoryDay, Mode=TwoWay}" IsEnabled="{Binding CanEditAction}"
-                          AutomationProperties.Name="اختيار يوم العمل"/>
+                          AutomationProperties.Name="اختيار يوم العمل">
+                    <ComboBox.ItemTemplate><DataTemplate>
+                        <TextBlock><Run Text="{Binding BusinessDate}"/><Run Text=" · "/><Run Text="{Binding Status, Converter={StaticResource GeneralStatusLabelConverter}}"/></TextBlock>
+                    </DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button Content="فتح يوم" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
                         IsEnabled="{Binding CanOpenDay}" Command="{Binding OpenDayActionCommand}" CommandParameter="open"/>
                 <Button Content="عدّ النقدية" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"

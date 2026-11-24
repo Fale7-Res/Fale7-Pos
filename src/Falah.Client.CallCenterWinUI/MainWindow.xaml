@@ -8,12 +8,23 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <views:AppHeaderView x:Name="HeaderHost" Grid.Row="0" Visibility="Collapsed"/>
 
-        <StackPanel Grid.Row="1">
+        <!-- Owner request 2026-11-24: the Call Center takes orders, looks them up and manages their delivery. -->
+        <Border x:Name="SectionBar" Grid.Row="1" Visibility="Collapsed" Background="{ThemeResource CardBackgroundBrush}"
+                BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="16,0">
+            <SelectorBar x:Name="Sections" SelectionChanged="OnSectionChanged" AutomationProperties.Name="أقسام المحطة">
+                <SelectorBarItem Text="تسجيل طلب" Tag="desk" AutomationProperties.AutomationId="Section_Desk" FontSize="15"/>
+                <SelectorBarItem Text="الطلبات" Tag="orders" AutomationProperties.AutomationId="Section_Orders" FontSize="15"/>
+                <SelectorBarItem x:Name="DeliverySection" Text="التوصيل والسائقون" Tag="delivery" AutomationProperties.AutomationId="Section_Delivery" FontSize="15"/>
+            </SelectorBar>
+        </Border>
+
+        <StackPanel Grid.Row="2">
         <Border x:Name="OfflineBanner" Background="{ThemeResource DangerBrush}" Padding="8" Visibility="Collapsed">
             <TextBlock Text="⚠ غير متصل بالسيرفر - تحقق من تشغيل Falah.Server" Foreground="{ThemeResource AccentTextBrush}" FontWeight="Bold"
                        HorizontalAlignment="Center" FontFamily="{StaticResource AppFontFamily}"/>
@@ -22,7 +33,7 @@
                  Title="العملية لم تُحسم بعد" Message="أكمل التحقق من العملية الحالية قبل إغلاق البرنامج."/>
         </StackPanel>
 
-        <ContentControl x:Name="RootContent" Grid.Row="2"
+        <ContentControl x:Name="RootContent" Grid.Row="3"
                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
     </Grid>
 </Window>

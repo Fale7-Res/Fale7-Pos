@@ -20,14 +20,16 @@ namespace Falah.Client.CallCenterWinUI.Services;
 /// idempotency, OrderNumber, inventory) even when this client happens to run on the same physical
 /// machine as the Host.
 /// </summary>
-public sealed class ApiClient
+public sealed partial class ApiClient
 {
     private readonly HttpClient _http;
     public ApiClient(HttpClient http) => _http = http;
 
     public ApiClient(string baseAddress = "http://localhost:5151")
     {
-        _http = new HttpClient { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
+        // Runtime logging audit 2026-11-23: correlation id on every call; failures go to the station log.
+        _http = new HttpClient(new Falah.Client.Diagnostics.CorrelationLoggingHandler(new HttpClientHandler()))
+        { BaseAddress = Falah.Application.Security.ServerEndpointPolicy.RequireSecureAddress(baseAddress), Timeout = TimeSpan.FromSeconds(10) };
     }
 
     /// <summary>Where product photos are fetched from. Images are the one thing this client loads
@@ -69,6 +71,10 @@ public sealed class ApiClient
             var body = await response.Content.ReadFromJsonAsync<ErrorBody>(cancellationToken: ct);
             message = body?.error;
             retryable = body?.retryable;
+            // QA-01 (audit 2026-11-23): the server's message asks the employee to quote the reference -
+            // so it is shown. It is the same value the server logged and this station's log line carries.
+            if (message is not null && !string.IsNullOrWhiteSpace(body?.reference))
+                message = $"{message} (الرقم المرجعي: {body!.reference})";
         }
         catch
         {
@@ -107,7 +113,7 @@ public sealed class ApiClient
     public Task<ApiResult<Falah.Application.Customers.CustomerDto>> SaveCustomerAsync(Falah.Application.Customers.UpsertCustomerRequest request, CancellationToken ct = default) =>
         SendAsync<Falah.Application.Customers.CustomerDto>(() => _http.PostAsJsonAsync("/api/customers/upsert", request, ct), ct);
 
-    private sealed record ErrorBody(string? error, bool? retryable = null);
+    private sealed record ErrorBody(string? error, bool? retryable = null, string? reference = null);
 
     /// <summary>The session token this client presents on every later request. Set once at login
     /// and cleared at logout; without it the server refuses everything, which is the point - the

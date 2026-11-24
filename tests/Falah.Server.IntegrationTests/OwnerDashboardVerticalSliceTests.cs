@@ -191,6 +191,31 @@ public class OwnerDashboardVerticalSliceTests : IAsyncLifetime
         Assert.True(dashboard.Attention.CloseBlockerCount > 0);
     }
 
+    // OPS-0006 (2026-11-22): nothing watched the disk the backups go to, so it filled up silently and
+    // every later backup failed. The dashboard now reports its free space and says when it is low.
+    [Fact]
+    public async Task The_dashboard_reports_the_backup_disks_free_space_and_when_it_runs_low()
+    {
+        async Task<OwnerDashboardDto> WithMinimumAsync(string minimumMegabytes)
+        {
+            using var factory = new FalahApiFactory(configOverrides: new Dictionary<string, string?>
+            {
+                ["Backup:DefaultDirectory"] = Path.GetTempPath(), ["Backup:MinimumFreeMegabytes"] = minimumMegabytes,
+            });
+            factory.StationUserId = await factory.SeedUserAsync("المالك", "owner", "all");
+            return (await factory.CreateAuthenticatedClient().GetFromJsonAsync<OwnerDashboardDto>(
+                $"/api/reports/owner-dashboard?actorUserId={factory.StationUserId}"))!;
+        }
+
+        var plenty = await WithMinimumAsync("1");
+        Assert.NotNull(plenty.Health.BackupDiskFreeBytes);
+        Assert.True(plenty.Health.BackupDiskFreeBytes > 0);
+        Assert.False(plenty.Health.BackupDiskLow);
+
+        var low = await WithMinimumAsync("999999999");
+        Assert.True(low.Health.BackupDiskLow);
+    }
+
     [Fact]
     public async Task A_database_with_no_backup_reports_that_rather_than_a_blank()
     {

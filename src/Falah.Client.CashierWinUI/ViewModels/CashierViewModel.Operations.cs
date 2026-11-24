@@ -5,6 +5,7 @@ using Falah.Application.CashDrawer;
 using Falah.Application.Orders;
 using Falah.Application.Printing;
 using Falah.Application.Treasury;
+using Falah.Client.CashierWinUI.Services;
 
 namespace Falah.Client.CashierWinUI.ViewModels;
 
@@ -257,6 +258,9 @@ public partial class CashierViewModel
     [ObservableProperty] private bool _isSearchingOrder;
     [ObservableProperty] private string? _reprintStatusMessage;
     [ObservableProperty] private bool _isReprinting;
+    /// <summary>SEC-0030: shown when this user may not reprint alone; a manager types their PIN.</summary>
+    [ObservableProperty] private string _reprintManagerPin = "";
+    public bool ReprintNeedsApproval => ReprintApproval.IsNeeded(_session);
 
     [RelayCommand]
     private void OpenOrderLookup()
@@ -315,15 +319,26 @@ public partial class CashierViewModel
         ReprintStatusMessage = null;
         try
         {
+            // SEC-0030: without print_reprint a manager approves; a kept (unanswered) reprint already
+            // carries its approval and is resent as it is.
+            string? approvalId = null, approverId = null;
+            if (_pendingReprint is null)
+            {
+                string? error;
+                (approvalId, approverId, error) = await ReprintApproval.ResolveAsync(_session, ReprintManagerPin, "إعادة طباعة إيصال طلب");
+                if (error is not null) { ReprintStatusMessage = error; return; }
+            }
             // Receipt only. Reprinting a customer's copy must not send the order to the kitchen
             // again - a second Charcoal/Grill ticket is an order to cook the food twice.
             var request = _pendingReprint ?? new CreatePrintJobsRequest(
                 RequestId: $"rp-{Guid.NewGuid():N}", OrderId: OrderLookupResult.Id, CustomerRoute: "Receipt",
-                IsReprint: true, ActorUserId: _session.CurrentUser!.Id, IncludeKitchenRoutes: false);
+                IsReprint: true, ActorUserId: _session.CurrentUser!.Id, IncludeKitchenRoutes: false,
+                ManagerApprovalId: approvalId, ManagerApproverUserId: approverId);
             var wasUnresolved = _pendingReprint is not null;
             _pendingReprint = request; RefreshOperationState();
             var result = await _session.Api.CreatePrintJobsAsync(request.OrderId, request);
             if (result.Success || (!wasUnresolved && !result.OutcomeUnknown)) _pendingReprint = null;
+            if (result.Success) ReprintManagerPin = "";
             RefreshOperationState();
             ReprintStatusMessage = result.Success
                 ? "تم تسجيل طلب إعادة الطباعة؛ لم يتم تأكيد خروج الورقة."
@@ -407,6 +422,8 @@ public partial class CashierViewModel
         }
 
         IsCashMovementOpen = false;
+        // UI review 2026-11-24: confirmed on the till's last-action line instead of the dialog just vanishing.
+        LastSaleNote = $"تم تسجيل {(request.MovementType == "cash_in" ? "إيداع نقدي في الدرج" : "سحب نقدي من الدرج")} {CashInput.Format(request.AmountPiastres)} ج";
     }
 
     private OpenCashDrawerRequest? _pendingCashDrawer;

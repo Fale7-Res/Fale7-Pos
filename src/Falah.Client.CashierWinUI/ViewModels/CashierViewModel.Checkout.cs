@@ -276,6 +276,12 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(CheckoutBlockedReason));
     }
 
+    /// <summary>Independent audit 2026-11-23, F-07: the last paid sale's number and change, on one quiet footer line.
+    /// A paid sale returns straight to an empty order (owner, 2026-11-19) and the dialog's change row could be
+    /// scrolled out of sight, so the cashier could finish a sale without ever seeing the change. Cleared when the
+    /// next payment is opened.</summary>
+    [ObservableProperty] private string? _lastSaleNote;
+
     [RelayCommand]
     private void OpenCheckout()
     {
@@ -291,6 +297,7 @@ public partial class CashierViewModel
         if (IsPickup && (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone)))
         { OpenPickupEditor(); return; }
         CheckoutError = null;
+        LastSaleNote = null;
         PaymentMethod = "cash";
         AmountPaidText = CashInput.Format(GrandTotalPiastres);
         _replaceTenderOnNextKey = true;
@@ -392,10 +399,14 @@ public partial class CashierViewModel
                 };
             }
 
-            if (!CashInput.TryParse(AmountPaidText, out var enteredPiastres) && !IsSplitPaymentEnabled)
+            // UI-0025: a pickup paid on collection takes no money now - no tender to type or check.
+            var payLater = IsPayOnCollection;
+            if (payLater) splitPayments = null;
+            if (!payLater && !CashInput.TryParse(AmountPaidText, out var enteredPiastres) && !IsSplitPaymentEnabled)
             { CheckoutError = "أدخل المبلغ المدفوع بصورة صحيحة."; return; }
-            var amountPiastres = IsSplitPaymentEnabled
-                ? splitPayments!.Sum(s => s.AmountPiastres)
+            CashInput.TryParse(AmountPaidText, out enteredPiastres);
+            var amountPiastres = payLater ? 0
+                : IsSplitPaymentEnabled ? splitPayments!.Sum(s => s.AmountPiastres)
                 : PaymentMethod == "cash" && !IsCashOnDelivery ? enteredPiastres : GrandTotalPiastres;
 
             var isDelivery = OrderType == "delivery";
@@ -405,7 +416,7 @@ public partial class CashierViewModel
                 CashierId: _session.CurrentUser!.Id,
                 ShiftId: _session.ShiftId!,
                 OrderType: OrderType,
-                PaymentMethod: IsSplitPaymentEnabled ? "multi" : PaymentMethod,
+                PaymentMethod: payLater ? "cash" : IsSplitPaymentEnabled ? "multi" : PaymentMethod,
                 Items: Cart.Select(l => new CheckoutItemRequest(l.ProductId, l.VariantId, l.Quantity, l.AppliedOfferId, l.Notes)).ToList(),
                 DiscountPiastres: DiscountAmountPiastres,
                 DeliveryFeePiastres: isDelivery ? SelectedDeliveryService?.FeePiastres ?? 0 : 0,
@@ -436,7 +447,8 @@ public partial class CashierViewModel
                 CompReasonCode: CompAmountPiastres > 0 ? CompReasonCode : null,
                 // The server creates this order's tickets as part of the checkout call itself, so a
                 // ticket cannot be lost by this app dying between the sale and the print.
-                CustomerPrintRoute: "Receipt");
+                CustomerPrintRoute: "Receipt",
+                PayOnCollection: payLater);
 
             await CompleteCheckoutAsync(request);
         }
@@ -477,6 +489,8 @@ public partial class CashierViewModel
 
         _reviewingExistingOrder = false;
         LastCheckoutResult = result.Value;
+        LastSaleNote = $"آخر طلب {result.Value.OrderNumber}"
+            + (result.Value.ChangeDuePiastres > 0 ? $" — الباقي للعميل {CashInput.Format(result.Value.ChangeDuePiastres)} ج" : "");
         IsCheckoutOpen = false;
         Cart.Clear();
         RecomputeCartTotals();
@@ -488,7 +502,9 @@ public partial class CashierViewModel
         // "تم تسجيل الطلب / طلب جديد" card in between. The card stays when the cashier still has
         // something to do or know: a transfer to confirm or cancel, or tickets that were not queued.
         // (Not DismissCheckoutResult: that refuses while this payment is still marked in progress.)
-        if (!IsElectronicPaymentPending && !HasPrintWarning)
+        // UI-0025: a pickup registered unpaid keeps the card too - its number is what the customer
+        // gives back at collection.
+        if (!IsElectronicPaymentPending && !HasPrintWarning && !result.Value.AwaitingCollection)
         {
             LastCheckoutResult = null;
             ResetDelivery();

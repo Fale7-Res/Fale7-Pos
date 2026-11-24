@@ -8,10 +8,10 @@
    <controls:ModalHeaderView Padding="24,18" Title="العميل والتوصيل" CloseCommand="{Binding CloseDeliveryEditorCommand}"/>
    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Padding="24,0,24,20" Spacing="14">
     <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-     <TextBox Header="رقم الهاتف" Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><Button Grid.Column="1" Content="بحث عن العميل" VerticalAlignment="Bottom" Command="{Binding LookupCustomerCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
+     <TextBox MaxLength="30" Header="رقم الهاتف" Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><Button Grid.Column="1" Content="بحث عن العميل" VerticalAlignment="Bottom" Command="{Binding LookupCustomerCommand}" Style="{StaticResource SecondaryButtonStyle}"/>
     </Grid>
     <TextBlock Text="{Binding CustomerLookupMessage}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"/>
-    <TextBox Header="اسم العميل" Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    <TextBox MaxLength="200" Header="اسم العميل" Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <ComboBox Header="عنوان محفوظ" ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}" DisplayMemberPath="Street" HorizontalAlignment="Stretch"/>
     <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <TextBox Header="المنطقة" Text="{Binding DeliveryArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><ComboBox Grid.Column="1" Header="خدمة التوصيل" ItemsSource="{Binding DeliveryServices}" SelectedItem="{Binding SelectedDeliveryService, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>
@@ -20,7 +20,7 @@
     <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <TextBox Header="المبنى" Text="{Binding DeliveryBuilding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><TextBox Grid.Column="1" Header="الدور" Text="{Binding DeliveryFloor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><TextBox Grid.Column="2" Header="الشقة" Text="{Binding DeliveryApartment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     </Grid>
-    <TextBox Header="علامة مميزة" Text="{Binding DeliveryLandmark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><TextBox Header="ملاحظات التوصيل" Text="{Binding DeliveryNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    <TextBox Header="علامة مميزة" Text="{Binding DeliveryLandmark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><TextBox MaxLength="500" Header="ملاحظات التوصيل" Text="{Binding DeliveryNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <TextBlock Text="{Binding DeliveryError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap"/>
     <Button Content="تحديث خدمات التوصيل" Command="{Binding LoadDeliveryServicesCommand}" Style="{StaticResource GhostButtonStyle}"/>
    </StackPanel></ScrollViewer>

@@ -148,8 +148,9 @@ public partial class CashCountViewModel : ObservableObject
         {
             if (!CanAct || _businessDayId is null || _session.CurrentUser is null) return;
             if (!Rows.Any(r => r.Quantity > 0)) { ActionError = "أدخل عدد الأوراق أو العملات لفئة واحدة على الأقل."; return; }
-            if (!CashInput.TryParse(ExpectedText, out var expected) || expected < 0)
-            { ActionError = "أدخل المبلغ المتوقع بشكل صحيح."; return; }
+            // FIN-0020 (owner decision 2026-11-22): the server compares the count with the shift's
+            // expected drawer cash; nothing is typed here.
+            const long expected = 0;
 
             _pendingId ??= $"ccx-{Guid.NewGuid():N}";
             request = new SaveCashCountRequest(
@@ -168,11 +169,12 @@ public partial class CashCountViewModel : ObservableObject
 
             var saved = result.Value;
             var difference = saved.DifferencePiastres;
-            ActionNote = difference == 0
+            var expectedDisplay = $"المتوقع في درج الوردية {CashInput.Format(saved.ExpectedPiastres)} ج. ";
+            ActionNote = expectedDisplay + (difference == 0
                 ? $"تم تسجيل العدّ. المبلغ المعدود {CashInput.Format(saved.TotalPiastres)} ج مطابق للمتوقع."
                 : difference > 0
                     ? $"تم تسجيل العدّ. زيادة {CashInput.Format(difference)} ج عن المتوقع."
-                    : $"تم تسجيل العدّ. عجز {CashInput.Format(-difference)} ج عن المتوقع.";
+                    : $"تم تسجيل العدّ. عجز {CashInput.Format(-difference)} ج عن المتوقع.");
             _pendingId = null;
             foreach (var row in Rows) row.QuantityText = "";
             ExpectedText = "";

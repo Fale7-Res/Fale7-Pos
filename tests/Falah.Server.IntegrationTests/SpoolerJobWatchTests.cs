@@ -18,6 +18,24 @@ public class SpoolerJobWatchTests
 
     private static readonly DateTimeOffset Start = new(2026, 11, 18, 12, 0, 0, TimeSpan.Zero);
 
+    // PRT-0005 (2026-11-22): the winspool submit is synchronous; a wedged driver held the agent's loop
+    // with no way to stop it. The agent now stops waiting when it is asked to stop.
+    [Fact]
+    public async Task A_hung_spooler_submit_does_not_hold_the_agent_when_it_is_asked_to_stop()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        using var release = new ManualResetEventSlim(false);
+        var transport = new WindowsSpoolerTicketTransport("no-printer") { Submit = (_, _, _, _) => { release.Wait(TimeSpan.FromSeconds(30)); return 1; } };
+        using var stop = new CancellationTokenSource(TimeSpan.FromMilliseconds(200));
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => transport.SendAsync(new byte[] { 1 }, stop.Token));
+            Assert.True(watch.Elapsed < TimeSpan.FromSeconds(5), $"stopped after {watch.Elapsed}");
+        }
+        finally { release.Set(); }
+    }
+
     private static Task<string?> Watch(ScriptedQueue queue, TimeSpan? timeout = null)
     {
         var clock = Start;

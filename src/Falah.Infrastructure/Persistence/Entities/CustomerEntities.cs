@@ -10,6 +10,11 @@ public class CustomerEntity
     public string Name { get; set; } = default!;
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset UpdatedAtUtc { get; set; }
+    /// <summary>CUS-0002 (owner decision 2026-11-22): the owner deleted this customer. Staff screens no
+    /// longer find them; the record and its addresses stay stored for the owner. A new order from the
+    /// same phone brings them back.</summary>
+    public DateTimeOffset? HiddenAtUtc { get; set; }
+    public string? HiddenBy { get; set; }
 
     public List<CustomerAddressEntity> Addresses { get; set; } = new();
 }

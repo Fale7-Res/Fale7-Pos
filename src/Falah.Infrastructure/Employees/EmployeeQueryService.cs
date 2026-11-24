@@ -78,6 +78,14 @@ public sealed class EmployeeQueryService
         return entries.Sum(e => e.CreditPiastres) - entries.Sum(e => e.DebitPiastres);
     }
 
+    /// <summary>PERF-0006: every employee's balance in one read - the same sum(credit) - sum(debit) as
+    /// <see cref="GetBalanceAsync"/>, grouped by SQL Server. An employee with no entries is absent (0).</summary>
+    public async Task<Dictionary<string, long>> GetAllBalancesAsync(CancellationToken ct = default) =>
+        await _db.EmployeeLedgerEntries.AsNoTracking()
+            .GroupBy(e => e.EmployeeId)
+            .Select(g => new { EmployeeId = g.Key, Balance = g.Sum(e => e.CreditPiastres) - g.Sum(e => e.DebitPiastres) })
+            .ToDictionaryAsync(x => x.EmployeeId, x => x.Balance, ct);
+
     internal static EmployeeDto ToDto(EmployeeEntity e) => new(
         e.Id, e.Name, e.EmployeeNumber, e.JobTitle, e.Phone, e.HireDate, e.CompensationType,
         e.DailyWagePiastres, e.ShiftValuePiastres, e.MonthlySalaryPiastres, e.UserId, e.CanDeliver,

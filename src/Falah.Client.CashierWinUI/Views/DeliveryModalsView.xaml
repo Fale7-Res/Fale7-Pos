@@ -39,6 +39,38 @@
             </Border>
         </Grid>
 
+        <!-- ================= CANCEL BEFORE IT LEAVES (FIN-0051) ================= -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCancelOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <controls:ModalHeaderView Title="إلغاء طلب لم يخرج" CloseCommand="{Binding CloseCancelCommand}"/>
+                    <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
+                        <Run Text="الطلب "/><Run Text="{Binding CancelTarget.OrderNumber}" FontWeight="Bold"/>
+                        <Run Text=" — دفع عند الاستلام، ما اتحصّلش منه حاجة. هيخرج من المبيعات ومفيش فلوس بتتحرك."/>
+                    </TextBlock>
+                    <TextBox Header="سبب الإلغاء (إلزامي)" MinHeight="44" TextWrapping="Wrap" IsEnabled="{Binding CanEditAction}"
+                             AutomationProperties.AutomationId="DeliveryCancel_Reason"
+                             Text="{Binding CancelReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="الأكل:" Style="{StaticResource CaptionText}"/>
+                    <RadioButton GroupName="CancelFood" Content="تم التحضير — يُسجَّل هالكًا" IsEnabled="{Binding CanEditAction}"
+                                 IsChecked="{Binding IsCancelFoodPrepared, Mode=TwoWay}"/>
+                    <RadioButton GroupName="CancelFood" Content="لم يُحضَّر — تعود الخامات للمخزون" IsEnabled="{Binding CanEditAction}"
+                                 IsChecked="{Binding IsCancelFoodNotPrepared, Mode=TwoWay}"/>
+                    <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" IsEnabled="{Binding CanEditAction}"
+                                 AutomationProperties.AutomationId="DeliveryCancel_ManagerPin" AutomationProperties.Name="رمز المدير لاعتماد إلغاء الطلب"
+                                 Visibility="{Binding CancelNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
+                                 Password="{Binding CancelManagerPin, Mode=TwoWay}"/>
+                    <TextBlock Text="{Binding CancelError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Visibility="{Binding CancelError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Button Content="تأكيد الإلغاء" MinHeight="52" HorizontalAlignment="Stretch"
+                            AutomationProperties.AutomationId="DeliveryCancel_Confirm"
+                            Style="{StaticResource CtaButtonStyle}" Command="{Binding ConfirmCancelCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <!-- ================= RECORD OUTCOME ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsOutcomeOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460" MaxHeight="640"

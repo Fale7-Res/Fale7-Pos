@@ -67,7 +67,7 @@ public partial class PayrollViewModel : ObservableObject
             ("مكافآت", Line.BonusesPiastres),
         });
 
-        public long SubtractionsPiastres => Line.DeductionsPiastres + Line.AdvanceDeductionsPiastres;
+        public long SubtractionsPiastres => Line.DeductionsPiastres + Line.AdvanceDeductionsPiastres + Line.PaidOutsidePayrollPiastres;
         public string SubtractionsDisplay => CashInput.Format(SubtractionsPiastres) + " ج";
 
         public string SubtractionsBreakdown => Describe(new[]

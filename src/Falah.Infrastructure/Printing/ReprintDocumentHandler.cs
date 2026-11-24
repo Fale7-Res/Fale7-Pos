@@ -22,7 +22,9 @@ public sealed class ReprintDocumentHandler
 {
     private readonly FalahDbContext _db;
     private readonly IAuditLog _auditLog;
-    public ReprintDocumentHandler(FalahDbContext db, IAuditLog auditLog) { _db = db; _auditLog = auditLog; }
+    private readonly Falah.Domain.Authorization.IApprovalRegistry _approvalRegistry;
+    public ReprintDocumentHandler(FalahDbContext db, IAuditLog auditLog, Falah.Domain.Authorization.IApprovalRegistry approvalRegistry)
+    { _db = db; _auditLog = auditLog; _approvalRegistry = approvalRegistry; }
 
     public async Task<CreatePrintJobsResult> HandleAsync(ReprintDocumentRequest request, CancellationToken ct = default)
     {
@@ -40,6 +42,7 @@ public sealed class ReprintDocumentHandler
 
         var actor = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
+        await ReprintAuthorization.AuthorizeAsync(_db, _approvalRegistry, actor, request.ManagerApprovalId, request.ManagerApproverUserId, request.Reason, ct);
 
         var (label, exists) = kind switch
         {

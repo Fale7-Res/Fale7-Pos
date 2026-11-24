@@ -68,6 +68,7 @@ public class FalahDbContext : DbContext
     public DbSet<SettingsEntity> Settings => Set<SettingsEntity>();
     public DbSet<CashHandoverEntity> CashHandovers => Set<CashHandoverEntity>();
     public DbSet<EmployeeEntity> Employees => Set<EmployeeEntity>();
+    public DbSet<EmployeeWageHistoryEntity> EmployeeWageHistory => Set<EmployeeWageHistoryEntity>();
     public DbSet<EmployeeLedgerEntryEntity> EmployeeLedgerEntries => Set<EmployeeLedgerEntryEntity>();
     public DbSet<AttendanceRecordEntity> AttendanceRecords => Set<AttendanceRecordEntity>();
     public DbSet<PayrollRunEntity> PayrollRuns => Set<PayrollRunEntity>();
@@ -83,6 +84,9 @@ public class FalahDbContext : DbContext
             // just an in-memory check, refuses a second Order for the same checkout request - a
             // race between a same-task double click and its own network retry cannot both win.
             b.HasIndex(o => o.CheckoutRequestId).IsUnique();
+            // UI-0025: the replay key of a pickup's collection or cancellation - one order per request id.
+            // (Two tills collecting the same pickup are stopped by the handler's row lock.)
+            b.HasIndex(o => o.CollectionRequestId).IsUnique().HasFilter("[CollectionRequestId] IS NOT NULL");
             b.HasIndex(o => o.SequenceNumber).IsUnique();
             // Audit 2026-11-18: every daily/monthly/dashboard figure selects orders by a UTC range on
             // CreatedAtUtc; without this each report scanned the whole table, slower every month.
@@ -465,6 +469,12 @@ public class FalahDbContext : DbContext
         {
             b.HasKey(e => e.Id);
             b.HasIndex(e => e.TreasuryMovementId).IsUnique().HasFilter("[TreasuryMovementId] IS NOT NULL");
+        });
+
+        modelBuilder.Entity<EmployeeWageHistoryEntity>(b =>
+        {
+            b.HasKey(h => h.Id);
+            b.HasIndex(h => new { h.EmployeeId, h.EffectiveFrom });
         });
 
         modelBuilder.Entity<EmployeeEntity>(b =>

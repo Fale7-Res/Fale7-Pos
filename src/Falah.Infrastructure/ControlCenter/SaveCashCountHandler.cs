@@ -4,6 +4,7 @@ using System.Text.Json;
 using Falah.Application.BusinessDay;
 using Falah.Domain.Authorization;
 using Falah.Domain.BusinessDay;
+using Falah.Domain.Common;
 using Falah.Infrastructure.Orders;
 using Falah.Infrastructure.Persistence;
 using Falah.Infrastructure.Persistence.Entities;
@@ -38,13 +39,23 @@ public sealed class SaveCashCountHandler
         _ = await _db.BusinessDays.AsNoTracking().FirstOrDefaultAsync(d => d.Id == request.BusinessDayId, ct)
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
+        // FIN-0020 (owner decision 2026-11-22): the count is the shift's drawer, and what that drawer should
+        // hold is the system's figure (ShiftReconciliation, the same one the shift close uses), never a
+        // number typed into the form. No shift named: the open shift. request.ExpectedPiastres is ignored.
+        var shift = string.IsNullOrWhiteSpace(request.ShiftId)
+            ? await _db.Shifts.AsNoTracking().Where(s => s.Status == "Open").OrderByDescending(s => s.OpenedAtUtc).FirstOrDefaultAsync(ct)
+            : await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
+        if (shift is null) throw new DomainException("عدّ النقدية بيتقارن بدرج الوردية، ومفيش وردية مفتوحة. افتح الوردية الأول.");
+        var expectedDrawer = await Falah.Infrastructure.Shifts.ShiftReconciliation.ComputeExpectedCashAsync(
+            _db, shift.Id, Money.FromPiastres(shift.OpeningCashPiastres), ct);
+
         var calculated = BusinessDayRules.CalculateDenominationCount(
-            request.Rows.Select(r => (r.DenominationPiastres, r.Quantity)).ToList(), request.ExpectedPiastres);
+            request.Rows.Select(r => (r.DenominationPiastres, r.Quantity)).ToList(), expectedDrawer.Piastres);
 
         var now = DateTimeOffset.UtcNow;
         var entity = new CashDenominationCountEntity
         {
-            Id = request.Id, BusinessDayId = request.BusinessDayId, ShiftId = request.ShiftId,
+            Id = request.Id, BusinessDayId = request.BusinessDayId, ShiftId = shift.Id,
             RowsJson = JsonSerializer.Serialize(calculated.Rows),
             TotalPiastres = calculated.TotalPiastres, ExpectedPiastres = calculated.ExpectedPiastres,
             DifferencePiastres = calculated.DifferencePiastres, CountedBy = actorUser.Name,

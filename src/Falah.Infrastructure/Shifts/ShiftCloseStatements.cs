@@ -98,8 +98,18 @@ public static class ShiftCloseStatements
         if (pending.Count > 0)
             items.Add($"تحويلات إلكترونية بانتظار التأكيد: {pending.Count} ({string.Join("، ", pending.Select(p => Falah.Domain.Printing.TicketFormat.Code(p.OrderNumber)))})");
 
-        var unpaid = await db.Orders.AsNoTracking()
-            .CountAsync(o => o.ShiftId == shiftId && !o.IsPaid && o.Status != "cancelled" && o.ElectronicPaymentStatus == null, ct);
+        // A cash delivery keeps IsPaid false after its driver settles; settled in full, its money is collected (the
+        // rule OrderReadProjection uses), and listing it here told the next cashier a paid order was open.
+        var unpaidOrders = await db.Orders.AsNoTracking()
+            .Where(o => o.ShiftId == shiftId && !o.IsPaid && o.Status != "cancelled" && o.ElectronicPaymentStatus == null)
+            .Select(o => new { o.Id, o.OrderType, o.PaymentMethod, o.TotalPiastres }).ToListAsync(ct);
+        var cashDeliveryIds = unpaidOrders.Where(o => o.OrderType == "delivery" && o.PaymentMethod == "cash" && o.TotalPiastres > 0)
+            .Select(o => o.Id).ToList();
+        var settled = cashDeliveryIds.Count == 0 ? new Dictionary<string, long>()
+            : (await db.DriverCustodies.AsNoTracking().Where(c => cashDeliveryIds.Contains(c.OrderId) && c.Status == "Settled")
+                .Select(c => new { c.OrderId, c.CollectedPiastres }).ToListAsync(ct))
+                .GroupBy(c => c.OrderId).ToDictionary(g => g.Key, g => g.Max(c => c.CollectedPiastres));
+        var unpaid = unpaidOrders.Count(o => !(cashDeliveryIds.Contains(o.Id) && settled.GetValueOrDefault(o.Id) >= o.TotalPiastres));
         if (unpaid > 0) items.Add($"طلبات غير مدفوعة: {unpaid}");
 
         var custody = await db.DriverCustodies.AsNoTracking().Where(c => c.Status == "Open").Select(c => c.ExpectedPiastres).ToListAsync(ct);

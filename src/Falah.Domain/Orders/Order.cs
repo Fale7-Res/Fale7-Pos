@@ -253,7 +253,11 @@ public sealed class Order
     public void ApplyRefund(OrderRefund refund, bool cashOnDeliverySettled = false)
     {
         if (Status == OrderStatus.Cancelled) throw new DomainException("لا يمكن استرجاع طلب ملغي.");
-        if (PaymentMethod == PaymentMethod.Multi) throw new DomainException("مرتجع الدفع المتعدد غير مدعوم في المسار المالي الحالي.");
+        // FIN-0005 (owner decision 2026-11-22): a split-paid order is refunded through ONE of the methods
+        // it was actually paid with, chosen at the refund. (Any other order: RefundOrderHandler uses its own method.)
+        if (PaymentMethod == PaymentMethod.Multi
+            && (refund.PaymentMethod == PaymentMethod.Multi || SplitPayments?.Any(s => s.Method == refund.PaymentMethod) != true))
+            throw new DomainException("اختار طريقة استرجاع من الطرق اللي اتدفع بيها الطلب.");
 
         AssertCollectedForRefund(cashOnDeliverySettled);
         var refundableBefore = Total - RefundAmount;

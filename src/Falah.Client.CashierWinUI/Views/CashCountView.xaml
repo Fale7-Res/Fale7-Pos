@@ -98,9 +98,7 @@
                                                TextWrapping="Wrap"/>
                                     <TextBlock Text="هذا مجموع ما أدخلته للمساعدة أثناء العدّ؛ الرقم المعتمد والفرق يحسبهما الخادم."
                                                Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
-                                    <TextBox Header="المبلغ المتوقع" MinHeight="48" InputScope="Number"
-                                             IsEnabled="{Binding CanAct}"
-                                             Text="{Binding ExpectedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="المتوقع يحسبه السيستم من درج الوردية المفتوحة (رصيد الافتتاح والمبيعات النقدية والحركات)." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
 

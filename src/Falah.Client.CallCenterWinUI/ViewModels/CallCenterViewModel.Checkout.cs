@@ -131,9 +131,17 @@ public partial class CallCenterViewModel
             if (Cart.Count == 0) { CheckoutError = "السلة فارغة."; return; }
             if (string.IsNullOrWhiteSpace(CustomerPhone)) { CheckoutError = "أدخل رقم هاتف العميل."; return; }
             if (string.IsNullOrWhiteSpace(CustomerName)) { CheckoutError = "أدخل اسم العميل."; return; }
-            if (SelectedDeliveryService is null) { CheckoutError = "اختر خدمة التوصيل."; return; }
-            if (string.IsNullOrWhiteSpace(DeliveryArea)) { CheckoutError = "أدخل المنطقة."; return; }
-            if (string.IsNullOrWhiteSpace(DeliveryStreet)) { CheckoutError = "أدخل الشارع."; return; }
+            if (IsDelivery)
+            {
+                if (SelectedDeliveryService is null) { CheckoutError = "اختر خدمة التوصيل."; return; }
+                if (string.IsNullOrWhiteSpace(DeliveryArea)) { CheckoutError = "أدخل المنطقة."; return; }
+                if (string.IsNullOrWhiteSpace(DeliveryStreet)) { CheckoutError = "أدخل الشارع."; return; }
+            }
+            else if (PickupDate is not null && PickupTime is not null && RequestedPickupAtUtc is null)
+            {
+                CheckoutError = "موعد الاستلام المختار غير موجود بسبب التوقيت الصيفي. اختر وقتًا آخر.";
+                return;
+            }
 
             // Re-check right before committing money to an order - the shift this station has no
             // control over may have closed since the screen loaded.
@@ -147,6 +155,9 @@ public partial class CallCenterViewModel
 
             var isElectronic = PaymentMethod is "instapay" or "wallet";
             var amountPaidPiastres = isElectronic ? GrandTotalPiastres : 0;
+            // A pickup paid in cash is paid at the counter on collection (UI-0025); this station takes no cash.
+            var payOnCollection = IsPickup && PaymentMethod == "cash";
+            var delivery = IsDelivery;
 
             CurrentCheckoutRequestId ??= $"req-{Guid.NewGuid():N}";
 
@@ -154,11 +165,11 @@ public partial class CallCenterViewModel
                 CheckoutRequestId: CurrentCheckoutRequestId,
                 CashierId: _session.CurrentUser!.Id,
                 ShiftId: _session.ShiftId!,
-                OrderType: "delivery",
+                OrderType: OrderType,
                 PaymentMethod: PaymentMethod,
                 Items: Cart.Select(l => new CheckoutItemRequest(l.ProductId, l.VariantId, l.Quantity, l.AppliedOfferId, l.Notes)).ToList(),
                 DiscountPiastres: 0,
-                DeliveryFeePiastres: SelectedDeliveryService.FeePiastres ?? 0,
+                DeliveryFeePiastres: DeliveryFeePiastres,
                 CompAmountPiastres: 0,
                 CompApprovalId: null,
                 CompApproverUserId: null,
@@ -166,23 +177,25 @@ public partial class CallCenterViewModel
                 AmountPaidPiastres: amountPaidPiastres,
                 SplitPayments: null,
                 WalletProvider: PaymentMethod == "wallet" ? WalletProvider : null,
-                TableNumber: null,   // the Call Center takes delivery orders; there is no table
+                TableNumber: null,   // phone orders have no table
                 CustomerName: CustomerName,
                 CustomerPhone: CustomerPhone,
                 DeliveryAddress: null,
-                DeliveryArea: DeliveryArea,
+                DeliveryArea: delivery ? DeliveryArea : null,
                 BusinessDayId: null,
-                DeliveryStreet: DeliveryStreet,
-                DeliveryBuilding: NullIfEmpty(DeliveryBuilding),
-                DeliveryFloor: NullIfEmpty(DeliveryFloor),
-                DeliveryApartment: NullIfEmpty(DeliveryApartment),
-                DeliveryLandmark: NullIfEmpty(DeliveryLandmark),
-                DeliveryNotes: NullIfEmpty(DeliveryNotes),
-                DeliveryServiceId: SelectedDeliveryService.Id,
-                DeliveryServiceName: SelectedDeliveryService.Name,
+                DeliveryStreet: delivery ? DeliveryStreet : null,
+                DeliveryBuilding: delivery ? NullIfEmpty(DeliveryBuilding) : null,
+                DeliveryFloor: delivery ? NullIfEmpty(DeliveryFloor) : null,
+                DeliveryApartment: delivery ? NullIfEmpty(DeliveryApartment) : null,
+                DeliveryLandmark: delivery ? NullIfEmpty(DeliveryLandmark) : null,
+                DeliveryNotes: delivery ? NullIfEmpty(DeliveryNotes) : null,
+                DeliveryServiceId: delivery ? SelectedDeliveryService!.Id : null,
+                DeliveryServiceName: delivery ? SelectedDeliveryService!.Name : null,
                 CompReasonCode: null,
                 // This station's customer copy is the phoned-in confirmation, not a till receipt.
-                CustomerPrintRoute: "CallCenter");
+                CustomerPrintRoute: "CallCenter",
+                RequestedPickupAtUtc: IsPickup ? RequestedPickupAtUtc : null,
+                PayOnCollection: payOnCollection);
 
             await SendCheckoutAsync(request);
         }
@@ -233,6 +246,7 @@ public partial class CallCenterViewModel
         HasRefusedCheckoutRetry = false;
         OnPropertyChanged(nameof(HasPendingCheckout));
         RefreshOperationState();
+        LastOrderPaymentNote = PaymentNoteFor(request);
         LastCheckoutResult = result.Value;
 
         // Persist the customer + this address for next time the same number calls - a plain upsert,
@@ -260,6 +274,18 @@ public partial class CallCenterViewModel
         CurrentCheckoutRequestId = null;
     }
 
+    /// <summary>How the order just registered is paid, under its number on the confirmation. Taken from the request
+    /// that was sent, not the form - the form is already reset for the next call. UI review 2026-11-24: the line
+    /// was fixed text, "the driver collects", and said so for pickups too.</summary>
+    [ObservableProperty] private string _lastOrderPaymentNote = "";
+
+    private static string PaymentNoteFor(CheckoutOrderRequest request) => (request.OrderType, request.PaymentMethod) switch
+    {
+        ("pickup", "cash") => "العميل يدفع في المطعم لما ييجي ياخد الطلب.",
+        (_, "instapay" or "wallet") => "الدفع بتحويل؛ يتأكد بعدين.",
+        _ => "السائق يحصّل المبلغ نقدًا عند التسليم.",
+    };
+
     [RelayCommand]
     private void StartNewOrder()
     {
@@ -278,8 +304,7 @@ public partial class CallCenterViewModel
     [ObservableProperty] private OrderDetailsDto? _lookedUpOrder;
 
     /// <summary>An operator taking a follow-up call about a pickup needs to know when the customer
-    /// said they were coming. Cairo wall clock - the clock the counter and the customer agreed on.
-    /// The Call Center itself only ever creates delivery orders, but it looks up every order.</summary>
+    /// said they were coming. Cairo wall clock - the clock the counter and the customer agreed on.</summary>
     public string LookedUpRequestedPickupLine =>
         LookedUpOrder?.RequestedPickupAtUtc is { } at
             ? TimeZoneInfo.ConvertTime(at, Falah.Domain.Common.BusinessClock.CairoTimeZone).ToString("yyyy-MM-dd HH:mm")
@@ -302,6 +327,7 @@ public partial class CallCenterViewModel
                 return $"{how} - ملغى؛ لا يوجد مبلغ مطلوب تحصيله";
             return order.ElectronicPaymentStatus == "pending" ? $"{how} - تحويل لم يُؤكَّد"
                 : order.IsPaid || order.CustomerFundsCollected ? $"{how} - مدفوع"
+                : string.Equals(order.OrderType, "pickup", StringComparison.OrdinalIgnoreCase) ? $"{how} - يدفع في المطعم عند الاستلام"
                 : $"{how} - تحصيل عند التسليم";
         }
     }
@@ -395,9 +421,27 @@ public partial class CallCenterViewModel
         if (IsOperationBusy || _pendingCheckout is not null) return;
         if (_pendingPrint is not null) { await SendPrintAsync(_pendingPrint); return; }
         if (LookedUpOrder is null) return;
+        // SEC-0030 (owner decision 2026-11-22): without print_reprint a manager approves the reprint.
+        string? approvalId = null, approverId = null;
+        if (ReprintNeedsApproval)
+        {
+            var pin = (ReprintManagerPin ?? "").Trim();
+            if (pin.Length < 4) { ReprintNote = "إعادة الطباعة تحتاج رمز المدير."; return; }
+            var approval = await _session.Api.IssueManagerApprovalAsync(
+                new Falah.Application.Approvals.IssueManagerApprovalRequest(pin, "print_reprint", "إعادة طباعة نسخة العميل"));
+            if (!approval.Success || approval.Value is null)
+            { ReprintNote = approval.Error ?? "رمز المدير غير صحيح أو غير مخوّل باعتماد إعادة الطباعة."; return; }
+            (approvalId, approverId) = (approval.Value.ApprovalId, approval.Value.ApproverUserId);
+        }
         await SendPrintAsync(new CreatePrintJobsRequest($"pj-{Guid.NewGuid():N}",
-            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id, IncludeKitchenRoutes: false));
+            LookedUpOrder.Id, "CallCenter", true, _session.CurrentUser!.Id, IncludeKitchenRoutes: false,
+            ManagerApprovalId: approvalId, ManagerApproverUserId: approverId));
+        if (_pendingPrint is null) ReprintManagerPin = "";
     }
+
+    /// <summary>SEC-0030: shown when this user may not reprint alone; a manager types their PIN.</summary>
+    [ObservableProperty] private string _reprintManagerPin = "";
+    public bool ReprintNeedsApproval => !_session.HasPermission("print_reprint");
 
     [RelayCommand]
     private async Task RetryPrintAsync()

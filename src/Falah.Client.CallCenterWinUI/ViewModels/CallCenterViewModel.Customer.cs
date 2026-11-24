@@ -138,6 +138,8 @@ public partial class CallCenterViewModel
     {
         if (string.IsNullOrWhiteSpace(CustomerPhone)) return "أدخل رقم هاتف العميل قبل المتابعة.";
         if (string.IsNullOrWhiteSpace(CustomerName)) return "أدخل اسم العميل قبل المتابعة.";
+        // A pickup is matched at the counter by name and phone (DeliveryRules.FirstMissingPickupField).
+        if (IsPickup) return null;
         if (SelectedDeliveryService is null) return "اختر خدمة التوصيل قبل المتابعة.";
         if (string.IsNullOrWhiteSpace(DeliveryArea)) return "أدخل المنطقة قبل المتابعة.";
         if (string.IsNullOrWhiteSpace(DeliveryStreet)) return "أدخل الشارع قبل المتابعة.";
@@ -153,8 +155,10 @@ public partial class CallCenterViewModel
         get
         {
             if (string.IsNullOrWhiteSpace(CustomerPhone) && string.IsNullOrWhiteSpace(CustomerName))
-                return "اضغط لإدخال بيانات العميل والتوصيل";
+                return IsPickup ? "اضغط لإدخال اسم العميل وموعد الاستلام" : "اضغط لإدخال بيانات العميل والعنوان";
             var who = string.IsNullOrWhiteSpace(CustomerName) ? CustomerPhone : $"{CustomerName} • {CustomerPhone}";
+            if (IsPickup)
+                return string.Join("\n", new[] { who, PickupTimeLine ?? "يستلم أول ما يوصل (بدون موعد)" });
             var where = string.Join("، ", new[] { DeliveryArea, DeliveryStreet }.Where(p => !string.IsNullOrWhiteSpace(p)));
             var service = SelectedDeliveryService?.Name;
             var parts = new[] { who, where, service }.Where(p => !string.IsNullOrWhiteSpace(p));
@@ -202,6 +206,7 @@ public partial class CallCenterViewModel
     {
         OnPropertyChanged(nameof(GrandTotalPiastres));
         OnPropertyChanged(nameof(GrandTotalDisplay));
+        OnPropertyChanged(nameof(DeliveryFeeDisplay));
         NotifyDeliverySummary();
     }
 
@@ -239,5 +244,9 @@ public partial class CallCenterViewModel
         DeliveryLandmark = "";
         DeliveryNotes = "";
         SelectedDeliveryService = null;
+        PickupDate = null;
+        PickupTime = null;
+        // The next call starts as the common case again.
+        OrderType = "delivery";
     }
 }

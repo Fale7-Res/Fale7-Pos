@@ -18,8 +18,9 @@ public static class CrashLog
         {
             Directory.CreateDirectory(directory);
             var path = Path.Combine(directory, $"crash-{DateTime.UtcNow:yyyyMMdd}.log");
+            // Runtime logging audit 2026-11-23 (L-04): which build, on which machine.
             File.AppendAllText(path,
-                $"[{DateTimeOffset.UtcNow:O}] {station} {source}{Environment.NewLine}{exception}{Environment.NewLine}{Environment.NewLine}");
+                $"[{DateTimeOffset.UtcNow:O}] {station} {source} v{ClientLog.Version} {Environment.MachineName}{Environment.NewLine}{exception}{Environment.NewLine}{Environment.NewLine}");
             return path;
         }
         catch

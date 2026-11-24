@@ -55,6 +55,9 @@ public partial class ShiftStatementViewModel : ObservableObject
     [ObservableProperty] private bool _printFailed;
     [ObservableProperty] private string? _reprintMessage;
     [ObservableProperty] private bool _isReprinting;
+    /// <summary>SEC-0030: shown when this user may not reprint alone; a manager types their PIN.</summary>
+    [ObservableProperty] private string _reprintManagerPin = "";
+    public bool ReprintNeedsApproval => ReprintApproval.IsNeeded(_session);
     [ObservableProperty] private string _title = "ورقة إغلاق الوردية";
 
     public ObservableCollection<PaperLine> Lines { get; } = new();
@@ -126,8 +129,12 @@ public partial class ShiftStatementViewModel : ObservableObject
         ReprintMessage = null;
         try
         {
+            const string reason = "إعادة طباعة ورقة إغلاق الوردية";
+            var (approvalId, approverId, error) = await ReprintApproval.ResolveAsync(_session, ReprintManagerPin, reason);
+            if (error is not null) { ReprintMessage = error; return; }
             var result = await _session.Api.ReprintDocumentAsync(new ReprintDocumentRequest(
-                $"rp-{Guid.NewGuid():N}", "ShiftClose", _shiftId, _session.CurrentUser!.Id, "إعادة طباعة ورقة إغلاق الوردية"));
+                $"rp-{Guid.NewGuid():N}", "ShiftClose", _shiftId, _session.CurrentUser!.Id, reason, approvalId, approverId));
+            if (result.Success) ReprintManagerPin = "";
             ReprintMessage = result.Success
                 ? "أُرسلت نسخة مُعلَّمة «إعادة طباعة» للطابعة."
                 : result.Error ?? "تعذر إرسال إعادة الطباعة.";

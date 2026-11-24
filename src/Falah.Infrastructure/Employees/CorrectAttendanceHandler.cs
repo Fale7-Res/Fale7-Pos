@@ -83,7 +83,10 @@ public sealed class CorrectAttendanceHandler
         record.CorrectedBy = verifiedApproverName;
         record.CorrectionReason = request.Reason;
 
-        if (employee is not null && employee.DailyWagePiastres > 0)
+        // PAYR-0005 (owner decision 2026-11-22): the record is valued at the daily wage of its own day.
+        var wageThatDay = employee is null ? 0
+            : EmployeeWages.At(await EmployeeWages.LoadAsync(_db, employee.Id, ct), employee, record.Date).DailyWage;
+        if (employee is not null && wageThatDay > 0)
         {
             // Match employee cash-out's ledger lock so the resulting running balance
             // cannot be computed from a simultaneous, stale drawer withdrawal.
@@ -91,7 +94,7 @@ public sealed class CorrectAttendanceHandler
                 .FromSqlRaw("SELECT * FROM EmployeeLedgerEntries WITH (UPDLOCK, ROWLOCK, HOLDLOCK) WHERE EmployeeId = {0}", record.EmployeeId)
                 .Select(e => e.Id).ToListAsync(ct);
             var settings = await new SettingsQueryService(_db).GetAsync(ct);
-            var dailyWage = Money.FromPiastres(employee.DailyWagePiastres);
+            var dailyWage = Money.FromPiastres(wageThatDay);
 
             var oldPenalty = PayrollRules.CalculateLateDeduction(dailyWage, settings.StandardWorkdayHours, oldLateMinutes,
                 settings.LateGraceMinutes, settings.MaxLatePenaltyHours, settings.LatePenaltyMultiplier).Amount;

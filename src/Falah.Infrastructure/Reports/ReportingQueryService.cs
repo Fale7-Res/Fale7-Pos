@@ -35,7 +35,7 @@ public sealed class ReportingQueryService
     private async Task<List<OrderEntity>> LoadSalesOrdersAsync(BusinessDateRange? range, string? shiftId, CancellationToken ct)
     {
         var query = _db.Orders.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled));
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection);
         if (range is { } period)
         {
             // Cairo midnight boundaries, so a month's total is exactly the sum of the days inside it.
@@ -168,7 +168,7 @@ public sealed class ReportingQueryService
             ?? throw new InvalidOperationException("يوم العمل غير موجود.");
 
         var orderEntities = await _db.Orders.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled) && o.BusinessDayId == businessDayId).ToListAsync(ct);
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection && o.BusinessDayId == businessDayId).ToListAsync(ct);
         var domainOrders = orderEntities.Select(OrderMapper.ToDomain).ToList();
         var sales = SalesRules.ComputeSalesReport(
             domainOrders, await LoadOrderIdsWithCashOutsideRestaurantAsync(domainOrders, ct),
@@ -259,7 +259,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled)
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id, (i, o) => new { i.ProductName, i.Quantity, i.TotalPricePiastres })
             .ToListAsync(ct);
@@ -280,7 +280,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled)
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id,
                 (i, o) => new { i.OrderId, i.ProductId, i.ProductName, i.Quantity, i.TotalPricePiastres, o.CreatedAtUtc })
@@ -315,7 +315,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled)
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id,
                 (i, o) => new { i.ProductName, i.Quantity, i.TotalPricePiastres, o.CreatedAtUtc })
@@ -333,7 +333,7 @@ public sealed class ReportingQueryService
     {
         var (start, end) = Range(from, to);
         var rows = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled)
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                     && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
                 i => i.OrderId, o => o.Id, (i, _) => i)
             .Join(_db.Products.AsNoTracking(), i => i.ProductId, p => p.Id, (i, p) => new { p.CategoryId, i.Quantity, i.TotalPricePiastres })
@@ -356,38 +356,21 @@ public sealed class ReportingQueryService
     public async Task<FoodCostReportDto> GetFoodCostReportAsync(DateOnly? from, DateOnly? to, CancellationToken ct = default)
     {
         var (start, end) = Range(from, to);
-        var soldLines = await _db.OrderItems.AsNoTracking()
-            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled)
-                    && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
-                i => i.OrderId, o => o.Id, (i, _) => new { i.ProductId, i.VariantId, i.ProductName, i.Quantity })
-            .ToListAsync(ct);
-
-        // Order-level packaging - the delivery bag - is consumed once per qualifying order, not per
-        // item, so it is counted here rather than inside the per-line loop. It used to be counted
-        // nowhere at all: the rule could be configured and no report ever read it.
-        var soldOrderTypes = await _db.Orders.AsNoTracking()
-            .Where(o => o.Status != nameof(OrderStatus.Cancelled)
+        var soldOrders = await _db.Orders.AsNoTracking()
+            .Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
                 && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end))
-            .GroupBy(o => o.OrderType)
-            .Select(g => new { OrderType = g.Key, Count = g.Count() })
+            .Select(o => new { o.Id, o.OrderType, o.FoodCostFrozenAtUtc, o.FrozenPackagingCostPiastres, o.FrozenPackagingMissing })
             .ToListAsync(ct);
-        var packagingRules = await _db.OrderPackagingRules.AsNoTracking()
-            .Select(r => new OrderPackagingRule(r.OrderType, r.InventoryItemId, r.QuantityMilliUnits, r.Active))
+        var frozenOrders = soldOrders.Where(o => o.FoodCostFrozenAtUtc != null).Select(o => o.Id).ToHashSet();
+        var soldLines = await _db.OrderItems.AsNoTracking()
+            .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection
+                    && (start == null || o.CreatedAtUtc >= start) && (end == null || o.CreatedAtUtc < end)),
+                i => i.OrderId, o => o.Id, (i, _) => new { i.OrderId, i.ProductId, i.VariantId, i.ProductName, i.Quantity, i.FrozenUnitFoodCostPiastres })
             .ToListAsync(ct);
 
-        var productRecipeIds = await _db.Products.AsNoTracking().ToDictionaryAsync(p => p.Id, p => p.RecipeId, ct);
-        var variantRecipeIds = await _db.ProductVariants.AsNoTracking().ToDictionaryAsync(v => v.Id, v => v.RecipeId, ct);
-        var recipes = await _db.Recipes.AsNoTracking().Include(r => r.Items).ToDictionaryAsync(r => r.Id, ct);
-
-        var items = await _db.InventoryItems.AsNoTracking()
-            .Select(i => new InventoryItem(i.Id, i.Name, Enum.Parse<CostSource>(i.CostSource), i.EstimatedUnitCostPiastres)).ToListAsync(ct);
-        var preps = await _db.PrepRecipes.AsNoTracking().Select(p => new PrepRecipe(p.Id, p.OutputInventoryItemId, p.OutputQuantityMilliUnits, p.Active)).ToListAsync(ct);
-        var prepLines = await _db.PrepRecipeLines.AsNoTracking().Select(l => new PrepRecipeLine(l.PrepRecipeId, l.InventoryItemId, l.QuantityMilliUnits)).ToListAsync(ct);
-        var purchaseMovements = await _db.StockMovements.AsNoTracking()
-            .Where(m => m.Type == nameof(StockMovementType.PurchaseReceipt) && m.UnitCostPiastres != null)
-            .Select(m => new { m.InventoryItemId, m.UnitCostPiastres, m.CreatedAtUtc }).ToListAsync(ct);
-        var movementFacts = purchaseMovements.Select(m => new StockMovementFacts(m.InventoryItemId, StockMovementType.PurchaseReceipt, Money.FromPiastres(m.UnitCostPiastres!.Value), m.CreatedAtUtc)).ToList();
-        var costingCtx = new CostingContext(items, preps, prepLines, movementFacts);
+        // INV-0011 / FIN-0044 (owner decision 2026-11-22): an order whose business day has closed carries
+        // the food cost frozen at that close; only orders of a day still open use the live estimate.
+        var live = await FoodCostCalculator.LoadAsync(_db, ct);
 
         long totalCost = 0;
         var missing = new HashSet<string>();
@@ -400,30 +383,26 @@ public sealed class ReportingQueryService
             // recipe is not absent from the report; its cost is unknown, exactly like an item whose
             // recipe has an unpriced ingredient below.
             totalLines++;
-
-            var recipeId = (line.VariantId is not null && variantRecipeIds.TryGetValue(line.VariantId, out var vr) && vr is not null) ? vr : productRecipeIds.GetValueOrDefault(line.ProductId);
-            if (recipeId is null || !recipes.TryGetValue(recipeId, out var recipe))
-            {
-                missing.Add(line.ProductName);
-                continue;
-            }
-
-            var recipeLines = recipe.Items.Select(i => new RecipeLine(i.InventoryItemId, i.QuantityMilliUnits, Enum.Parse<RecipeLineKind>(i.Kind), i.YieldUnitsPerBaseUnit)).ToList();
-            var cost = CostingRules.ComputeRecipeCost(recipeLines, costingCtx);
-            // Not "is anything missing" - a recipe with no lines is missing nothing and knows
-            // nothing. IsComplete asks the question that was meant: is this the whole cost?
-            if (!cost.IsComplete) { missing.Add(line.ProductName); continue; }
+            var unitCost = frozenOrders.Contains(line.OrderId) ? line.FrozenUnitFoodCostPiastres : live.UnitCost(line.ProductId, line.VariantId);
+            if (unitCost is null) { missing.Add(line.ProductName); continue; }
             knownLines++;
-            totalCost += cost.KnownCost.Piastres * line.Quantity;
+            totalCost += unitCost.Value * line.Quantity;
         }
 
-        foreach (var orderType in soldOrderTypes)
+        // Order-level packaging - the delivery bag - is consumed once per qualifying order, not per item.
+        // The same rule as everywhere else: packaging whose cost is unknown is named, never added as a
+        // zero that makes the total look complete.
+        foreach (var order in soldOrders)
         {
-            var (cost, known, name) = CostingRules.OrderPackagingCost(orderType.OrderType, packagingRules, costingCtx);
-            // The same rule as everywhere else: packaging whose cost is unknown is named, never
-            // added as a zero that makes the total look complete.
-            if (!known) { missing.Add(name ?? orderType.OrderType); continue; }
-            totalCost += cost.Piastres * orderType.Count;
+            if (order.FoodCostFrozenAtUtc != null)
+            {
+                if (order.FrozenPackagingCostPiastres is { } frozen) totalCost += frozen;
+                else missing.Add(order.FrozenPackagingMissing ?? order.OrderType);
+                continue;
+            }
+            var (cost, known, name) = live.Packaging(order.OrderType);
+            if (!known) { missing.Add(name ?? order.OrderType); continue; }
+            totalCost += cost;
         }
 
         return new FoodCostReportDto(totalCost, totalLines, knownLines, missing.ToList());
@@ -645,7 +624,7 @@ public sealed class ReportingQueryService
     {
         var pendingWire = ElectronicPaymentStatus.Pending.ToWireString();
         var entities = await _db.Orders.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.ElectronicPaymentStatus == pendingWire && o.Status != nameof(OrderStatus.Cancelled))
+            .Where(o => o.ElectronicPaymentStatus == pendingWire && o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire && !o.AwaitingCollection)
             .ToListAsync(ct);
 
         var now = DateTimeOffset.UtcNow;

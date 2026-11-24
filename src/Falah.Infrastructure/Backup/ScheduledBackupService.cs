@@ -147,12 +147,28 @@ public sealed class ScheduledBackupService : BackgroundService
         // still owned by a kept backup, even when the obsolete alias is prunable.
         var protectedPaths = recorded.Where(b => !prunable.Contains(b.Id))
             .Select(b => Path.GetFullPath(b.FilePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        // OPS-0002 (2026-11-22): the copy CreateBackupHandler made in Backup:CopyToDirectory goes with its
+        // backup, or a USB drive fills up and every later copy fails. Only that exact file name - the one
+        // this system wrote - is removed, never anything else in the folder.
+        var copyDirectory = _configuration["Backup:CopyToDirectory"];
+        var protectedNames = recorded.Where(b => !prunable.Contains(b.Id))
+            .Select(b => Path.GetFileName(b.FilePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var record in recorded.Where(b => prunable.Contains(b.Id)))
         {
             try
             {
                 if (!protectedPaths.Contains(Path.GetFullPath(record.FilePath)) && File.Exists(record.FilePath))
+                {
                     File.Delete(record.FilePath);
+                    File.Delete(BackupSchemaStamp.PathFor(record.FilePath));   // F-03 stamp; no error if absent
+                }
+                var fileName = Path.GetFileName(record.FilePath);
+                if (!string.IsNullOrWhiteSpace(copyDirectory) && !protectedNames.Contains(fileName)
+                    && Path.Combine(copyDirectory, fileName) is var copy && File.Exists(copy))
+                {
+                    File.Delete(copy);
+                    File.Delete(BackupSchemaStamp.PathFor(copy));
+                }
                 // The row stays, with its file marked gone: the history of what was backed up and
                 // when outlives the .bak, which is what an audit of "were we taking backups in
                 // September" actually needs to read.

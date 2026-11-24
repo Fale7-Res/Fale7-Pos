@@ -43,6 +43,20 @@ public static class BusinessDayRules
         return new BusinessDayRecord(id, businessDate, openedBy, nowUtc, BusinessDayStatus.Open, CloseRevision: 0);
     }
 
+    /// <summary>Independent audit 2026-11-23, F-02: which date a new business day may carry. The date is typed
+    /// in the Control Center, and a typo used to open a second day for a period already closed (closed periods
+    /// never move) or a day in the future, whose close accrued every monthly salary through that date. Today or
+    /// an earlier date not yet closed is accepted. A past closed date is reopened, never opened again; today's
+    /// date may start a new day after today's earlier day closed (the path BusinessDayGate's refusal points the
+    /// manager to).</summary>
+    public static void AssertOpenableDate(DateOnly businessDate, DateOnly today, bool alreadyClosed)
+    {
+        if (businessDate > today)
+            throw new DomainException($"تاريخ يوم العمل {businessDate:yyyy-MM-dd} في المستقبل. لا يمكن فتح يوم بعد تاريخ اليوم ({today:yyyy-MM-dd}).");
+        if (alreadyClosed && businessDate < today)
+            throw new DomainException($"يوم العمل {businessDate:yyyy-MM-dd} مُغلق بالفعل. لإضافة عمليات عليه أعد فتحه من مركز التحكم بدل فتح يوم جديد بنفس التاريخ.");
+    }
+
     public static BusinessDayRecord Reopen(
         BusinessDayRecord day, IEnumerable<BusinessDayRecord> allDays, string reason, string approverName, DateTimeOffset nowUtc)
     {
@@ -67,7 +81,9 @@ public static class BusinessDayRules
         IReadOnlyList<(string Code, bool Critical)> ReconciliationChecks,
         // A partial driver settlement carries a balance forward (owed by or to the driver). It is restaurant money
         // outside the drawer exactly like open custody, so it gates the close the same way.
-        IReadOnlyList<(string DriverId, long CarriedPiastres)>? DriverBalances = null);
+        IReadOnlyList<(string DriverId, long CarriedPiastres)>? DriverBalances = null,
+        /// <summary>UI-0025: pickups registered unpaid whose customer has not paid and collected yet.</summary>
+        IReadOnlyList<(string OrderId, string OrderNumber)>? UncollectedPickups = null);
 
     /// <summary>Every one of these gates a close - there is no "close with warnings" path. An
     /// unconfirmed InstaPay/wallet transfer in particular is real customer money that has neither
@@ -95,6 +111,12 @@ public static class BusinessDayRules
 
         foreach (var order in input.Orders.Where(o => o.ElectronicPaymentPending))
             blockers.Add(new CloseBlocker("PENDING_ELECTRONIC_PAYMENT", "order", order.Id, "يوجد طلب بانتظار تأكيد تحويل إلكتروني (إنستاباي/محفظة) لم يُحسم بعد."));
+
+        // UI-0025 (owner decision 2026-11-22): the day does not close over a pickup nobody paid for - it is
+        // collected (and becomes a sale) or a manager cancels it first.
+        foreach (var pickup in input.UncollectedPickups ?? Array.Empty<(string, string)>())
+            blockers.Add(new CloseBlocker("UNCOLLECTED_PICKUP", "order", pickup.OrderId,
+                $"طلب الاستلام {pickup.OrderNumber} لسه ما اتدفعش. حصّله من العميل أو خلّي المدير يلغيه."));
 
         if (!input.PersistenceHealthy)
             blockers.Add(new CloseBlocker("PERSISTENCE_UNHEALTHY", "system", "persistence", "التخزين المحلي غير سليم."));
@@ -138,7 +160,9 @@ public static class BusinessDayRules
             {
                 if (!EgyptianDenominationsPiastres.Contains(r.DenominationPiastres))
                     throw new DomainException("فئة نقدية غير صالحة.");
-                var quantity = Math.Max(0, r.Quantity);
+                // QA-10 (audit 2026-11-23): a negative count is a typing mistake, refused rather than silently 0.
+                if (r.Quantity < 0) throw new DomainException("عدد الورق في العدّ لا يمكن أن يكون بالسالب.");
+                var quantity = r.Quantity;
                 return new DenominationRow(r.DenominationPiastres, quantity, checked(r.DenominationPiastres * quantity));
             }).ToList();
             var total = normalized.Sum(r => r.TotalPiastres);

@@ -141,6 +141,11 @@
                                                 <Button Content="تسجيل النتيجة" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
                                                         Visibility="{Binding Status, Converter={StaticResource StringEqualsToVisibleConverter}, ConverterParameter=OutForDelivery}"
                                                         Command="{Binding ElementName=Root, Path=DataContext.OpenOutcomeCommand}" CommandParameter="{Binding Delivery}"/>
+                                                <!-- FIN-0051: an unpaid cash-on-delivery order still on the board. -->
+                                                <Button Content="إلغاء الطلب" MinHeight="44" FontSize="12" Style="{StaticResource SecondaryButtonStyle}"
+                                                        AutomationProperties.Name="إلغاء الطلب قبل خروجه مع السائق"
+                                                        Visibility="{Binding CanCancel, Converter={StaticResource BoolToVisibleConverter}}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.OpenCancelCommand}" CommandParameter="{Binding Delivery}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -205,6 +210,11 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+                    <!-- Audit 2026-11-23, F-11: say so when there is nobody to assign. -->
+                    <TextBlock Grid.Row="1" Margin="16" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"
+                               Style="{StaticResource MutedText}" AutomationProperties.AutomationId="Delivery_NoDrivers"
+                               Text="لا يوجد سائقون نشطون. أضف سائقًا أو فعّله من «السائقون وخدمات التوصيل»."
+                               Visibility="{Binding HasNoDrivers, Converter={StaticResource BoolToVisibleConverter}}"/>
                 </Grid>
             </Border>
         </Grid>

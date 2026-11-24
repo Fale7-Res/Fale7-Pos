@@ -24,7 +24,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Spacing="3">
-                <TextBlock Text="مركز التحكم" Style="{StaticResource PageTitleText}"/>
+                <TextBlock Text="لوحة المتابعة" Style="{StaticResource PageTitleText}"/>
                 <TextBlock Style="{StaticResource PageSubtitleText}" TextWrapping="Wrap">
                     <Run Text="{Binding PeriodLabel}"/><Run Text=" · "/><Run Text="{Binding ComparisonLabel}"/>
                 </TextBlock>
@@ -478,7 +478,7 @@
         <StackPanel Grid.Row="1" Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center"
                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibleConverter}}">
             <ProgressRing IsActive="True" Width="36" Height="36"/>
-            <TextBlock Text="جاري تحميل مركز التحكم..." Style="{StaticResource MutedText}"/>
+            <TextBlock Text="جاري تحميل لوحة المتابعة..." Style="{StaticResource MutedText}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420"

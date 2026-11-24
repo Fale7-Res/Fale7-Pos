@@ -154,7 +154,7 @@ public sealed class InventoryQueryService
         if (recipeLineRows.Count > 0)
         {
             var orderItemRows = await _db.OrderItems.AsNoTracking()
-                .Join(_db.Orders.AsNoTracking().Where(o => o.Status != nameof(OrderStatus.Cancelled)
+                .Join(_db.Orders.AsNoTracking().Where(o => o.Status != Falah.Infrastructure.Orders.OrderEnumMapping.CancelledWire
                         && (from == null || o.CreatedAtUtc >= from) && (to == null || o.CreatedAtUtc <= to)),
                     oi => oi.OrderId, o => o.Id, (oi, _) => new { oi.ProductId, oi.VariantId, oi.Quantity })
                 .ToListAsync(ct);

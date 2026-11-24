@@ -43,7 +43,8 @@ public partial class UsersViewModel : ObservableObject
             "delivery_settlement_approve" => "اعتماد تسوية عهدة السائق", "reports_view" => "عرض التقارير",
             "users_manage" => "إدارة المستخدمين", "audit_view" => "عرض سجل المراجعة", "employees_manage" => "إدارة الموظفين",
             "employees_ledger" => "حسابات الموظفين", "attendance_manage" => "إدارة الحضور", "payroll_approve" => "اعتماد الرواتب",
-            "payroll_pay" => "صرف الرواتب", "backup_manage" => "إدارة النسخ الاحتياطية", _ => Key
+            "payroll_pay" => "صرف الرواتب", "backup_manage" => "إدارة النسخ الاحتياطية",
+            "print_agent" => "برنامج الطباعة", "print_reprint" => "إعادة الطباعة", _ => Key
         };
         public string CategoryLabel => Category switch
         {
