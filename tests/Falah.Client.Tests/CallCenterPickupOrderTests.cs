@@ -144,6 +144,44 @@ public class CallCenterPickupOrderTests
         Assert.DoesNotContain("السائق", vm.LastOrderPaymentNote);
     }
 
+    /// <summary>Owner's trial 2026-11-25 ("شيل اللي بتظهر دي من أي حاجة"): the confirmation no longer stops the desk. The
+    /// last order's number and payment line stay on a small card at the bottom; the next call's order goes out without
+    /// pressing "طلب جديد".</summary>
+    [Fact]
+    public async Task After_an_order_is_registered_the_next_one_goes_out_without_pressing_new_order()
+    {
+        var server = new Server { Accept = true };
+        var vm = Desk(server);
+        vm.SetOrderTypeCommand.Execute("pickup");
+        vm.Cart.Add(new CallCenterModels.CartLine { ProductId = "p", ProductName = "كبدة", UnitPricePiastres = 4500, Quantity = 1 });
+        vm.CustomerPhone = "01000000097";
+        vm.CustomerName = "عميل";
+        await vm.SubmitOrderCommand.ExecuteAsync(null);
+        Assert.True(vm.HasCheckoutResult);           // the last order's card is on screen...
+
+        vm.SetOrderTypeCommand.Execute("pickup");
+        vm.Cart.Add(new CallCenterModels.CartLine { ProductId = "p", ProductName = "كبدة", UnitPricePiastres = 4500, Quantity = 1 });
+        vm.CustomerPhone = "01000000098";
+        vm.CustomerName = "عميل تاني";
+        Assert.True(vm.SubmitOrderCommand.CanExecute(null));   // ...and does not hold the next one back
+    }
+
+    [Fact]
+    public void The_last_order_card_sits_at_the_bottom_and_does_not_cover_the_desk()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Falah.sln"))) dir = dir.Parent;
+        Assert.NotNull(dir);
+        var elements = System.Xml.Linq.XDocument.Load(Path.Combine(dir!.FullName, "src", "Falah.Client.CallCenterWinUI", "Views",
+            "CallCenterView.xaml")).Descendants().ToList();
+        var automationId = System.Xml.Linq.XName.Get("AutomationProperties.AutomationId");
+        var card = Assert.Single(elements, e => (string?)e.Attribute(automationId) == "CallCenter_LastOrderCard");
+
+        Assert.Equal("Bottom", (string?)card.Attribute("VerticalAlignment"));
+        Assert.DoesNotContain(card.AncestorsAndSelf(), e => ((string?)e.Attribute("Background"))?.Contains("OverlayBrush") == true);
+        Assert.DoesNotContain(elements, e => e.Name.LocalName == "Button" && (string?)e.Attribute("Content") == "طلب جديد");
+    }
+
     [Fact]
     public async Task The_confirmation_of_a_registered_cash_delivery_says_the_driver_collects()
     {

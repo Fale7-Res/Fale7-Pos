@@ -47,6 +47,36 @@
         <!-- ================= CANCEL AN UNPAID ORDER (workflow redesign, owner 2026-11-24) =================
              Before the kitchen has its paper: a plain confirmation, every ingredient back. After it: the
              manager's PIN, then whether the food was prepared. A paid order is refunded, never cancelled here. -->
+        <!-- ================= QUEUE: MOVE AN ORDER TO ANOTHER DRIVER (owner's trial 2026-11-25) =================
+             The same custody moves to the new driver; a dispatch slip prints for him. A reason is required. -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsReassignOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <controls:ModalHeaderView Title="{Binding ReassignTitle}" CloseCommand="{Binding CloseReassignCommand}"/>
+                    <TextBlock Text="{Binding ReassignTarget.CustomerDisplay}" Style="{StaticResource SectionTitleText}"/>
+                    <TextBlock Text="الفلوس اللي على الطلب بتتنقل لعهدة السائق الجديد، وتتطبعله ورقة تسليم." Style="{StaticResource MutedText}" TextWrapping="Wrap"/>
+                    <ComboBox IsEnabled="{Binding CanEditAction}" Header="السائق الجديد" HorizontalAlignment="Stretch" MinHeight="44"
+                              AutomationProperties.AutomationId="Reassign_Driver"
+                              ItemsSource="{Binding ReassignDriverOptions}" SelectedItem="{Binding ReassignDriver, Mode=TwoWay}"
+                              DisplayMemberPath="Name"/>
+                    <TextBox Header="سبب النقل (إلزامي)" MinHeight="44" TextWrapping="Wrap" MaxLength="300" IsEnabled="{Binding CanEditAction}"
+                             AutomationProperties.AutomationId="Reassign_Reason"
+                             Text="{Binding ReassignReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{Binding ReassignError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Visibility="{Binding ReassignError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Button Content="انقل الطلب" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource CtaButtonStyle}"
+                                AutomationProperties.AutomationId="Reassign_Confirm" Command="{Binding ConfirmReassignCommand}"/>
+                        <Button Grid.Column="1" Content="رجوع" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="Reassign_Back" Command="{Binding CloseReassignCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsQueueCancelOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460"
                     HorizontalAlignment="Center" VerticalAlignment="Center">

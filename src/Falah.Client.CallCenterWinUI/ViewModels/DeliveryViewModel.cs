@@ -21,7 +21,8 @@ public partial class DeliveryViewModel : ObservableObject
     private readonly RetainedRequest<AssignDeliveryRequest> _assignRequest = new("delivery.assign");
     private readonly RetainedRequest<RecordDeliveryResultRequest> _outcomeRequest = new("delivery.outcome");
     private readonly RetainedRequest<SettleDriverCustodyRequest> _settleRequest = new("delivery.custody-settle");
-    public bool CanEditAction => !IsBusy && !_assignRequest.HasPending && !_outcomeRequest.HasPending && !_settleRequest.HasPending;
+    public bool CanEditAction => !IsBusy && !_assignRequest.HasPending && !_outcomeRequest.HasPending && !_settleRequest.HasPending
+        && !_reassignRequest.HasPending;
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(CanEditAction));
@@ -51,12 +52,14 @@ public partial class DeliveryViewModel : ObservableObject
 
     /// <summary>A delivery command sent by an earlier run whose answer never came back. Driver and service
     /// authoring stays in the cashier's Control Center; this station dispatches, records and settles.</summary>
-    public bool HasRecoveredRequest => _assignRequest.HasPending || _outcomeRequest.HasPending || _settleRequest.HasPending;
+    public bool HasRecoveredRequest => _assignRequest.HasPending || _outcomeRequest.HasPending || _settleRequest.HasPending
+        || _reassignRequest.HasPending;
 
     public string RecoveredRequestLabel =>
         _assignRequest.HasPending ? "إسناد طلب لسائق لم تُعرف نتيجته بعد."
         : _outcomeRequest.HasPending ? "تسجيل نتيجة توصيل لم تُعرف نتيجته بعد."
         : _settleRequest.HasPending ? "تسوية عهدة سائق لم تُعرف نتيجتها بعد."
+        : _reassignRequest.HasPending ? "نقل طلب لسائق تاني لم تُعرف نتيجته بعد."
         : "";
 
     [ObservableProperty] private string? _recoveryError;
@@ -177,7 +180,10 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private string? _actionNote;
     [ObservableProperty] private bool _isBusy;
 
-    public bool HasNoDeliveries => !IsLoading && LoadError is null && Board.Count == 0;
+    /// <summary>The empty state under the queue's delivery column, so it follows that column (owner's trial 2026-11-25:
+    /// it read the dispatch board, which no longer lists a delivered order waiting for its driver's settlement, and
+    /// said "no deliveries" on top of two of them).</summary>
+    public bool HasNoDeliveries => !IsLoading && LoadError is null && DeliveryStages.Count == 0;
 
     /// <summary>Audit 2026-11-23, F-11: the drivers panel said nothing when there was nobody to assign.</summary>
     public bool HasNoDrivers => !IsLoading && LoadError is null && Drivers.Count == 0;
@@ -190,7 +196,7 @@ public partial class DeliveryViewModel : ObservableObject
     /// awaited, or a dialog about one delivery or driver is open.</summary>
     public bool CanAutoRefresh => !IsLoading && !IsBusy && CanEditAction
         && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null
-        && QueueCancelTarget is null;
+        && QueueCancelTarget is null && ReassignTarget is null;
 
     [RelayCommand]
     private async Task AutoRefreshAsync()

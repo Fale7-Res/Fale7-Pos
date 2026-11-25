@@ -143,7 +143,7 @@
     <Button x:Name="FooterCheckoutButton" Grid.Row="10" Grid.ColumnSpan="2" Margin="0,6,0,0" AutomationProperties.AutomationId="OpenCheckoutButton" Content="متابعة إلى الدفع  ←" MinHeight="52" Height="Auto" FontSize="18" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding OpenCheckoutCommand}" IsEnabled="{Binding CanOpenCheckout}"/>
     <Grid x:Name="FooterActions" Grid.Row="11" Grid.ColumnSpan="2" ColumnSpacing="8" Margin="0,6,0,0">
      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
      <Button x:Name="FooterCancelButton" Content="إلغاء الطلب" Style="{StaticResource GhostButtonStyle}" Foreground="{ThemeResource TextMutedBrush}" FontSize="13" MinHeight="44" HorizontalAlignment="Stretch" Command="{Binding RequestClearCartCommand}" IsEnabled="{Binding CanEditOperation}"/>
      <!-- Audit 2026-11-23, F-07: the last paid sale's number and change, beside cancel, until the next payment opens. -->
      <TextBlock Grid.Column="1" Text="{Binding LastSaleNote}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"
@@ -154,6 +154,11 @@
      <InfoBar Grid.Row="1" Grid.ColumnSpan="2" IsOpen="True" IsClosable="False" Severity="Warning" Message="{Binding DrawerCashAlert}"
               AutomationProperties.AutomationId="Cart_DrawerCashAlert" AutomationProperties.Name="تحذير الدرج"
               Visibility="{Binding DrawerCashAlert, Converter={StaticResource NullToCollapsedConverter}}"/>
+     <!-- Owner's trial 2026-11-25: no card after a sale; what is left to do on the order just registered (a transfer
+          to confirm, a pickup paid at collection, tickets not queued) is said here until the next payment opens. -->
+     <InfoBar Grid.Row="2" Grid.ColumnSpan="2" IsOpen="True" IsClosable="False" Severity="Informational" Message="{Binding PostSaleNotice}"
+              AutomationProperties.AutomationId="Cart_PostSaleNotice" AutomationProperties.Name="تنبيه آخر طلب"
+              Visibility="{Binding PostSaleNotice, Converter={StaticResource NullToCollapsedConverter}}"/>
     </Grid>
    </Grid>
   </Border>

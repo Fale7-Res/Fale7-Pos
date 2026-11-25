@@ -277,14 +277,16 @@ public class CashierCorrectnessTests
     }
 
     // Owner, 2026-11-19: a sale that went through needs no "تم تسجيل الطلب / طلب جديد" card - the
-    // till goes straight back to an empty order. The card stays only when the cashier still has
-    // something to do or know: an unconfirmed transfer, or tickets the server could not queue.
+    // till goes straight back to an empty order. Owner's trial 2026-11-25 ("شيل اللي بتظهر دي من أي حاجة"):
+    // not even when something is left to do - an unconfirmed transfer or tickets the server could not
+    // queue now leave a warning above the footer, naming the order and where to finish it, and the next
+    // order starts at once. The card still opens from the order lookup to confirm or cancel a transfer.
     [Theory]
-    [InlineData("null", true, false)]        // paid, printed: no card
-    [InlineData("\"pending\"", true, true)]  // transfer awaiting confirmation: card with its actions
-    [InlineData("null", false, true)]        // tickets not queued: card with the reprint warning
-    public async Task After_payment_the_confirmation_card_shows_only_when_something_is_left_to_do(
-        string electronicStatus, bool printJobsQueued, bool cardShown)
+    [InlineData("null", true, null)]                     // paid, printed: nothing to say
+    [InlineData("\"pending\"", true, "التحويل")]         // transfer awaiting confirmation
+    [InlineData("null", false, "المطبخ")]                // tickets not queued
+    public async Task After_payment_no_card_stops_the_till_and_what_is_left_to_do_is_a_warning(
+        string electronicStatus, bool printJobsQueued, string? notice)
     {
         var (vm, _) = Create(r => Task.FromResult(r.RequestUri!.AbsolutePath == "/api/orders/checkout"
             ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(
@@ -297,10 +299,21 @@ public class CashierCorrectnessTests
 
         await vm.SubmitPaymentCommand.ExecuteAsync(null);
 
-        Assert.Equal(cardShown, vm.HasCheckoutResult);
+        Assert.False(vm.HasCheckoutResult);
         Assert.Empty(vm.Cart);
         Assert.False(vm.IsCheckoutOpen);
-        if (!cardShown) Assert.True(vm.CanUseWorkspaceShortcuts);   // the next order can start at once
+        Assert.True(vm.CanUseWorkspaceShortcuts);   // the next order can start at once
+        if (notice is null) Assert.Null(vm.PostSaleNotice);
+        else
+        {
+            Assert.Contains("#0128", vm.PostSaleNotice);
+            Assert.Contains(notice, vm.PostSaleNotice);
+        }
+
+        // Gone once the next payment opens, like the footer's last-sale line.
+        vm.Cart.Add(new CartLine { ProductId = "p", ProductName = "صنف", UnitPricePiastres = 8500 });
+        vm.OpenCheckoutCommand.Execute(null);
+        Assert.Null(vm.PostSaleNotice);
     }
 
     // Independent audit 2026-11-23, F-07: with no card after a paid sale (owner, 2026-11-19) and the dialog's change

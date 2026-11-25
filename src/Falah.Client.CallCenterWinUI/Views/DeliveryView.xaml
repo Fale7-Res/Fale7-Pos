@@ -115,6 +115,11 @@
                                         AutomationProperties.Name="{Binding SecondaryActionLabel}"
                                         Visibility="{Binding HasSecondaryAction, Converter={StaticResource BoolToVisibleConverter}}"
                                         Command="{Binding ElementName=Root, Path=DataContext.RunSecondaryActionCommand}" CommandParameter="{Binding}"/>
+                                <!-- Owner's trial 2026-11-25: an order out with one driver goes to another. -->
+                                <Button Content="نقل لسائق تاني" MinHeight="40" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                        AutomationProperties.AutomationId="Queue_Reassign" AutomationProperties.Name="نقل الطلب لسائق تاني"
+                                        Visibility="{Binding CanReassign, Converter={StaticResource BoolToVisibleConverter}}"
+                                        Command="{Binding ElementName=Root, Path=DataContext.OpenReassignCommand}" CommandParameter="{Binding}"/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

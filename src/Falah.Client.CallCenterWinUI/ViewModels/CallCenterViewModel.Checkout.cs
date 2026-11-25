@@ -112,7 +112,8 @@ public partial class CallCenterViewModel
         RefreshOperationState();
     }
 
-    private bool CanSubmitOrder() => !IsOperationBusy && !HasCheckoutResult && _pendingPrint is null;
+    // Owner's trial 2026-11-25: the last order's card no longer holds the next call's order back.
+    private bool CanSubmitOrder() => !IsOperationBusy && _pendingPrint is null;
 
     [RelayCommand(CanExecute = nameof(CanSubmitOrder))]
     private async Task SubmitOrderAsync()

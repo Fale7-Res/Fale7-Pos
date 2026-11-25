@@ -37,7 +37,7 @@ public partial class DeliveryViewModel : IManagementRequestOwner
 {
     public string RecoveryLabel => "التوصيل وعهدة السائق";
     public bool IsRecoveryBusy => IsBusy;
-    public IEnumerable<IPendingRequest> RecoveryRequests => new IPendingRequest[] { _assignRequest, _outcomeRequest, _settleRequest };
+    public IEnumerable<IPendingRequest> RecoveryRequests => new IPendingRequest[] { _assignRequest, _outcomeRequest, _settleRequest, _reassignRequest };
     public void RefreshRecoveryState() { OnIsBusyChanged(IsBusy); }
 }
 

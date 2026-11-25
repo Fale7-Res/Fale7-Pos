@@ -107,37 +107,47 @@
             </Border>
         </Grid>
 
-        <!-- ================= ORDER SUCCESS CONFIRMATION ================= -->
-        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding HasCheckoutResult, Converter={StaticResource BoolToVisibleConverter}}">
-            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="28" Width="380"
-                    HorizontalAlignment="Center" VerticalAlignment="Center">
-                <StackPanel Spacing="10" HorizontalAlignment="Center">
-                    <TextBlock Text="✅" FontSize="34" HorizontalAlignment="Center"/>
-                    <TextBlock Text="تم تسجيل الطلب" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
-                    <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}">
-                        <Run Text="{Binding LastCheckoutResult.OrderNumber}"/>
-                    </TextBlock>
-                    <TextBlock Style="{StaticResource MutedText}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+        <!-- ================= LAST ORDER CARD (owner's trial 2026-11-25) =================
+             Was a full-screen "تم تسجيل الطلب / طلب جديد" confirmation. Now a small card at the bottom that never
+             covers the desk: the number, how it is paid, a print warning when the tickets were not queued. The next
+             call's order goes out without closing it; ✕ hides it. A print whose answer was lost keeps its retry here. -->
+        <StackPanel Spacing="8" Width="440" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="24"
+                    AutomationProperties.AutomationId="CallCenter_LastOrderCard">
+            <Border Background="{ThemeResource CardBackgroundBrush}" BorderBrush="{ThemeResource SuccessBrush}" BorderThickness="1"
+                    CornerRadius="14" Padding="16,12"
+                    Visibility="{Binding HasCheckoutResult, Converter={StaticResource BoolToVisibleConverter}}">
+                <StackPanel Spacing="6">
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap">
+                            <Run Text="✓ اتسجل الطلب "/><Run Text="{Binding LastCheckoutResult.OrderNumber}" FontWeight="Black" Foreground="{ThemeResource BrandPrimaryBrush}"/>
+                        </TextBlock>
+                        <Button Grid.Column="1" Content="✕" MinWidth="40" MinHeight="40" Style="{StaticResource GhostButtonStyle}"
+                                AutomationProperties.Name="إخفاء آخر طلب" IsEnabled="{Binding CanEditOperation}"
+                                Command="{Binding StartNewOrderCommand}"/>
+                    </Grid>
+                    <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap"
                                Text="{Binding LastOrderPaymentNote}" AutomationProperties.AutomationId="CallCenter_LastOrderPaymentNote"/>
-                    <TextBlock Text="{Binding ReprintNote}" Style="{StaticResource MutedText}"
-                               TextWrapping="Wrap" TextAlignment="Center"/>
                     <!-- The order is never failed for a printing problem, so this is the only thing
                          that distinguishes a confirmation copy that printed from one that was never
                          created. Absent whenever printing worked. -->
-                    <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="12" Padding="14,10"
+                    <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,8"
                             Visibility="{Binding HasPrintWarning, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="{Binding PrintWarningText}" TextWrapping="Wrap" TextAlignment="Center"
+                        <TextBlock Text="{Binding PrintWarningText}" TextWrapping="Wrap"
                                    FontSize="13" FontWeight="SemiBold" Foreground="{ThemeResource WarningBrush}"/>
                     </Border>
-                    <Button Content="إعادة محاولة طلب الطباعة" Style="{StaticResource SecondaryButtonStyle}"
-                            Command="{Binding RetryPrintCommand}" HorizontalAlignment="Stretch"
-                            Visibility="{Binding HasPendingPrint, Converter={StaticResource BoolToVisibleConverter}}"/>
-                    <Button Content="طلب جديد" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding CanEditOperation}"
-                            Command="{Binding StartNewOrderCommand}"/>
                 </StackPanel>
             </Border>
-        </Grid>
+            <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="14" Padding="16,12"
+                    Visibility="{Binding HasPendingPrint, Converter={StaticResource BoolToVisibleConverter}}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding ReprintNote}" TextWrapping="Wrap" FontSize="13"
+                               Visibility="{Binding ReprintNote, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Button Content="إعادة محاولة طلب الطباعة" Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding RetryPrintCommand}" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
 
         <!-- ================= ORDER LOOKUP / REPRINT MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsOrderLookupOpen, Converter={StaticResource BoolToVisibleConverter}}">

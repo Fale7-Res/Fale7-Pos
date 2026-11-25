@@ -86,6 +86,10 @@ public sealed partial class ApiClient
     public Task<ApiResult<AssignDeliveryResult>> AssignDeliveryAsync(AssignDeliveryRequest request, CancellationToken ct = default) =>
         SendAsync<AssignDeliveryResult>(() => _http.PostAsJsonAsync($"/api/delivery/{Uri.EscapeDataString(request.DeliveryId)}/assign", request, ct), ct);
 
+    /// <summary>Owner's trial 2026-11-25: an order out with one driver goes to another (same custody, new driver).</summary>
+    public Task<ApiResult<ReassignDeliveryResult>> ReassignDeliveryAsync(ReassignDeliveryRequest request, CancellationToken ct = default) =>
+        SendAsync<ReassignDeliveryResult>(() => _http.PostAsJsonAsync($"/api/delivery/{Uri.EscapeDataString(request.DeliveryId)}/reassign", request, ct), ct);
+
     public Task<ApiResult<RecordDeliveryResultResult>> RecordDeliveryResultAsync(RecordDeliveryResultRequest request, CancellationToken ct = default) =>
         SendAsync<RecordDeliveryResultResult>(() => _http.PostAsJsonAsync($"/api/delivery/{Uri.EscapeDataString(request.DeliveryId)}/result", request, ct), ct);
 

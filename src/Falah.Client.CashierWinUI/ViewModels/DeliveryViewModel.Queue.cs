@@ -55,6 +55,7 @@ public partial class DeliveryViewModel
         public string? SecondaryActionLabel => Order.SecondaryActionLabel;
         public bool HasSecondaryAction => Order.SecondaryAction is not null;
         public string CancelLabel => Order.CancelNeedsAdmin ? "إلغاء (رمز المدير)" : "إلغاء الطلب";
+        public bool CanReassign { get; init; }
 
         public string ElapsedDisplay
         {
@@ -100,7 +101,11 @@ public partial class DeliveryViewModel
         var boardById = Board.ToDictionary(r => r.DeliveryId, r => r.Delivery);
 
         Fill(DeliveryStages, DeliveryStageOrder, queue.Value.Where(q => q.OrderType == "delivery")
-            .Select(q => new QueueCard { Order = q, Delivery = q.DeliveryId is { } id ? boardById.GetValueOrDefault(id) : null }));
+            .Select(q => new QueueCard
+            {
+                Order = q, Delivery = q.DeliveryId is { } id ? boardById.GetValueOrDefault(id) : null,
+                CanReassign = CanDispatch && q.Stage == "out" && q.DriverId is not null && q.DeliveryId is not null,
+            }));
         Fill(PickupStages, PickupStageOrder, queue.Value.Where(q => q.OrderType == "pickup").Select(q => new QueueCard { Order = q }));
 
         var deliveries = queue.Value.Count(q => q.OrderType == "delivery");

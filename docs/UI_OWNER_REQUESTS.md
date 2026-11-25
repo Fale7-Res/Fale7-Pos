@@ -761,3 +761,27 @@ items stays "preparing" for ever), U7 (shift names on a 24-hour restaurant), R1 
 cash-on-delivery, with DRV-FEE-04), U19/U24 (pending-transfer list, driver phone), U5 (first-day float vs an empty main
 treasury). Not changed here: F-17 (needs production data checked first), F-20 (print-agent PIN, after an on-site trial),
 backup encryption (needs a certificate kept off the machine).
+
+### Owner's trial on a copy of the restaurant's data — Claude, 2026-11-25
+
+Release candidate `1a25612` (full integration suite 1175/1175 over two runs after a memory failure on this laptop,
+domain 626/626, client 525/525) run by the owner on `FalahTest_OwnerTrial_20261125`, a restore of a COPY_ONLY backup
+of `Falah` he took at 17:03 (`E:\falah-restaurant\Backups\Falah_owner-trial_20261125.bak`, verified). The copy was
+updated with the release's idempotent script (48 → 50 migrations, applied twice: the second a no-op; orders, shifts,
+treasury movements and their sums identical before and after) and served by the release server in Production mode.
+`Falah` itself was not touched and is still at 48 migrations. Seen on startup: the two active accounts still use the
+published demo PINs - to change before go-live (acceptance §2 item 2).
+
+The owner's notes, all three fixed the same day (client-only; no server, schema or money rule changed):
+
+| # | Owner's note | Fix |
+|---|---|---|
+| 1 | The queue said "لا توجد طلبات توصيل جارية" on top of two delivered orders waiting for their driver's settlement | `HasNoDeliveries` read the old dispatch board, which does not list them; it now reads the queue's delivery column (both apps) |
+| 2 | An order handed to one driver cannot be given to another | The server has always done it (`POST /api/delivery/{id}/reassign`: same custody to the new driver, dispatch slip, audit with both names and the reason); no screen called it. "نقل لسائق تاني" on a queue card that is out, for a dispatcher (`delivery_manage`); new driver (not the current one) and a reason required; kept on disk until its answer is known like the assignment, so a lost answer is resent with the same request id. After the outcome is recorded the server needs `delivery_override` - not offered on this screen |
+| 3 | "شيل اللي بتظهر دي من أي حاجة" - the "اتسجل الطلب / طلب جديد" card | Till: no card after any sale. A transfer to confirm, a pickup paid at collection, or tickets not queued leave a warning above the footer (`PostSaleNotice`) naming the order and where to finish it, until the next payment opens; the card still opens from the order lookup to confirm or cancel a transfer. Call Center: the full-screen confirmation is a small card at the bottom (number, payment line, print warning, ✕), and the next order goes out without pressing "طلب جديد"; a print whose answer was lost keeps its retry there |
+
+Tests (seen red for the right reasons, then green): `OwnerTrialUiNotesTests` (7: empty state in both apps with an
+empty-queue guard; reassign in both apps; only a dispatcher and only an order that is out; a lost answer resent with
+the same request id), `CashierCorrectnessTests.After_payment_no_card_stops_the_till_and_what_is_left_to_do_is_a_warning`
+(rewritten from the 2026-11-19 rule that kept the card), `PickupCollectionClientTests.A_pickup_paid_on_collection_is_registered_with_no_money`
+(rewritten likewise), `CallCenterPickupOrderTests` (2 new). Client 534/534; both WinUI apps build x64 with 0 warnings.

@@ -181,6 +181,10 @@ public sealed class PickupCollectionClientTests : IDisposable
 
         Assert.True(sent!.PayOnCollection);
         Assert.Equal(0, sent.AmountPaidPiastres);
-        Assert.Equal("اتسجل طلب الاستلام", vm.CheckoutTitle);
+        // Owner's trial 2026-11-25: no "اتسجل طلب الاستلام / طلب جديد" card; the till is ready for the next customer
+        // and a warning keeps the number and what is left to do.
+        Assert.False(vm.HasCheckoutResult);
+        Assert.Contains("#0042", vm.PostSaleNotice);
+        Assert.Contains("يدفع وهو بيستلم", vm.PostSaleNotice);
     }
 }

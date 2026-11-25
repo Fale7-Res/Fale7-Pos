@@ -20,7 +20,7 @@ public partial class DeliveryViewModel : ObservableObject
     private readonly RetainedRequest<RecordDeliveryResultRequest> _outcomeRequest = new("delivery.outcome");
     private readonly RetainedRequest<SettleDriverCustodyRequest> _settleRequest = new("delivery.custody-settle");
     public bool CanEditAction => !IsBusy && !_assignRequest.HasPending && !_outcomeRequest.HasPending && !_settleRequest.HasPending
-        && !_collectRequest.HasPending;
+        && !_collectRequest.HasPending && !_reassignRequest.HasPending;
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(CanEditAction));
@@ -139,7 +139,10 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private string? _actionNote;
     [ObservableProperty] private bool _isBusy;
 
-    public bool HasNoDeliveries => !IsLoading && LoadError is null && Board.Count == 0;
+    /// <summary>The empty state under the queue's delivery column, so it follows that column (owner's trial 2026-11-25:
+    /// it read the dispatch board, which no longer lists a delivered order waiting for its driver's settlement, and
+    /// said "no deliveries" on top of two of them).</summary>
+    public bool HasNoDeliveries => !IsLoading && LoadError is null && DeliveryStages.Count == 0;
 
     /// <summary>Audit 2026-11-23, F-11: the drivers panel said nothing when there was nobody to assign.</summary>
     public bool HasNoDrivers => !IsLoading && LoadError is null && Drivers.Count == 0;
@@ -152,7 +155,7 @@ public partial class DeliveryViewModel : ObservableObject
     /// awaited, or a dialog about one delivery or driver is open.</summary>
     public bool CanAutoRefresh => !IsLoading && !IsBusy && CanEditAction
         && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null
-        && QueueCancelTarget is null && CollectTarget is null;
+        && QueueCancelTarget is null && CollectTarget is null && ReassignTarget is null;
 
     [RelayCommand]
     private async Task AutoRefreshAsync()

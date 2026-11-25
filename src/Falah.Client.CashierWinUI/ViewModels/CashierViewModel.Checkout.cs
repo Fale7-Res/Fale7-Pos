@@ -148,6 +148,8 @@ public partial class CashierViewModel
         ? $"أعد للعميل {CashInput.Display(VoidCashToHandBackPiastres)} ج من الدرج. تم تسجيل المبلغ على الوردية الحالية." : null;
     partial void OnVoidCashToHandBackPiastresChanged(long value) => OnPropertyChanged(nameof(VoidCashToHandBackText));
 
+    [ObservableProperty] private string? _postSaleNotice;
+
     public bool IsElectronicPaymentPending => LastCheckoutResult?.ElectronicPaymentStatus == "pending";
     private readonly RetainedRequest<ConfirmElectronicPaymentRequest> _pendingElectronicConfirm = new("cashier.electronic-confirm");
     private readonly RetainedRequest<CancelPendingElectronicPaymentRequest> _pendingElectronicCancel = new("cashier.electronic-cancel");
@@ -303,6 +305,7 @@ public partial class CashierViewModel
         { OpenPickupEditor(); return; }
         CheckoutError = null;
         LastSaleNote = null;
+        PostSaleNotice = null;
         PaymentMethod = "cash";
         AmountPaidText = CashInput.Format(GrandTotalPiastres);
         _prefilledTenderPiastres = GrandTotalPiastres;
@@ -510,16 +513,27 @@ public partial class CashierViewModel
         IsCompEnabled = false;
         IsSplitPaymentEnabled = false;
         // Owner, 2026-11-19: a sale that went through goes straight back to an empty order, with no
-        // "تم تسجيل الطلب / طلب جديد" card in between. The card stays when the cashier still has
-        // something to do or know: a transfer to confirm or cancel, or tickets that were not queued.
-        // (Not DismissCheckoutResult: that refuses while this payment is still marked in progress.)
-        // UI-0025: a pickup registered unpaid keeps the card too - its number is what the customer
-        // gives back at collection.
-        if (!IsElectronicPaymentPending && !HasPrintWarning && !result.Value.AwaitingCollection)
-        {
-            LastCheckoutResult = null;
-            ResetDelivery();
-        }
+        // "تم تسجيل الطلب / طلب جديد" card in between. Owner's trial 2026-11-25 ("شيل اللي بتظهر دي من أي
+        // حاجة"): not even when something is left to do. A transfer to confirm or cancel, tickets that were
+        // not queued, or a pickup the customer pays for at collection leave a warning above the footer that
+        // names the order and where to finish it (the order lookup, where the card still opens for a
+        // transfer). (Not DismissCheckoutResult: that refuses while this payment is still marked in progress.)
+        PostSaleNotice = PostSaleNoticeFor(result.Value);
+        LastCheckoutResult = null;
+        ResetDelivery();
+    }
+
+    private string? PostSaleNoticeFor(CheckoutOrderResult result)
+    {
+        var number = Ltr(result.OrderNumber);
+        var notes = new List<string>();
+        if (result.ElectronicPaymentStatus == "pending")
+            notes.Add($"الطلب {number}: التحويل لسه ما اتأكدش - أكّده أو ألغيه من «البحث عن طلب» ← التحويلات المستنية.");
+        if (result.AwaitingCollection)
+            notes.Add($"طلب الاستلام {number} راح المطبخ - العميل يدفع وهو بيستلم؛ حصّله من «البحث عن طلب» أو من طابور الطلبات.");
+        if (!result.PrintJobsQueued)
+            notes.Add($"الطلب {number} اتسجل لكن ورقة المطبخ ما اتبعتتش للطباعة - اطبعها من «البحث عن طلب».");
+        return notes.Count == 0 ? null : string.Join("\n", notes);
     }
 
 }
