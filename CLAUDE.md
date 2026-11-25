@@ -100,13 +100,13 @@ behaviour are the owner's or the accountant's decisions. Record the question in
 
 ## Current checkpoint
 
-Release candidate `68BA663DBB1D7804` (commit `a18556c`, was `14f1726` before the 2026-11-24 history
-rewrite) is certified in `docs/GO_LIVE_ACCEPTANCE_20261114.md` §6: software GO (conditional),
-production NO-GO until the on-site gates and the owner's pre-go-live decisions. Latest (2026-11-24):
-GitHub `main` = this project (merge `961ce29`); full suite 1140/1140 on `25eec06`; installer
-`Falah-Setup-8D86E5EB054CFE52.exe` (old→new commit IDs in `docs/UI_OWNER_REQUESTS.md`). Read that section, `docs/UI_OWNER_REQUESTS.md`
-and `state.json` before resuming. SQL/DPAPI capability depends on the execution account:
-owner-account passes do not establish sandbox-account access. Preserve the evidence limits.
+Release candidate `d88e567` on branch `release/rc-20261125` (2026-11-25; `main` unchanged, nothing pushed):
+installer `Falah-Setup-019D209C680D1F5F.exe` (SHA-256 `DA431244…F746AA`, 50 migrations - adds `AddPickupHandover`
+and `AddDriverPhone` to the restaurant's 48). Integration 1175/1175 on its server code (two runs: this laptop ran
+out of memory mid-suite), domain 626/626, client 534/534. Evidence and the owner's trial on a restored copy of
+`Falah` are in `docs/UI_OWNER_REQUESTS.md` (last two sections). Production stays NO-GO until the on-site gates of
+`docs/GO_LIVE_ACCEPTANCE_20261114.md` §2 and the §4 owner decisions. SQL/DPAPI capability depends on the execution
+account: owner-account passes do not establish sandbox-account access. Preserve the evidence limits.
 
 ## Documentation navigation
 

@@ -785,3 +785,21 @@ empty-queue guard; reassign in both apps; only a dispatcher and only an order th
 the same request id), `CashierCorrectnessTests.After_payment_no_card_stops_the_till_and_what_is_left_to_do_is_a_warning`
 (rewritten from the 2026-11-19 rule that kept the card), `PickupCollectionClientTests.A_pickup_paid_on_collection_is_registered_with_no_money`
 (rewritten likewise), `CallCenterPickupOrderTests` (2 new). Client 534/534; both WinUI apps build x64 with 0 warnings.
+
+**Release candidate and installer (2026-11-25).** Branch `release/rc-20261125` (main unchanged, nothing pushed):
+`1a25612` (the working tree audited and frozen at 12:20, 154 files) then `d88e567` (the three trial notes above,
+client-only - `git diff 1a25612 d88e567` touches nothing under Server, Infrastructure, Domain, Application,
+PrintAgent, deploy or the integration tests). Evidence on these commits, each on a fingerprint-checked copy:
+solution build 0 errors (1 nullable warning in a test file); domain 626/626; client 534/534 on `d88e567`;
+integration 1175/1175 on `1a25612`'s server code - 1074 in the full run (13:06-15:48; the test host then died of
+an out-of-memory condition on this 8 GB laptop - SQL error 701 at 15:46, no test failed) and the 101 not reached
+re-run after a SQL Server restart, 110/110. A run between those two, on SQL degraded by the memory failure, failed
+15 tests with 500s and 30 s timeouts; the same tests passed once SQL was restarted - environment, not code.
+Installer `artifacts/install/Falah-Setup-019D209C680D1F5F.exe` (417 MB, SHA-256
+`DA4312441870D95018CBFD51C7438B34F972D6B547ED126C1D81EE19C0F746AA`); package `Falah-Install-019D209C680D1F5F`,
+`VERSION.txt` "Source commit d88e567" (clean tree), all 13 Falah assemblies stamped
+`019D209C680D1F5F-d88e567`, manifest 1571/1571; `migrations-idempotent.sql` has 50 migrations including
+`AddPickupHandover` and `AddDriverPhone` and is byte-identical (SHA-256 `9635C451…`) to the script rehearsed on the
+copy of the restaurant's data. Installing it on `Falah` applies those two migrations: `DEPLOYMENT.md` §0 (verified
+backup first, service stopped outside a shift). Still open before go-live: acceptance §2 on site, the §4 owner
+decisions, the demo PINs on the two active accounts, trial-data cleanup.
