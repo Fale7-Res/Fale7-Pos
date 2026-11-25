@@ -100,8 +100,8 @@ behaviour are the owner's or the accountant's decisions. Record the question in
 
 ## Current checkpoint
 
-Release candidate `d88e567` on branch `release/rc-20261125` (2026-11-25; `main` unchanged, nothing pushed):
-installer `Falah-Setup-019D209C680D1F5F.exe` (SHA-256 `DA431244…F746AA`, 50 migrations - adds `AddPickupHandover`
+Release candidate `d88e567` (2026-11-25), on `main` and pushed to GitHub (fast-forward to `14a8267`, which only
+records the evidence; the `release/rc-20261125` branch it was built on is deleted): installer `Falah-Setup-019D209C680D1F5F.exe` (SHA-256 `DA431244…F746AA`, 50 migrations - adds `AddPickupHandover`
 and `AddDriverPhone` to the restaurant's 48). Integration 1175/1175 on its server code (two runs: this laptop ran
 out of memory mid-suite), domain 626/626, client 534/534. Evidence and the owner's trial on a restored copy of
 `Falah` are in `docs/UI_OWNER_REQUESTS.md` (last two sections). Production stays NO-GO until the on-site gates of
