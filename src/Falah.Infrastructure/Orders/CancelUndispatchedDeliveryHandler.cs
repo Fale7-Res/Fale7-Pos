@@ -46,7 +46,6 @@ public sealed class CancelUndispatchedDeliveryHandler
 
         if (string.IsNullOrWhiteSpace(request.RequestId)) throw new DomainException("رقم العملية مطلوب.");
         if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب الإلغاء مطلوب.");
-        var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -84,8 +83,24 @@ public sealed class CancelUndispatchedDeliveryHandler
         if (orderEntity.BusinessDayId is not null && orderEntity.BusinessDayId != openDayId)
             throw new DomainException("الطلب من يوم عمل مقفول؛ لا يمكن إلغاؤه بعد قفل اليوم.");
 
-        // Checked last, so a refused cancellation never spends the manager's approval.
-        var authorization = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), Permission, approval, requireApproval: true);
+        // Workflow redesign (owner decision 2026-11-24): before the kitchen has its paper the order is cancelled with no
+        // admin code and every ingredient goes back (nothing was made); after it, a manager authorises and the operator
+        // says whether the food was prepared. Checked last, so a refused cancellation never spends the approval.
+        var actor = OrderMapper.ToActor(actorUser);
+        Falah.Domain.Inventory.StockDisposition disposition;
+        ManagerApproval? approvedBy = null;
+        if (!await KitchenTicket.IsPrintedAsync(_db, orderEntity.Id, ct))
+        {
+            if (!AuthorizationPolicy.HasPermission(actor, "pos") && !AuthorizationPolicy.HasPermission(actor, "delivery_manage"))
+                throw new DomainException("ليس لديك صلاحية إلغاء الطلبات.");
+            disposition = Falah.Domain.Inventory.StockDisposition.NotPrepared;
+        }
+        else
+        {
+            disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+            approvedBy = AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, Permission, approval, requireApproval: true).Approver;
+        }
+        var authorization = new AuthorizationPolicy.AuthorizationResult(actor, approvedBy);
 
         var now = DateTimeOffset.UtcNow;
         var reason = request.Reason.Trim();

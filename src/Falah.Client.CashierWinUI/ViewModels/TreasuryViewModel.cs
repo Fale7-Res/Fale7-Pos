@@ -115,7 +115,7 @@ public partial class TreasuryViewModel : ObservableObject
             _ => Services.DisplayLabels.TreasuryMovementType(Movement.Type),
         };
 
-        public string AmountDisplay => CashInput.Format(Movement.AmountPiastres) + " ج";
+        public string AmountDisplay => CashInput.Display(Movement.AmountPiastres) + " ج";
         public string WhenDisplay => Movement.CreatedAtUtc.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
 
         public string ActorDisplay => Movement.ApprovedBy is { Length: > 0 } approver
@@ -172,19 +172,19 @@ public partial class TreasuryViewModel : ObservableObject
     /// <summary>Money the restaurant is counting on that is in no account: an electronic transfer
     /// nobody has confirmed, and cash a driver is still carrying.</summary>
     public string PendingElectronicDisplay =>
-        Position is { } p ? CashInput.Format(p.PendingElectronicPiastres) + " ج" : "—";
+        Position is { } p ? CashInput.Display(p.PendingElectronicPiastres) + " ج" : "—";
 
     public string PendingElectronicNote =>
         Position is { PendingElectronicOrderCount: > 0 } p ? $"{p.PendingElectronicOrderCount} طلب بانتظار التأكيد" : "";
 
     public string DriverCustodyDisplay =>
-        Position is { } p ? CashInput.Format(p.UnsettledDriverCustodyPiastres) + " ج" : "—";
+        Position is { } p ? CashInput.Display(p.UnsettledDriverCustodyPiastres) + " ج" : "—";
 
     public string DriverCustodyNote =>
         Position is { UnsettledDriverCount: > 0 } p ? $"مع {p.UnsettledDriverCount} سائق" : "";
 
     public string TotalInAccountsDisplay =>
-        Position is { } p ? CashInput.Format(p.TotalInAccountsPiastres) + " ج" : "—";
+        Position is { } p ? CashInput.Display(p.TotalInAccountsPiastres) + " ج" : "—";
 
     public bool HasMoneyOutside =>
         Position is { } p && (p.PendingElectronicPiastres > 0 || p.UnsettledDriverCustodyPiastres > 0);
@@ -457,7 +457,7 @@ public partial class TreasuryViewModel : ObservableObject
         }
         _pendingCommit = null;
         _outcomeUnknown = false;
-        ActionNote = $"تم تسجيل العملية بمبلغ {CashInput.Format(_pendingAmount)} ج.";
+        ActionNote = $"تم تسجيل العملية بمبلغ {CashInput.Display(_pendingAmount)} ج.";
         OpenAction = null;
         _requestId = null;
         RefreshOperationState();

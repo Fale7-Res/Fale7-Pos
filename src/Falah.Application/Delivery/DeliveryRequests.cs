@@ -1,7 +1,12 @@
 namespace Falah.Application.Delivery;
 
-public sealed record CreateDriverRequest(string RequestId, string Name, string CreatedByUserId);
-public sealed record DriverDto(string Id, string Name, bool Active);
+public sealed record CreateDriverRequest(string RequestId, string Name, string CreatedByUserId,
+    /// <summary>Owner decision 2026-11-25 (audit U24): optional.</summary>
+    string? Phone = null);
+public sealed record DriverDto(string Id, string Name, bool Active, string? Phone = null);
+
+/// <summary>Owner decision 2026-11-25 (audit U24): sets or clears (empty) a driver's phone. Idempotent by nature.</summary>
+public sealed record SetDriverPhoneRequest(string DriverId, string? Phone, string ActorUserId);
 
 /// <summary>Ported from setDriverActive in lib/enterprise-store.tsx - a real gap found during the
 /// legacy-parity audit: there was a way to create a driver but no way to deactivate one. Legacy also

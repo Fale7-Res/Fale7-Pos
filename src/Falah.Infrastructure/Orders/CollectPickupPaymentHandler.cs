@@ -84,6 +84,11 @@ public sealed class CollectPickupPaymentHandler
             order.AwaitingCollection = false;
             order.CollectionRequestId = request.RequestId;
             order.CollectedBy = cashierUser.Name;
+            // Workflow redesign (owner, 2026-11-24): the customer is at the counter - paying is collecting. The bag is
+            // handed over in this same step and the pickup's life ends (its receipt prints after the commit).
+            order.HandedOverAtUtc = now;
+            order.HandedOverBy = cashierUser.Name;
+            order.Status = OrderStatus.Completed.ToWireString();
 
             if (!plan.DefersAllMoney)
             {

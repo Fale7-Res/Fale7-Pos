@@ -100,6 +100,9 @@ builder.Services.AddScoped<ConfirmElectronicPaymentHandler>();
 builder.Services.AddScoped<CancelPendingElectronicPaymentHandler>();
 builder.Services.AddScoped<CancelUndispatchedDeliveryHandler>();
 builder.Services.AddScoped<CollectPickupPaymentHandler>();
+builder.Services.AddScoped<HandOverPickupHandler>();
+builder.Services.AddScoped<OrderQueueQueryService>();
+builder.Services.AddScoped<Falah.Infrastructure.Printing.SendKitchenInvoiceHandler>();
 builder.Services.AddScoped<CancelUncollectedPickupHandler>();
 builder.Services.AddScoped<IssueManagerApprovalHandler>();
 // One per process: the PIN guessing allowance must be shared by every request, or it limits nothing.
@@ -154,6 +157,7 @@ builder.Services.AddScoped<BackupQueryService>();
 builder.Services.AddScoped<ExpenseQueryService>();
 builder.Services.AddScoped<CreateDriverHandler>();
 builder.Services.AddScoped<SetDriverActiveHandler>();
+builder.Services.AddScoped<SetDriverPhoneHandler>();
 builder.Services.AddScoped<CreateDeliveryServiceHandler>();
 builder.Services.AddScoped<UpdateDeliveryServiceHandler>();
 builder.Services.AddScoped<MarkDeliveryReadyHandler>();
@@ -1200,8 +1204,10 @@ app.MapGet("/api/inventory/items", async (InventoryQueryService query, HttpConte
     return Results.Ok(CanReadCosts(http) ? items : items.Select(i => i with { EstimatedUnitCostPiastres = null }));
 });
 
-app.MapGet("/api/inventory/items/{id}/balance", async (string id, InventoryQueryService query, CancellationToken ct) =>
-    Results.Ok(new { inventoryItemId = id, balanceMilliUnits = await query.GetStockBalanceAsync(id, ct) }));
+// Audit F-19 (owner, 2026-11-25: fix all findings): stock levels are back-office information, not every session's.
+app.MapGet("/api/inventory/items/{id}/balance", async (string id, InventoryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, "ليس لديك صلاحية قراءة أرصدة المخزون.", "inventory_manage", "reports_view")
+    ?? Results.Ok(new { inventoryItemId = id, balanceMilliUnits = await query.GetStockBalanceAsync(id, ct) }));
 
 // Not a financial command: no money, no stock, no supplier. See the handler for why that matters.
 api.MapPut("/api/inventory/items/{id}/estimated-cost", async (string id, Falah.Application.Inventory.SetEstimatedCostRequest body, SetEstimatedCostHandler handler, CancellationToken ct) =>
@@ -1220,6 +1226,8 @@ app.MapGet("/api/inventory/items/{id}/cost", async (string id, string actorUserI
 
 app.MapGet("/api/inventory/movements", async (string? inventoryItemId, int? limit, DateTimeOffset? from, DateTimeOffset? to, bool? lossesOnly, InventoryQueryService query, HttpContext http, CancellationToken ct) =>
 {
+    // Audit F-19: every quantity in and out of stock - the Inventory and Waste screens (inventory_manage) and reports.
+    if (RequireAnyPermission(http, "ليس لديك صلاحية قراءة حركات المخزون.", "inventory_manage", "reports_view") is { } refused) return refused;
     var movements = await query.ListStockMovementsAsync(inventoryItemId, limit ?? 50, ct, from, to, lossesOnly ?? false);
     return Results.Ok(CanReadCosts(http) ? movements : movements.Select(m => m with { UnitCostPiastres = null, LossValuePiastres = null }));
 });
@@ -1314,10 +1322,14 @@ api.MapPost("/api/recipes", async (Falah.Application.Inventory.SaveRecipeRequest
     }
 });
 
-app.MapGet("/api/recipes", async (InventoryQueryService query, CancellationToken ct) => Results.Ok(await query.ListRecipesAsync(ct)));
+// Audit F-19: recipes are the restaurant's know-how - read by the menu, recipe and stock screens only.
+const string RecipeReadRefusal = "ليس لديك صلاحية قراءة الوصفات.";
+app.MapGet("/api/recipes", async (InventoryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, RecipeReadRefusal, "menu_manage", "inventory_manage", "reports_view") ?? Results.Ok(await query.ListRecipesAsync(ct)));
 
-app.MapGet("/api/recipes/{id}", async (string id, InventoryQueryService query, CancellationToken ct) =>
+app.MapGet("/api/recipes/{id}", async (string id, InventoryQueryService query, HttpContext http, CancellationToken ct) =>
 {
+    if (RequireAnyPermission(http, RecipeReadRefusal, "menu_manage", "inventory_manage", "reports_view") is { } refused) return refused;
     try { return Results.Ok(await query.GetRecipeAsync(id, ct)); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
@@ -1382,7 +1394,8 @@ api.MapPost("/api/prep-recipes", async (Falah.Application.Inventory.SavePrepReci
     }
 });
 
-app.MapGet("/api/prep-recipes", async (InventoryQueryService query, CancellationToken ct) => Results.Ok(await query.ListPrepRecipesAsync(ct)));
+app.MapGet("/api/prep-recipes", async (InventoryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, RecipeReadRefusal, "menu_manage", "inventory_manage", "reports_view") ?? Results.Ok(await query.ListPrepRecipesAsync(ct)));
 
 app.MapGet("/api/prep-recipes/{id}/cost", async (string id, string actorUserId, FalahDbContext db, InventoryQueryService query, CancellationToken ct) =>
 {
@@ -1409,7 +1422,8 @@ api.MapPost("/api/order-packaging-rules", async (Falah.Application.Inventory.Sav
     }
 });
 
-app.MapGet("/api/order-packaging-rules", async (InventoryQueryService query, CancellationToken ct) => Results.Ok(await query.ListOrderPackagingRulesAsync(ct)));
+app.MapGet("/api/order-packaging-rules", async (InventoryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, RecipeReadRefusal, "menu_manage", "inventory_manage", "reports_view") ?? Results.Ok(await query.ListOrderPackagingRulesAsync(ct)));
 
 api.MapPost("/api/customers/upsert", async (Falah.Application.Customers.UpsertCustomerRequest request, UpsertCustomerHandler handler, HttpContext http, CancellationToken ct) =>
 {
@@ -1476,11 +1490,13 @@ api.MapPost("/api/delivery/drivers", async (Falah.Application.Delivery.CreateDri
     }
 });
 
-app.MapGet("/api/delivery/drivers", async (DeliveryQueryService query, CancellationToken ct) =>
-    Results.Ok(await query.ListActiveDriversAsync(ct)));
+// Audit F-19: drivers' names and phones - for whoever takes, dispatches or reports on deliveries.
+const string DriverReadRefusal = "ليس لديك صلاحية قراءة بيانات الطيارين.";
+app.MapGet("/api/delivery/drivers", async (DeliveryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, DriverReadRefusal, "pos", "delivery_manage", "reports_view") ?? Results.Ok(await query.ListActiveDriversAsync(ct)));
 
-app.MapGet("/api/delivery/drivers/all", async (DeliveryQueryService query, CancellationToken ct) =>
-    Results.Ok(await query.ListAllDriversAsync(ct)));
+app.MapGet("/api/delivery/drivers/all", async (DeliveryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, DriverReadRefusal, "pos", "delivery_manage", "reports_view") ?? Results.Ok(await query.ListAllDriversAsync(ct)));
 
 app.MapGet("/api/delivery/services", async (DeliveryQueryService query, CancellationToken ct) =>
     Results.Ok(await query.ListActiveDeliveryServicesAsync(ct)));
@@ -1502,6 +1518,14 @@ api.MapPut("/api/delivery/services/{serviceId}", async (string serviceId, Falah.
         var request = body with { ServiceId = serviceId };
         return Results.Ok(await handler.HandleAsync(request, ct));
     }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// Owner decision 2026-11-25 (audit U24): a driver's phone, set or cleared.
+api.MapPut("/api/delivery/drivers/{driverId}/phone", async (string driverId, Falah.Application.Delivery.SetDriverPhoneRequest body, SetDriverPhoneHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(await handler.HandleAsync(body with { DriverId = driverId }, ct)); }
     catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
@@ -1693,8 +1717,8 @@ app.MapGet("/api/delivery/{id}", async (string id, DeliveryQueryService query, H
     }
 });
 
-app.MapGet("/api/delivery/{id}/timeline", async (string id, DeliveryQueryService query, CancellationToken ct) =>
-    Results.Ok(await query.GetTimelineAsync(id, ct)));
+app.MapGet("/api/delivery/{id}/timeline", async (string id, DeliveryQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, DriverReadRefusal, "pos", "delivery_manage", "reports_view") ?? Results.Ok(await query.GetTimelineAsync(id, ct)));
 
 api.MapPost("/api/orders/checkout", async (Falah.Application.Orders.CheckoutOrderRequest request, CheckoutOrderHandler handler, OrderAutoPrintService autoPrint, Falah.Infrastructure.Treasury.DrawerCashAlert drawerAlert, ILogger<Program> log, CancellationToken ct) =>
 {
@@ -1775,6 +1799,31 @@ api.MapPost("/api/orders/cancel-undispatched-delivery", async (Falah.Application
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });
 
+// Workflow redesign (owner decision 2026-11-24): the live delivery and pickup queue, stages and next actions derived on
+// the server. It carries customers' names, phones and addresses: order-taking and dispatch stations only.
+app.MapGet("/api/orders/queue", async (OrderQueueQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, "بيانات العملاء متاحة لمتلقي الطلبات فقط.", "pos", "delivery_manage") ?? Results.Ok(await query.ListAsync(ct)));
+
+api.MapPost("/api/orders/{id}/kitchen-invoice", async (string id, Falah.Application.Orders.SendKitchenInvoiceRequest body, Falah.Infrastructure.Printing.SendKitchenInvoiceHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(new { queued = await handler.HandleAsync(body with { OrderId = id }, ct) }); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
+// Workflow redesign (owner decision 2026-11-24): a prepaid pickup's customer takes the bag; the receipt prints after.
+api.MapPost("/api/orders/hand-over-pickup", async (Falah.Application.Orders.HandOverPickupRequest request, HandOverPickupHandler handler, OrderAutoPrintService autoPrint, CancellationToken ct) =>
+{
+    try
+    {
+        var result = await handler.HandleAsync(request, ct);
+        var printed = await autoPrint.TryPrintPickupReceiptAsync(result.OrderId, request.ActorUserId, ct);
+        return Results.Ok(result with { PrintJobsQueued = printed });
+    }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
+
 // UI-0025 (owner decision 2026-11-22): a pickup registered unpaid is paid when its customer collects it.
 api.MapPost("/api/orders/collect-pickup", async (Falah.Application.Orders.CollectPickupPaymentRequest request, CollectPickupPaymentHandler handler, OrderAutoPrintService autoPrint, Falah.Infrastructure.Treasury.DrawerCashAlert drawerAlert, ILogger<Program> log, CancellationToken ct) =>
 {
@@ -1782,7 +1831,8 @@ api.MapPost("/api/orders/collect-pickup", async (Falah.Application.Orders.Collec
     {
         var result = await handler.HandleAsync(request, ct);
         // After the payment is committed, never inside it - the same rule as checkout's receipt.
-        var printed = result.WasReplayed || await autoPrint.TryPrintCollectionReceiptAsync(result.OrderId, request.CashierId, ct);
+        // Keyed on the order, so a replay (a lost answer retried) still queues the receipt - once.
+        var printed = await autoPrint.TryPrintPickupReceiptAsync(result.OrderId, request.CashierId, ct);
         var alert = await TryDrawerAlertAsync(drawerAlert, request.ShiftId, request.CashierId, log, ct);
         return Results.Ok(result with { PrintJobsQueued = printed, DrawerCashAlert = alert });
     }
@@ -1809,6 +1859,20 @@ app.MapGet("/api/orders/awaiting-collection", async (FalahDbContext db, HttpCont
         .OrderBy(o => o.CreatedAtUtc)
         .Select(o => new Falah.Application.Orders.AwaitingPickupDto(o.Id, o.OrderNumber, o.CustomerName, o.CustomerPhone,
             o.TotalPiastres, o.CreatedAtUtc, o.RequestedPickupAtUtc))
+        .ToListAsync(ct);
+    return Results.Ok(rows);
+});
+
+// Owner decision 2026-11-25 (audit U19): the transfers still waiting, so the till can confirm or cancel one without the
+// cashier having to remember its order number. Read by whoever takes payments at the till.
+app.MapGet("/api/orders/pending-transfers", async (FalahDbContext db, HttpContext http, CancellationToken ct) =>
+{
+    if (RequireAnyPermission(http, "ليس لديك صلاحية عرض الطلبات.", "pos") is { } refused) return refused;
+    var rows = await db.Orders.AsNoTracking()
+        .Where(o => o.ElectronicPaymentStatus == "pending" && o.Status != "cancelled")
+        .OrderBy(o => o.CreatedAtUtc)
+        .Select(o => new Falah.Application.Orders.PendingTransferDto(o.Id, o.OrderNumber, o.ElectronicPaymentMethod ?? o.PaymentMethod,
+            o.ElectronicPaymentAmountPiastres ?? o.TotalPiastres, o.CustomerName, o.CreatedAtUtc))
         .ToListAsync(ct);
     return Results.Ok(rows);
 });
@@ -2648,8 +2712,10 @@ api.MapPost("/api/orders/{id}/print-jobs", async (string id, Falah.Application.P
     }
 });
 
-app.MapGet("/api/orders/{id}/print-jobs", async (string id, PrintJobQueryService query, CancellationToken ct) =>
-    Results.Ok(await query.ListJobsForOrderAsync(id, ct)));
+// Audit F-19: print status is read by the tills, the printing screen and the agent; not by any session.
+const string PrintReadRefusal = "ليس لديك صلاحية قراءة حالة الطباعة.";
+app.MapGet("/api/orders/{id}/print-jobs", async (string id, PrintJobQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, PrintReadRefusal, "pos", "delivery_manage", "settings_manage", "print_agent") ?? Results.Ok(await query.ListJobsForOrderAsync(id, ct)));
 
 api.MapPost("/api/print-jobs/{id}/report-result", async (string id, Falah.Application.Printing.ReportPrintJobResultRequest body, ReportPrintJobResultHandler handler, HttpContext http, CancellationToken ct) =>
 {
@@ -2672,8 +2738,8 @@ api.MapPost("/api/print-jobs/{id}/report-result", async (string id, Falah.Applic
 
 // Pending is what a station's agent asks for. This is what a PERSON needs: every route's queue,
 // what failed, and what has been sitting long enough to mean the agent is not draining it.
-app.MapGet("/api/print-jobs/overview", async (PrintJobQueryService query, CancellationToken ct) =>
-    Results.Ok(await query.GetOverviewAsync(ct)));
+app.MapGet("/api/print-jobs/overview", async (PrintJobQueryService query, HttpContext http, CancellationToken ct) =>
+    RequireAnyPermission(http, PrintReadRefusal, "settings_manage") ?? Results.Ok(await query.GetOverviewAsync(ct)));
 
 app.MapGet("/api/print-jobs/pending", async (string route, PrintJobQueryService query, HttpContext http, CancellationToken ct) =>
     RequireAnyPermission(http, "ليس لديك صلاحية قراءة طابور الطباعة.", "print_agent", "settings_manage") ?? Results.Ok(await query.ListPendingJobsForRouteAsync(route, ct)));
@@ -2698,8 +2764,9 @@ api.MapPost("/api/print-jobs/{id}/start", async (string id, Falah.Application.Pr
     return Results.Ok(new Falah.Application.Printing.StartPrintJobResult(await query.StartSendingAsync(id, request.ClaimId, ct)));
 });
 
-app.MapGet("/api/print-jobs/{id}", async (string id, PrintJobQueryService query, CancellationToken ct) =>
+app.MapGet("/api/print-jobs/{id}", async (string id, PrintJobQueryService query, HttpContext http, CancellationToken ct) =>
 {
+    if (RequireAnyPermission(http, PrintReadRefusal, "pos", "delivery_manage", "settings_manage", "print_agent") is { } refused) return refused;
     try { return Results.Ok(await query.GetJobDetailsAsync(id, ct)); }
     catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
 });

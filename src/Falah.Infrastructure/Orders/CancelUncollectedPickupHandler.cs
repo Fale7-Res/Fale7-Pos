@@ -42,7 +42,6 @@ public sealed class CancelUncollectedPickupHandler
         if (await ReplayAsync(request.RequestId, ct) is { } replay) return replay;
 
         if (string.IsNullOrWhiteSpace(request.Reason)) throw new DomainException("سبب الإلغاء مطلوب.");
-        var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
 
         var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
@@ -74,10 +73,19 @@ public sealed class CancelUncollectedPickupHandler
         // Checked last, so a refused cancellation never spends the manager's approval.
         var actor = OrderMapper.ToActor(actorUser);
         if (!AuthorizationPolicy.HasPermission(actor, "pos")) throw new DomainException("ليس لديك صلاحية على الطلبات.");
-        string? approvedBy;
-        if (AuthorizationPolicy.CanIssueApproval(actor, ApprovalAction)) approvedBy = actorUser.Name;
-        else if (approval is null) throw new DomainException("إلغاء طلب الاستلام محتاج رمز المدير.");
-        else approvedBy = AuthorizationPolicy.ValidateApproval(_approvalRegistry, ApprovalAction, approval, actorUser.Id).ApproverName;
+        // Workflow redesign (owner decision 2026-11-24): before the kitchen has its paper, no admin code and every
+        // ingredient goes back; after it, a manager authorises and the operator says whether the food was prepared.
+        string? approvedBy = null;
+        Falah.Domain.Inventory.StockDisposition disposition;
+        if (!await KitchenTicket.IsPrintedAsync(_db, order.Id, ct))
+            disposition = Falah.Domain.Inventory.StockDisposition.NotPrepared;
+        else
+        {
+            disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+            if (AuthorizationPolicy.CanIssueApproval(actor, ApprovalAction)) approvedBy = actorUser.Name;
+            else if (approval is null) throw new DomainException("إلغاء الطلب بعد ما ورقة المطبخ اتطبعت محتاج رمز المدير.");
+            else approvedBy = AuthorizationPolicy.ValidateApproval(_approvalRegistry, ApprovalAction, approval, actorUser.Id).ApproverName;
+        }
 
         var now = DateTimeOffset.UtcNow;
         var reason = request.Reason.Trim();

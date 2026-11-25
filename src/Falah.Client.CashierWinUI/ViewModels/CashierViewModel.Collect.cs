@@ -108,7 +108,7 @@ public partial class CashierViewModel
             OrderLookupResult = looked with { IsPaid = paid.IsPaid, PaymentMethod = request.PaymentMethod,
                 AmountPaidPiastres = paid.AmountPaidPiastres, ChangeDuePiastres = paid.ChangeDuePiastres,
                 ElectronicPaymentStatus = paid.ElectronicPaymentStatus, AwaitingCollection = false };
-        var change = paid.ChangeDuePiastres > 0 ? $" - الباقي للعميل {CashInput.Format(paid.ChangeDuePiastres)} ج" : "";
+        var change = paid.ChangeDuePiastres > 0 ? $" - الباقي للعميل {CashInput.Display(paid.ChangeDuePiastres)} ج" : "";
         ReprintStatusMessage = paid.ElectronicPaymentStatus == "pending"
             ? $"اتسجل التحويل على الطلب {paid.OrderNumber}؛ أكّده لما يوصل."
             : $"تم تحصيل الطلب {paid.OrderNumber}{change}" + (paid.PrintJobsQueued ? "" : " (الإيصال ما اتبعتش للطباعة - اطبعه من هنا)");

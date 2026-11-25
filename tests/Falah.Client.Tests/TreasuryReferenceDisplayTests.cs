@@ -47,7 +47,7 @@ public class TreasuryReferenceDisplayTests
     {
         var row = new TreasuryViewModel.MovementRow
         {
-            Movement = new TreasuryMovementDto("mv-1", type, "tre-main", "tre-drawer", 1000, null, null,
+            Movement = new TreasuryMovementDto("mv-1", type, "tre-main", "tre-drawer", 1000, null!, null!,
                 "shift-1", "س", "مدير", null, DateTimeOffset.UtcNow, null),
         };
         Assert.NotEqual(type, row.TypeLabel);

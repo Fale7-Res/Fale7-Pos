@@ -13,13 +13,13 @@ public sealed class DeliveryQueryService
     public DeliveryQueryService(FalahDbContext db) => _db = db;
 
     public Task<List<DriverDto>> ListActiveDriversAsync(CancellationToken ct = default) =>
-        _db.Drivers.AsNoTracking().Where(d => d.Active).Select(d => new DriverDto(d.Id, d.Name, d.Active)).ToListAsync(ct);
+        _db.Drivers.AsNoTracking().Where(d => d.Active).Select(d => new DriverDto(d.Id, d.Name, d.Active, d.Phone)).ToListAsync(ct);
 
     /// <summary>Management view, including deactivated drivers - distinct from the dispatch-facing
     /// ListActiveDriversAsync above, same active-vs-all split this codebase already uses for
     /// Categories/Products.</summary>
     public Task<List<DriverDto>> ListAllDriversAsync(CancellationToken ct = default) =>
-        _db.Drivers.AsNoTracking().Select(d => new DriverDto(d.Id, d.Name, d.Active)).ToListAsync(ct);
+        _db.Drivers.AsNoTracking().Select(d => new DriverDto(d.Id, d.Name, d.Active, d.Phone)).ToListAsync(ct);
 
     public Task<List<DeliveryServiceDto>> ListActiveDeliveryServicesAsync(CancellationToken ct = default) =>
         _db.DeliveryServices.AsNoTracking().Where(s => s.Active)

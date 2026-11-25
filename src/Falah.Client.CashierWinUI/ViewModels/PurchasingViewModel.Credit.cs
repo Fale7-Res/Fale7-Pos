@@ -113,7 +113,7 @@ public partial class PurchasingViewModel
         {
             var result = await _creditRequest.SendAsync(request, r => _session.Api.RecordSupplierCreditAsync(r));
             if (!result.Success || result.Value is null) { CreditError = _creditRequest.FailureMessage(result.Error); return; }
-            ActionNote = $"سُجّل تصحيح {CashInput.Format(result.Value.AmountPiastres)} ج على الفاتورة؛ المتبقي {CashInput.Format(result.Value.RemainingAmountPiastres)} ج.";
+            ActionNote = $"سُجّل تصحيح {CashInput.Display(result.Value.AmountPiastres)} ج على الفاتورة؛ المتبقي {CashInput.Display(result.Value.RemainingAmountPiastres)} ج.";
             CreditTarget = null;
         }
         finally

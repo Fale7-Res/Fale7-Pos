@@ -42,6 +42,12 @@ public partial class DeliveryDirectoryViewModel : ObservableObject
     [ObservableProperty] private string? _actionNote;
 
     [ObservableProperty] private string _driverName = "";
+    // Owner decision 2026-11-25 (audit U24): a driver's optional phone - typed when added, changed from the list.
+    [ObservableProperty] private string _driverPhone = "";
+    [ObservableProperty] private DriverDto? _driverPhoneTarget;
+    [ObservableProperty] private string _driverPhoneEditText = "";
+    public bool IsEditingDriverPhone => DriverPhoneTarget is not null;
+    partial void OnDriverPhoneTargetChanged(DriverDto? value) => OnPropertyChanged(nameof(IsEditingDriverPhone));
     [ObservableProperty] private string _serviceName = "";
     [ObservableProperty] private string _serviceFeeText = "";
     [ObservableProperty] private bool _serviceActive = true;
@@ -165,7 +171,30 @@ public partial class DeliveryDirectoryViewModel : ObservableObject
     {
         if (!CanAct || _session.CurrentUser is null) return null;
         if (string.IsNullOrWhiteSpace(DriverName)) { ActionError = "اسم السائق مطلوب."; return null; }
-        return new CreateDriverRequest($"drv-{Guid.NewGuid():N}", DriverName.Trim(), _session.CurrentUser.Id);
+        return new CreateDriverRequest($"drv-{Guid.NewGuid():N}", DriverName.Trim(), _session.CurrentUser.Id,
+            string.IsNullOrWhiteSpace(DriverPhone) ? null : DriverPhone.Trim());
+    }
+
+    [RelayCommand]
+    private void EditDriverPhone(DriverDto? driver)
+    {
+        if (!CanAct || driver is null) return;
+        ActionError = ActionNote = null;
+        DriverPhoneTarget = driver;
+        DriverPhoneEditText = driver.Phone ?? "";
+    }
+
+    [RelayCommand]
+    private void CancelDriverPhone() => DriverPhoneTarget = null;
+
+    [RelayCommand]
+    private async Task SaveDriverPhoneAsync()
+    {
+        if (IsBusy) return;
+        ActionError = null;
+        if (_write.Value is { } pending) { await SubmitAsync(pending, "تم حفظ رقم الطيار."); return; }
+        if (!CanAct || DriverPhoneTarget is not { } driver || _session.CurrentUser is null) return;
+        await SubmitAsync(new SetDriverPhoneRequest(driver.Id, DriverPhoneEditText.Trim(), _session.CurrentUser.Id), "تم حفظ رقم الطيار.");
     }
 
     [RelayCommand]
@@ -222,6 +251,8 @@ public partial class DeliveryDirectoryViewModel : ObservableObject
         if (!result.Success) { ActionError = _write.FailureMessage(result.Error); return; }
         ActionNote = note;
         DriverName = "";
+        DriverPhone = "";
+        DriverPhoneTarget = null;
         ManagerPin = "";
         ResetServiceForm();
         await LoadAsync();
@@ -237,6 +268,7 @@ public partial class DeliveryDirectoryViewModel : ObservableObject
         {
             CreateDriverRequest r => Confirm(await _session.Api.CreateDriverAsync(r)),
             SetDriverActiveRequest r => Confirm(await _session.Api.SetDriverActiveAsync(r)),
+            SetDriverPhoneRequest r => Confirm(await _session.Api.SetDriverPhoneAsync(r)),
             CreateDeliveryServiceRequest r => Confirm(await _session.Api.CreateDeliveryServiceAsync(r)),
             UpdateDeliveryServiceRequest r => Confirm(await _session.Api.UpdateDeliveryServiceAsync(r)),
             _ => throw new InvalidOperationException("Unsupported delivery directory command."),

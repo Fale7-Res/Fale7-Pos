@@ -43,7 +43,10 @@ public partial class ShellViewModel : ObservableObject
             if (candidate.Permission is null || _session.HasPermission(candidate.Permission) ||
                 candidate.Key == "payroll" && (_session.HasPermission("payroll_approve") || _session.HasPermission("payroll_pay")) ||
                 candidate.Key == "shifts" && _session.HasPermission("reports_view") ||
-                candidate.Key == "treasury" && _session.HasPermission("treasury_manage"))
+                candidate.Key == "treasury" && _session.HasPermission("treasury_manage") ||
+                // Workflow redesign (owner, 2026-11-24): the order queue is the till's too - a cashier hands pickups
+                // over and follows deliveries there; dispatch actions stay delivery_manage on the server.
+                candidate.Key == "delivery" && _session.HasPermission("pos"))
                 NavItems.Add(candidate);
         }
 
@@ -114,7 +117,7 @@ public partial class ShellViewModel : ObservableObject
         // date - the reports the owner checks money against. Same gate as every report.
         new("financial_control", "الرقابة المالية", "reports_view"),
         new("orders", "الطلبات", "orders_view_all"),
-        new("delivery", "التوصيل والسائقون", "delivery_manage"),
+        new("delivery", "طابور الطلبات والتوصيل", "delivery_manage"),
         new("customers", "العملاء", "delivery_manage"),
         new("reports", "التقارير", "reports_view"),
         // The fuller owner statement - keeps daily_summary's own compact sheet unchanged and

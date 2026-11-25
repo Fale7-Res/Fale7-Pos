@@ -112,7 +112,7 @@ public partial class ControlCenterViewModel
             SafeDropError = _safeDropRequest.FailureMessage(result.Error);
             return;
         }
-        ActionNote = $"تم الإيداع الآمن ({CashInput.Format(result.Value.AmountPiastres)} ج) إلى الخزينة الرئيسية.";
+        ActionNote = $"تم الإيداع الآمن ({CashInput.Display(result.Value.AmountPiastres)} ج) إلى الخزينة الرئيسية.";
         IsSafeDropOpen = false;
         await ReloadAsync();
     }

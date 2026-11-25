@@ -45,7 +45,7 @@ public partial class FinancialControlViewModel
     public bool IsReconciled => BridgeResidualPiastres == 0 && FlowResidualPiastres == 0 && UnclassifiedMovementCount == 0;
     public string ReconciliationLabel => IsReconciled
         ? "المطابقة سليمة: كل مبيعات الفترة وكل حركات الخزينة مفسَّرة دون فرق."
-        : $"فرق غير مفسَّر: الجسر {CashInput.Format(BridgeResidualPiastres)} ج - الحركات {CashInput.Format(FlowResidualPiastres)} ج - حركات غير مصنفة {UnclassifiedMovementCount}. راجع المسؤول التقني.";
+        : $"فرق غير مفسَّر: الجسر {CashInput.Display(BridgeResidualPiastres)} ج - الحركات {CashInput.Display(FlowResidualPiastres)} ج - حركات غير مصنفة {UnclassifiedMovementCount}. راجع المسؤول التقني.";
 
     private async Task LoadOwnerControlsAsync(DateOnly from, DateOnly to)
     {
@@ -106,7 +106,7 @@ public partial class FinancialControlViewModel
     public static KpiRow ToRow(FinancialKpiDto k)
     {
         // Unknown is never zero: an unavailable figure says so in words.
-        var amount = k.AmountPiastres is { } a ? $"{CashInput.Format(a)} ج"
+        var amount = k.AmountPiastres is { } a ? $"{CashInput.Display(a)} ج"
             : k.Count is { } c && k.Status != "unavailable" ? c.ToString()
             : "غير متاح";
         if (k.AmountPiastres is not null && k.Count is { } n && n > 0) amount += $"  ({n})";
@@ -266,7 +266,7 @@ public partial class FinancialControlViewModel
         foreach (var h in list)
             Handovers.Add(new HandoverRow(h.ShiftId, h.ShiftName, h.ClosedBy ?? "", h.ReceiverUserId ?? "", h.ReceiverName ?? "لم يُحدَّد",
                 h.HandedOverPiastres,
-                h.Status == "disputed" ? $"مختلف عليه: استُلم {CashInput.Format(h.ReceivedPiastres ?? 0)} ج" : "بانتظار تأكيد المستلم",
+                h.Status == "disputed" ? $"مختلف عليه: استُلم {CashInput.Display(h.ReceivedPiastres ?? 0)} ج" : "بانتظار تأكيد المستلم",
                 h.Status == "pending", h.Note));
         OnPropertyChanged(nameof(HasHandovers));
     }

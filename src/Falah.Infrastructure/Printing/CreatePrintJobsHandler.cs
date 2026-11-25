@@ -65,7 +65,8 @@ public sealed class CreatePrintJobsHandler
 
         var routeNames = routes.Select(r => r.ToString()).ToList();
         var firstJobs = request.IsReprint ? new List<PrintJobEntity>() : await _db.PrintJobs.AsNoTracking()
-            .Where(j => j.OrderId == order.Id && !j.IsReprint && routeNames.Contains(j.Route)).ToListAsync(ct);
+            .Where(j => j.OrderId == order.Id && !j.IsReprint && routeNames.Contains(j.Route)
+                && j.DocumentKind != nameof(PrintDocumentKind.PickupReceipt)).ToListAsync(ct);
         var missingRoutes = routes.Where(r => !firstJobs.Any(j => j.Route == r.ToString()));
         var now = DateTimeOffset.UtcNow;
         var jobs = missingRoutes.Select(route => new PrintJobEntity

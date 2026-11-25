@@ -1089,6 +1089,10 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Drivers");
@@ -1660,6 +1664,16 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<string>("FrozenPackagingMissing")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTimeOffset?>("HandedOverAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("HandedOverBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HandoverRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
@@ -1741,6 +1755,10 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .HasFilter("[CollectionRequestId] IS NOT NULL");
 
                     b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("HandoverRequestId")
+                        .IsUnique()
+                        .HasFilter("[HandoverRequestId] IS NOT NULL");
 
                     b.HasIndex("SequenceNumber")
                         .IsUnique();

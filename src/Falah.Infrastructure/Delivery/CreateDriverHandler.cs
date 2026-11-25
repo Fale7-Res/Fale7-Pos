@@ -29,16 +29,17 @@ public sealed class CreateDriverHandler
     {
         var driverId = $"driver-{request.RequestId}";
         var existing = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == driverId, ct);
-        if (existing is not null) return new DriverDto(existing.Id, existing.Name, existing.Active);
+        if (existing is not null) return new DriverDto(existing.Id, existing.Name, existing.Active, existing.Phone);
 
         if (string.IsNullOrWhiteSpace(request.Name)) throw new DomainException("اسم السائق مطلوب.");
+        var phone = Falah.Domain.Delivery.DeliveryRules.NormalizeDriverPhone(request.Phone);
 
         var createdByUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.CreatedByUserId, ct)
             ?? throw new InvalidOperationException("المستخدم غير موجود.");
         var actor = OrderMapper.ToActor(createdByUser);
         AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, actor, "delivery_manage");
 
-        var entity = new DriverEntity { Id = driverId, Name = request.Name.Trim(), Active = true, CreatedAtUtc = DateTimeOffset.UtcNow };
+        var entity = new DriverEntity { Id = driverId, Name = request.Name.Trim(), Active = true, CreatedAtUtc = DateTimeOffset.UtcNow, Phone = phone };
         try
         {
             _db.Drivers.Add(entity);
@@ -48,9 +49,9 @@ public sealed class CreateDriverHandler
         {
             var replay = await _db.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == driverId, ct);
             if (replay is null) throw;
-            return new DriverDto(replay.Id, replay.Name, replay.Active);
+            return new DriverDto(replay.Id, replay.Name, replay.Active, replay.Phone);
         }
-        return new DriverDto(entity.Id, entity.Name, entity.Active);
+        return new DriverDto(entity.Id, entity.Name, entity.Active, entity.Phone);
     }
 }
 
@@ -81,6 +82,37 @@ public sealed class SetDriverActiveHandler
             driver.Active = request.Active;
             await _db.SaveChangesAsync(ct);
         }
-        return new DriverDto(driver.Id, driver.Name, driver.Active);
+        return new DriverDto(driver.Id, driver.Name, driver.Active, driver.Phone);
+    }
+}
+
+/// <summary>Owner decision 2026-11-25 (audit U24): sets or clears a driver's phone. Same gate as adding a driver;
+/// idempotent by nature (setting the same number twice changes nothing).</summary>
+public sealed class SetDriverPhoneHandler
+{
+    private readonly FalahDbContext _db;
+    private readonly IApprovalRegistry _approvalRegistry;
+
+    public SetDriverPhoneHandler(FalahDbContext db, IApprovalRegistry approvalRegistry)
+    {
+        _db = db;
+        _approvalRegistry = approvalRegistry;
+    }
+
+    public async Task<DriverDto> HandleAsync(SetDriverPhoneRequest request, CancellationToken ct = default)
+    {
+        var actorUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ActorUserId, ct)
+            ?? throw new InvalidOperationException("المستخدم غير موجود.");
+        AuthorizationPolicy.AuthorizeCommand(_approvalRegistry, OrderMapper.ToActor(actorUser), "delivery_manage");
+        var phone = Falah.Domain.Delivery.DeliveryRules.NormalizeDriverPhone(request.Phone);
+
+        var driver = await _db.Drivers.FirstOrDefaultAsync(d => d.Id == request.DriverId, ct)
+            ?? throw new InvalidOperationException("السائق غير موجود.");
+        if (driver.Phone != phone)
+        {
+            driver.Phone = phone;
+            await _db.SaveChangesAsync(ct);
+        }
+        return new DriverDto(driver.Id, driver.Name, driver.Active, driver.Phone);
     }
 }

@@ -104,7 +104,13 @@ public sealed class Order
             BusinessDayId = businessDayId,
             CreatedAtUtc = createdAtUtc,
         };
-        order.Status = items.Any(i => i.SendToGrill) ? OrderStatus.Preparing : OrderStatus.Completed;
+        // Workflow redesign (owner, 2026-11-24): a delivery or a pickup is in preparation until it ends - delivered
+        // (RecordDeliveryResultHandler) or handed to its customer (pickup handover) - so its status no longer reads
+        // "completed" from the moment it was taken.
+        // Owner, 2026-11-25 (audit G2): a walk-in takeaway is complete when it is paid. The old rule ("preparing" while
+        // it had grill items) waited for a grill screen that does not exist, so those orders stayed "preparing" for ever.
+        order.Status = plan.OrderType is OrderType.Delivery or OrderType.Pickup
+            ? OrderStatus.Preparing : OrderStatus.Completed;
         order.IsPaid = plan.IsPaid;
         order.ElectronicPayment = plan.ElectronicLeg;
         return order;

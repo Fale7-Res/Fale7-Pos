@@ -63,6 +63,17 @@ public sealed partial class ApiClient
     public Task<ApiResult<IReadOnlyList<DriverDto>>> GetAllDriversAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<DriverDto>>(() => _http.GetAsync("/api/delivery/drivers/all", ct), ct);
 
+    /// <summary>Workflow redesign (owner, 2026-11-24): the live delivery and pickup queue, stages computed by the server.</summary>
+    public Task<ApiResult<List<QueueOrderDto>>> GetOrderQueueAsync(CancellationToken ct = default) =>
+        SendAsync<List<QueueOrderDto>>(() => _http.GetAsync("/api/orders/queue", ct), ct);
+
+    public Task<ApiResult<bool>> SendKitchenInvoiceAsync(SendKitchenInvoiceRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/orders/{Uri.EscapeDataString(request.OrderId)}/kitchen-invoice", request, ct), ct);
+
+    /// <summary>An unpaid pickup cancelled from the queue (a manager's PIN once its kitchen paper printed).</summary>
+    public Task<ApiResult<bool>> CancelUncollectedPickupAsync(CancelUncollectedPickupRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync("/api/orders/cancel-uncollected-pickup", request, ct), ct);
+
     public Task<ApiResult<IReadOnlyList<DeliveryDto>>> GetDispatchBoardAsync(CancellationToken ct = default) =>
         ReadAsync<IReadOnlyList<DeliveryDto>>(() => _http.GetAsync("/api/delivery/board", ct), ct);
 

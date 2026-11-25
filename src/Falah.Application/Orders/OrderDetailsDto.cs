@@ -33,6 +33,11 @@ public sealed record OrderDetailsDto(
 
     /// <summary>UI-0025: a pickup registered unpaid, waiting for its customer to pay at collection.</summary>
     public bool AwaitingCollection { get; init; }
+
+    /// <summary>Workflow redesign 2026-11-24: when a pickup was handed to its customer, and by whom. Null until then.
+    /// The till's order lookup offers the handover while it is null (audit 2026-11-25, G1).</summary>
+    public DateTimeOffset? HandedOverAtUtc { get; init; }
+    public string? HandedOverBy { get; init; }
 }
 
 public sealed record OrderSplitPaymentDto(string Method, long AmountPiastres);

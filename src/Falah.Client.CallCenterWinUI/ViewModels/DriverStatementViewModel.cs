@@ -10,7 +10,7 @@ namespace Falah.Client.CallCenterWinUI.ViewModels;
 /// <summary>One statement row as the screen shows it - the server's row with display strings.</summary>
 public sealed record DriverStatementRow(DriverStatementOrder Order)
 {
-    private static string Egp(long p) => CashInput.Format(p) + " ج";
+    private static string Egp(long p) => CashInput.Display(p) + " ج";
     public string Number => Order.OrderNumber;
     public string Time => TimeZoneInfo.ConvertTime(Order.OrderedAtUtc, Falah.Domain.Common.BusinessClock.CairoTimeZone).ToString("HH:mm");
     public string Customer => string.IsNullOrWhiteSpace(Order.CustomerName) ? Order.CustomerPhone ?? "" : Order.CustomerName;
@@ -67,7 +67,7 @@ public partial class DriverStatementViewModel : ObservableObject
 
     public bool HasRows => Rows.Count > 0;
     public bool IsEmpty => !IsLoading && Totals is not null && Rows.Count == 0;
-    private static string Egp(long p) => CashInput.Format(p) + " ج";
+    private static string Egp(long p) => CashInput.Display(p) + " ج";
     public string InvoiceCount => Totals?.InvoiceCount.ToString() ?? "—";
     public string FoodSales => Totals is null ? "—" : Egp(Totals.FoodSalesPiastres);
     public string DeliveryFees => Totals is null ? "—" : Egp(Totals.DeliveryFeesPiastres);

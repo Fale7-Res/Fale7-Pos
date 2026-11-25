@@ -557,6 +557,7 @@
   ],
   "later_phases_reference": "All Issues/03_PRIORITIZED_FIX_ROADMAP.md phases 3-7 (batches to be defined after B13)",
   "owner_questions_pending": [
+    "WF-PICKUP-CLOSE (2026-11-24, workflow redesign): should a PREPAID pickup that was never marked handed over block the business-day close, the way an unpaid one does? Today it does not; the order queue shows it for the open day / last 24 h only (OrderQueueQueryService).",
     "B17: who may void a cash-on-delivery order before dispatch (FIN-0051)",
     "B07 Q1: tighten the already reports_view-gated cost/employee reads (inventory cost/overview/detail/loss/variance, recipe costs, food-cost, employees financial-report) to owner/all? (permission grant)",
     "B07 Q4: payroll-rule settings (overtime rate, late grace, penalty multipliers) visible to every session - acceptable?",
@@ -584,9 +585,14 @@
     "Audit 2026-11-18: backup encryption (needs a SQL Server certificate kept off the machine) and the acceptable data loss window (automatic backup every 20 h today; MaxAgeHours lower or full recovery with log backups?).",
     "Audit 2026-11-18 (PERF-0001 follow-up): narrow TreasuryMovements SourceAccountId/DestinationAccountId/ShiftId/Status from nvarchar(max) so they can be indexed? Not additive - needs a reviewed migration.",
     "FIN-0030 (owner 2026-11-22: ask the accountant): is VAT computed before or after the comp is subtracted? (unchanged until the accountant answers)",
-    "Audit 2026-11-23 F-19: should recipes/costs, the driver list and inventory balances need a permission to read (today any session)?",
+    "Audit 2026-11-23 F-19: DONE 2026-11-25 on the owner's instruction ('fix all findings'): recipes, prep recipes, packaging rules, stock balance and movements, drivers, delivery timelines and print status now need the permission of the screens that use them (see docs/UI_OWNER_REQUESTS.md, trading-day audit). Kept only for the record.",
     "Audit 2026-11-23 F-20: protect the print-agent PIN with machine DPAPI after an on-site trial; confirm tills do not run under a Windows administrator account.",
-    "Audit 2026-11-23 F-17: add a filtered unique index for 'one active business day' in the next planned schema update (check production data for duplicates first)."
+    "Audit 2026-11-23 F-17: add a filtered unique index for 'one active business day' in the next planned schema update (check production data for duplicates first).",
+    "Audit 2026-11-25 G2: ANSWERED 2026-11-25 by the owner - completed when paid; done (Order.Create, OrderInitialStatusTests). Original question: a walk-in takeaway with grill items starts 'preparing' and nothing in this system ever completes it (no grill screen exists), so it reads 'قيد التحضير' for ever in the order list. The redesign kept 'the old rule' for takeaway on purpose - should a takeaway be completed when it is paid, or is a grill/kitchen screen planned?",
+    "Audit 2026-11-25 U7: ANSWERED 2026-11-25 by the owner - keep as is (no change). Original question: the till names a shift 'صباحية' before 16:00 and 'مسائية' after, so a shift opened at 01:00 is 'morning'. The restaurant is open 24 hours - which shift names and hours should the till use?",
+    "Audit 2026-11-25 R1: ANSWERED 2026-11-25 by the owner - a separate line \"كاش توصيل\" (SalesRules.DeliveryCash, METRIC_DEFINITIONS); cash line unchanged. Original question (accountant, with DRV-FEE-04): the payment-method lines (cash/card/InstaPay/wallet) never include settled cash-on-delivery, so on a day with deliveries they do not add up to net sales (2026-11-25 trading day: 335 vs 415; the 80 was the delivery, shown only under 'ديليفري'). Show settled delivery cash as its own payment line, include it in cash, or keep as is?",
+    "Audit 2026-11-25 U19/U24: ANSWERED 2026-11-25 by the owner - both wanted; done (GET /api/orders/pending-transfers + till list; Drivers.Phone with migration AddDriverPhone). Original question (features, not defects): a list of pending InstaPay/wallet transfers on the till (today only by order number), and a phone number for drivers (today a name only - needs a migration). Wanted?",
+    "Audit 2026-11-25 U5: asked 2026-11-25, the owner did not choose it - unchanged. Original question: on a new installation the shift dialog pre-fills a 1000 float while the main treasury is empty, so the first shift always fails until a manager deposits. Should the till show the main treasury's available cash, or should the first-day setup include the opening deposit?"
   ],
   "last_codex_update_utc": "2026-11-07T23:30:51.242Z",
   "handoff_document": "docs/CODEX_TAKEOVER_20261108.md",

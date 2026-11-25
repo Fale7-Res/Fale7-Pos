@@ -280,4 +280,27 @@ public class ConfirmElectronicPaymentTests : IAsyncLifetime
         Assert.Equal(0, await _factory.QueryAsync(db => db.DriverCustodies.CountAsync(c => c.DeliveryId == deliveryId)));
     }
 
+    // Owner decision 2026-11-25 (audit U19): a transfer the cashier chose to "review later" could only be found again by
+    // remembering its order number. The till lists every transfer still waiting, with the amount the transfer is for.
+    [Fact]
+    public async Task The_till_lists_the_transfers_still_waiting_and_a_confirmed_one_leaves_the_list()
+    {
+        var first = await InstaPayOrderAsync(15000);
+        var second = await InstaPayOrderAsync(9000);
+
+        var waiting = await _client.GetFromJsonAsync<List<PendingTransferDto>>("/api/orders/pending-transfers");
+        Assert.Equal(new[] { first.OrderId, second.OrderId }, waiting!.Select(w => w.OrderId));
+        Assert.Equal(new long[] { 15000, 9000 }, waiting.Select(w => w.AmountPiastres));
+        Assert.All(waiting, w => Assert.Equal("instapay", w.Method));
+
+        (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", new ConfirmElectronicPaymentRequest(first.OrderId, _cashierId)))
+            .EnsureSuccessStatusCode();
+        var after = await _client.GetFromJsonAsync<List<PendingTransferDto>>("/api/orders/pending-transfers");
+        Assert.Equal(new[] { second.OrderId }, after!.Select(w => w.OrderId));
+
+        var station = await _factory.SeedUserAsync("محطة", "station");
+        var refused = new HttpRequestMessage(HttpMethod.Get, "/api/orders/pending-transfers");
+        refused.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(station));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await _client.SendAsync(refused)).StatusCode);
+    }
 }

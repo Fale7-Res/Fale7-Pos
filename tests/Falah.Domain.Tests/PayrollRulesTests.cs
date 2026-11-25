@@ -45,6 +45,21 @@ public class PayrollRulesTests
         Assert.Equal(3, PayrollRules.CalculateLateDeduction(Money.FromPiastres(50), 10, 30, 15, 2, 0.5).Amount.Piastres); // 1 h x 5 x 0.5 = 2.5 -> 3
     }
 
+    // Audit 2026-11-25: the half-piastre rule must hold for any multiplier the owner can type. 1.15 is not exact in
+    // binary, so in floating point 50 x 1 x 1.15 = 57.4999... and rounded down. Exact: 57.5 -> 58.
+    [Theory]
+    [InlineData(500, 10, 1.0, 1.15, 58)]    // rate 50 x 1 h x 1.15 = 57.5
+    [InlineData(200, 10, 2.5, 1.15, 58)]    // rate 20 x 2.5 h x 1.15 = 57.5
+    [InlineData(300, 10, 3.0, 1.15, 104)]   // rate 30 x 3 h x 1.15 = 103.5
+    public void Overtime_rounds_half_a_piastre_up_for_a_multiplier_not_exact_in_binary(
+        long dailyWage, int workdayHours, double hours, double multiplier, long expected) =>
+        Assert.Equal(expected, PayrollRules.CalculateOvertimeAmount(Money.FromPiastres(dailyWage), workdayHours, hours, multiplier).Amount.Piastres);
+
+    [Fact]
+    public void Late_deduction_rounds_half_a_piastre_up_for_a_multiplier_not_exact_in_binary() =>
+        // rate 50 x 1 penalty hour x 1.15 = 57.5 -> 58
+        Assert.Equal(58, PayrollRules.CalculateLateDeduction(Money.FromPiastres(500), 10, 30, 15, 2, 1.15).Amount.Piastres);
+
     [Fact]
     public void CalculateLateDeduction_is_zero_within_grace()
     {

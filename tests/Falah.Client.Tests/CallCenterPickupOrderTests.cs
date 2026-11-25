@@ -16,6 +16,8 @@ using Xunit;
 [Collection(RetainedRequestStorageCollection.Name)]
 public class CallCenterPickupOrderTests
 {
+    private static readonly System.Xml.Linq.XName XName = System.Xml.Linq.XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
+
     private sealed class Server : HttpMessageHandler
     {
         public CheckoutOrderRequest? Checkout;
@@ -109,12 +111,17 @@ public class CallCenterPickupOrderTests
         var elements = System.Xml.Linq.XDocument.Load(Path.Combine(dir!.FullName, "src", "Falah.Client.CallCenterWinUI", "Views",
             "CallCenterDeliveryEditorView.xaml")).Descendants().ToList();
         var date = Assert.Single(elements, e => e.Name.LocalName == "CalendarDatePicker");
-        var time = Assert.Single(elements, e => e.Name.LocalName == "TimePicker");
 
         Assert.Null(date.Attribute("Date"));
-        Assert.Null(time.Attribute("SelectedTime"));
         Assert.Equal("OnPickupDateChanged", (string?)date.Attribute("DateChanged"));
-        Assert.Equal("OnPickupTimeChanged", (string?)time.Attribute("SelectedTimeChanged"));
+        // Audit 2026-11-25 U16: the time is two lists (hour, minute) with Arabic placeholders - the framework TimePicker
+        // showed "hour"/"minute" in English. Still not bound (a bound null showed "0:00"); the code-behind owns them.
+        Assert.DoesNotContain(elements, e => e.Name.LocalName == "TimePicker");
+        var boxes = elements.Where(e => e.Name.LocalName == "ComboBox" && ((string?)e.Attribute(XName))?.EndsWith("Box") == true).ToList();
+        Assert.Equal(new[] { "PickupHourBox", "PickupMinuteBox" }, boxes.Select(b => (string?)b.Attribute(XName)));
+        Assert.All(boxes, b => Assert.Null(b.Attribute("SelectedItem")));
+        Assert.All(boxes, b => Assert.Equal("OnPickupTimePartChanged", (string?)b.Attribute("SelectionChanged")));
+        Assert.Equal(new[] { "الساعة", "الدقيقة" }, boxes.Select(b => (string?)b.Attribute("PlaceholderText")));
     }
 
     /// <summary>UI review 2026-11-24: a pickup was registered and the confirmation read "السائق يحصّل المبلغ عند

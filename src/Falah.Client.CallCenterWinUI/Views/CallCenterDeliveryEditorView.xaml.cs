@@ -16,9 +16,17 @@ public sealed partial class CallCenterDeliveryEditorView : UserControl
     private CallCenterViewModel? _vm;
     private bool _pushing;
 
+    // Audit 2026-11-25 U16: hour and minute lists instead of the framework TimePicker (English "hour"/"minute").
+    private readonly System.Collections.ObjectModel.ObservableCollection<string> _hours =
+        new(Enumerable.Range(0, 24).Select(h => h.ToString("00")));
+    private readonly System.Collections.ObjectModel.ObservableCollection<string> _minutes =
+        new(Enumerable.Range(0, 12).Select(m => (m * 5).ToString("00")));
+
     public CallCenterDeliveryEditorView()
     {
         InitializeComponent();
+        PickupHourBox.ItemsSource = _hours;
+        PickupMinuteBox.ItemsSource = _minutes;
         DataContextChanged += (_, _) => Attach(DataContext as CallCenterViewModel);
     }
 
@@ -44,7 +52,19 @@ public sealed partial class CallCenterDeliveryEditorView : UserControl
         try
         {
             PickupDatePicker.Date = _vm?.PickupDate;
-            PickupTimePicker.SelectedTime = _vm?.PickupTime;
+            if (_vm?.PickupTime is { } time)
+            {
+                var minute = time.Minutes.ToString("00");
+                // A time held from before (not on the 5-minute grid) keeps its exact minute.
+                if (!_minutes.Contains(minute)) _minutes.Insert(_minutes.TakeWhile(m => string.CompareOrdinal(m, minute) < 0).Count(), minute);
+                PickupHourBox.SelectedItem = time.Hours.ToString("00");
+                PickupMinuteBox.SelectedItem = minute;
+            }
+            else
+            {
+                PickupHourBox.SelectedIndex = -1;
+                PickupMinuteBox.SelectedIndex = -1;
+            }
         }
         finally { _pushing = false; }
     }
@@ -54,8 +74,12 @@ public sealed partial class CallCenterDeliveryEditorView : UserControl
         if (!_pushing && _vm is not null) _vm.PickupDate = sender.Date;
     }
 
-    private void OnPickupTimeChanged(TimePicker sender, TimePickerSelectedValueChangedEventArgs args)
+    /// <summary>A time once both its hour and its minute are chosen; until then none.</summary>
+    private void OnPickupTimePartChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!_pushing && _vm is not null) _vm.PickupTime = sender.SelectedTime;
+        if (_pushing || _vm is null) return;
+        _vm.PickupTime = PickupHourBox.SelectedItem is string h && PickupMinuteBox.SelectedItem is string m
+            ? new TimeSpan(int.Parse(h), int.Parse(m), 0)
+            : null;
     }
 }

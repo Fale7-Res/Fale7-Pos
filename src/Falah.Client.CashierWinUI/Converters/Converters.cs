@@ -41,7 +41,7 @@ public sealed class NullToCollapsedConverter : IValueConverter
 public sealed class NullablePiastresToDisplayConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>
-        value is long l ? Services.CashInput.Format(l) + " ج" : "غير مقيّم";
+        value is long l ? Services.CashInput.Display(l) + " ج" : "غير مقيّم";
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
@@ -392,7 +392,7 @@ public sealed class BoolToBrushConverter : IValueConverter
 public sealed class MoneyOrUnknownConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>
-        value is long piastres ? Services.CashInput.Format(piastres) + " ج" : "غير معروف";
+        value is long piastres ? Services.CashInput.Display(piastres) + " ج" : "غير معروف";
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
@@ -579,7 +579,10 @@ public sealed class PiastresToDisplayConverter : IValueConverter
         _ => "0.00 ج",
     };
 
-    private static string Format(long piastres) => $"{piastres / 100m:0.00} ج";
+    // Audit 2026-11-25 U6: thousands separated ("5,000.00 ج", not "5000.00 ج"); invariant, so the separator is a Latin
+    // comma and the digits stay Latin whatever the station's culture. Display only - typed amounts are parsed elsewhere.
+    private static string Format(long piastres) =>
+        (piastres / 100m).ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture) + " ج";
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();
@@ -828,6 +831,20 @@ public sealed class ChecklistAccessibleNameConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>
         value is Falah.Application.BusinessDay.ChecklistItemStatusDto item ? Falah.Client.CashierWinUI.ViewModels.ControlCenterViewModel.ChecklistAccessibleName(item) : "";
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
+        throw new NotSupportedException();
+}
+/// <summary>Audit 2026-11-25 U3: an amount in the alert brush only when it is not zero - "0.00" refunds and expenses
+/// were painted red at the start of every day. ConverterParameter is "NonZeroBrushKey|ZeroBrushKey".</summary>
+public sealed class NonZeroToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var keys = ((string)parameter).Split('|');
+        var nonZero = value switch { long l => l != 0, int i => i != 0, _ => false };
+        return Services.ThemeResources.Get(nonZero ? keys[0] : keys[1])!;
+    }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();

@@ -42,17 +42,39 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+                    <StackPanel Spacing="10">
                     <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="220"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox PlaceholderText="اسم السائق الجديد" MinHeight="48" IsEnabled="{Binding CanAct}"
                                  Text="{Binding DriverName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Button Grid.Column="1" Content="إضافة سائق" MinHeight="48" MinWidth="140"
+                        <!-- Owner decision 2026-11-25 (audit U24): optional phone. -->
+                        <TextBox Grid.Column="1" PlaceholderText="رقم التليفون (اختياري)" MinHeight="48" IsEnabled="{Binding CanAct}"
+                                 InputScope="TelephoneNumber" FlowDirection="LeftToRight" MaxLength="20"
+                                 AutomationProperties.AutomationId="Directory_DriverPhone" AutomationProperties.Name="رقم تليفون السائق الجديد"
+                                 Text="{Binding DriverPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="2" Content="إضافة سائق" MinHeight="48" MinWidth="140"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 IsEnabled="{Binding CanAct}" Command="{Binding AddDriverCommand}"/>
                     </Grid>
+                    <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="12"
+                            Visibility="{Binding IsEditingDriverPhone, Converter={StaticResource BoolToVisibleConverter}}">
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold"><Run Text="تليفون "/><Run Text="{Binding DriverPhoneTarget.Name}"/></TextBlock>
+                            <TextBox Grid.Column="1" MinHeight="44" InputScope="TelephoneNumber" FlowDirection="LeftToRight" MaxLength="20"
+                                     PlaceholderText="سيبه فاضي عشان تمسح الرقم" AutomationProperties.AutomationId="Directory_DriverPhoneEdit"
+                                     Text="{Binding DriverPhoneEditText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Column="2" Content="حفظ الرقم" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanAct}" Command="{Binding SaveDriverPhoneCommand}"/>
+                            <Button Grid.Column="3" Content="إلغاء" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                                    Command="{Binding CancelDriverPhoneCommand}"/>
+                        </Grid>
+                    </Border>
+                    </StackPanel>
                     <Border Grid.Row="1" Style="{StaticResource PageCardStyle}" Padding="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,8">
                             <StackPanel>
@@ -64,9 +86,18 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}"
-                                                           FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" Style="{StaticResource TableCellText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding Phone}" Style="{StaticResource CaptionText}"
+                                                               Visibility="{Binding Phone, Converter={StaticResource NullToCollapsedConverter}}"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="3" Content="الرقم" MinHeight="44" FontSize="12"
+                                                        Style="{StaticResource SecondaryButtonStyle}" AutomationProperties.Name="تعديل رقم السائق"
+                                                        IsEnabled="{Binding ElementName=Root, Path=DataContext.CanAct}"
+                                                        Command="{Binding ElementName=Root, Path=DataContext.EditDriverPhoneCommand}"
+                                                        CommandParameter="{Binding}"/>
                                                 <Border Grid.Column="1" CornerRadius="8" Padding="9,3" VerticalAlignment="Center"
                                                         Background="{Binding Active, Converter={StaticResource BoolToBrushConverter}, ConverterParameter=SuccessPillBrush|NeutralPillBrush}">
                                                     <TextBlock Style="{StaticResource StatusPillText}"

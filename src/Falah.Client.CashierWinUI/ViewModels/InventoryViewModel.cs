@@ -72,7 +72,7 @@ public partial class InventoryViewModel : ObservableObject
 
     // The three figures that belong above the list.
     public string StockValueDisplay =>
-        Overview is { } o ? CashInput.Format(o.KnownStockValuePiastres) + " ج" : "—";
+        Overview is { } o ? CashInput.Display(o.KnownStockValuePiastres) + " ج" : "—";
 
     /// <summary>Said out loud rather than left for the reader to infer from a total that looks
     /// precise: some of the shelf has no price, so the value above is a floor, not the whole.</summary>
@@ -166,8 +166,8 @@ public partial class InventoryViewModel : ObservableObject
             (IsIn ? "+" : "−") + MilliUnits.Format(Movement.QuantityMilliUnits) + " " + Unit;
 
         public string ValueDisplay =>
-            Movement.LossValuePiastres is { } loss ? CashInput.Format(loss) + " ج"
-            : Movement.UnitCostPiastres is { } unit ? CashInput.Format(unit) + " ج / " + Unit
+            Movement.LossValuePiastres is { } loss ? CashInput.Display(loss) + " ج"
+            : Movement.UnitCostPiastres is { } unit ? CashInput.Display(unit) + " ج / " + Unit
             : "—";
 
         public string WhenDisplay => Movement.CreatedAtUtc.ToLocalTime().ToString("MM/dd HH:mm");
@@ -238,9 +238,9 @@ public partial class InventoryViewModel : ObservableObject
 
     public string DetailBalanceDisplay => Detail is { } d ? $"{MilliUnits.Format(d.BalanceMilliUnits)} {d.Unit}" : "—";
     public string DetailMinimumDisplay => Detail is { } d ? $"{MilliUnits.Format(d.MinimumMilliUnits)} {d.Unit}" : "—";
-    public string DetailValueDisplay => Detail?.StockValuePiastres is { } v ? CashInput.Format(v) + " ج" : "—";
+    public string DetailValueDisplay => Detail?.StockValuePiastres is { } v ? CashInput.Display(v) + " ج" : "—";
     public string DetailUnitCostDisplay =>
-        Detail is { } d && d.UnitCostPiastres is { } c ? $"{CashInput.Format(c)} ج / {d.Unit}" : "—";
+        Detail is { } d && d.UnitCostPiastres is { } c ? $"{CashInput.Display(c)} ج / {d.Unit}" : "—";
 
     public string DetailCostSourceLabel => Detail?.CostSource switch
     {
@@ -349,7 +349,7 @@ public partial class InventoryViewModel : ObservableObject
         public string VarianceValueDisplay =>
             VarianceMilliUnits is not { } v || v == 0 ? ""
             : Item.UnitCostPiastres is not { } cost ? "قيمة غير معروفة"
-            : CashInput.Format(Math.Abs(v) * cost / 1000) + " ج";
+            : CashInput.Display(Math.Abs(v) * cost / 1000) + " ج";
     }
 
     public ObservableCollection<CountLine> CountSheet { get; } = new();
@@ -380,7 +380,7 @@ public partial class InventoryViewModel : ObservableObject
             if (priced.Count == 0 && unpriced == 0) return "";
 
             var net = priced.Sum(l => l.VarianceMilliUnits!.Value * l.Item.UnitCostPiastres!.Value / 1000);
-            var text = $"أثر القيمة: {(net >= 0 ? "+" : "−")}{CashInput.Format(Math.Abs(net))} ج";
+            var text = $"أثر القيمة: {(net >= 0 ? "+" : "−")}{CashInput.Display(Math.Abs(net))} ج";
             return unpriced > 0 ? text + $" (بدون {unpriced} صنفًا بلا تكلفة معروفة)" : text;
         }
     }
@@ -687,7 +687,7 @@ public partial class InventoryViewModel : ObservableObject
         // "Unknown cost is not zero": an item with no purchase history posts the loss with a
         // quantity but no value, and the message must not imply a value was calculated.
         ActionNote = result.Value.LossValuePiastres is { } loss
-            ? $"تم تسجيل الفاقد بقيمة {CashInput.Format(loss)} ج."
+            ? $"تم تسجيل الفاقد بقيمة {CashInput.Display(loss)} ج."
             : "تم تسجيل الفاقد (لا توجد تكلفة شراء سابقة لتقييمه).";
         WasteTarget = null;
         _wasteRequestId = null;

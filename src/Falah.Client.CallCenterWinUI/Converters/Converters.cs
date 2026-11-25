@@ -150,7 +150,10 @@ public sealed class PiastresToDisplayConverter : IValueConverter
         _ => "0.00 ج",
     };
 
-    private static string Format(long piastres) => $"{piastres / 100m:0.00} ج";
+    // Audit 2026-11-25 U6: thousands separated ("5,000.00 ج", not "5000.00 ج"); invariant, so the separator is a Latin
+    // comma and the digits stay Latin whatever the station's culture. Display only - typed amounts are parsed elsewhere.
+    private static string Format(long piastres) =>
+        (piastres / 100m).ToString("#,##0.00", System.Globalization.CultureInfo.InvariantCulture) + " ج";
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotSupportedException();

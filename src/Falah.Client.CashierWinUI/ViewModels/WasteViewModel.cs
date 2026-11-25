@@ -29,11 +29,11 @@ public partial class WasteViewModel : ObservableObject
     public sealed record LossTypeRow(string Type, string Label, long ValuePiastres, int UnknownValueCount = 0)
     {
         public string ValueDisplay => UnknownValueCount > 0 && ValuePiastres == 0 ? "غير معلوم"
-            : (UnknownValueCount > 0 ? "من " : "") + CashInput.Format(ValuePiastres) + " ج";
+            : (UnknownValueCount > 0 ? "من " : "") + CashInput.Display(ValuePiastres) + " ج";
     }
     public string TotalValueDisplay => Summary is null ? "—"
         : Summary.UnknownValueMovementCount > 0 && Summary.UnknownValueMovementCount == Summary.MovementCount ? "غير معلوم"
-        : (Summary.UnknownValueMovementCount > 0 ? "من " : "") + CashInput.Format(Summary.TotalLossValuePiastres) + " ج";
+        : (Summary.UnknownValueMovementCount > 0 ? "من " : "") + CashInput.Display(Summary.TotalLossValuePiastres) + " ج";
     public string UnknownValueNote => Summary is { UnknownValueMovementCount: > 0 } s
         ? $"{s.UnknownValueMovementCount} حركة فاقد بلا تكلفة؛ القيمة المعروضة للجزء المعروف فقط." : "";
     public bool HasUnknownValue => Summary?.UnknownValueMovementCount > 0;

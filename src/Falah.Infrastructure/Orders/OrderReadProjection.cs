@@ -17,6 +17,8 @@ public static class OrderReadProjection
             CustomerFundsCollected = o.IsPaid || o.OrderType == "delivery" && o.PaymentMethod == "cash"
                 && o.TotalPiastres > 0 && settlements.GetValueOrDefault(o.Id) >= o.TotalPiastres,
             AwaitingCollection = o.AwaitingCollection && o.Status != "cancelled",
+            HandedOverAtUtc = o.HandedOverAtUtc,
+            HandedOverBy = o.HandedOverBy,
         }).ToList();
     }
 }

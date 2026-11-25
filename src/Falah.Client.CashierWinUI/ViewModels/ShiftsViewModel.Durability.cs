@@ -26,9 +26,9 @@ public partial class ShiftsViewModel : IManagementRequestOwner
 
     public string RecoveredShiftOperationText =>
         _openWrite.Value is { } open
-            ? $"فتح {open.ShiftName} برصيد افتتاحي {CashInput.Format(open.OpeningCashPiastres)} ج لم تُعرف نتيجته. اضغط «تحقّق وأعد الإرسال» لإرسال نفس الطلب؛ لن يُسجَّل مرتين."
+            ? $"فتح {open.ShiftName} برصيد افتتاحي {CashInput.Display(open.OpeningCashPiastres)} ج لم تُعرف نتيجته. اضغط «تحقّق وأعد الإرسال» لإرسال نفس الطلب؛ لن يُسجَّل مرتين."
             : _closeWrite.Value is { } close
-                ? $"إغلاق الوردية بمبلغ معدود {CashInput.Format(close.ActualCashCountedPiastres)} ج لم تُعرف نتيجته. اضغط «تحقّق وأعد الإرسال» لإرسال نفس الطلب؛ لن يُسجَّل مرتين."
+                ? $"إغلاق الوردية بمبلغ معدود {CashInput.Display(close.ActualCashCountedPiastres)} ج لم تُعرف نتيجته. اضغط «تحقّق وأعد الإرسال» لإرسال نفس الطلب؛ لن يُسجَّل مرتين."
                 : "";
 
     partial void OnIsRetryingRecoveredChanged(bool value) => RefreshShiftRecovery();

@@ -34,6 +34,8 @@
     <Grid Grid.Row="1" ColumnSpacing="24" Padding="24,0,24,8" IsHitTestVisible="{Binding CanEditOperation}">
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Spacing="16" Padding="0,0,0,8">
+      <!-- Audit 2026-11-25 U18: a pickup paid on collection takes no money now - no method to choose here. -->
+      <StackPanel Spacing="16" Visibility="{Binding IsPayOnCollection, Converter={StaticResource InverseBoolToVisibleConverter}}">
       <TextBlock Text="طريقة الدفع" FontSize="16" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
       <Grid ColumnSpacing="8" RowSpacing="8">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
@@ -41,7 +43,9 @@
        <Button Content="نقدي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="cash" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
         Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|BrandPrimaryBrush|CardBackgroundBrush}"
         Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=cash|AccentTextBrush|TextPrimaryBrush}"/>
+       <!-- Owner, 2026-11-24: a delivery is paid cash with the driver, InstaPay or wallet - never by card. -->
        <Button Grid.Column="1" Content="بطاقة" Command="{Binding SetPaymentMethodCommand}" CommandParameter="card" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
+        Visibility="{Binding CanPayByCard, Converter={StaticResource BoolToVisibleConverter}}"
         Background="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|BrandPrimaryBrush|CardBackgroundBrush}"
         Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=card|AccentTextBrush|TextPrimaryBrush}"/>
        <Button Grid.Row="1" Content="إنستاباي" Command="{Binding SetPaymentMethodCommand}" CommandParameter="instapay" Style="{StaticResource PaymentMethodButtonStyle}" FontSize="16"
@@ -52,6 +56,7 @@
         Foreground="{Binding PaymentMethod, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=wallet|AccentTextBrush|TextPrimaryBrush}"/>
       </Grid>
       <TextBlock Text="يظل التحويل الإلكتروني معلقاً حتى تأكيد وصول المبلغ." TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
+      </StackPanel>
       <TextBox IsEnabled="{Binding CanEditOperation}" Header="اسم مزود المحفظة" Text="{Binding WalletProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
        Visibility="{Binding UsesWallet, Converter={StaticResource BoolToVisibleConverter}}"/>
       <Expander Header="تقسيم المبلغ" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
@@ -101,8 +106,12 @@
                  TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{ThemeResource BrandPrimaryBrush}"
                  AutomationProperties.AutomationId="Checkout_PayOnCollectionNote"
                  Visibility="{Binding IsPayOnCollection, Converter={StaticResource BoolToVisibleConverter}}"/>
+      <!-- Audit 2026-11-25 U18/U8: no tender for a pickup paid on collection; quick amounts and keypad only while the
+           amount can be typed (cash) - with a card they looked live and silently did nothing. -->
+      <StackPanel Spacing="12" Visibility="{Binding IsPayOnCollection, Converter={StaticResource InverseBoolToVisibleConverter}}">
       <TextBox IsEnabled="{Binding CanEnterTender}" Header="{Binding TenderLabel}" AutomationProperties.AutomationId="Checkout_Amount" FontSize="26" FlowDirection="LeftToRight"
        Text="{Binding AmountPaidText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"/>
+      <ContentControl IsEnabled="{Binding CanEnterTender}" HorizontalContentAlignment="Stretch" IsTabStop="False"><StackPanel Spacing="12">
       <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
        <Button Content="بالضبط" HorizontalAlignment="Stretch" Command="{Binding QuickCashCommand}" CommandParameter="exact" Style="{StaticResource SecondaryButtonStyle}"/>
        <Button Grid.Column="1" Content="100" HorizontalAlignment="Stretch" Command="{Binding QuickCashCommand}" CommandParameter="100" Style="{StaticResource SecondaryButtonStyle}"/>
@@ -124,6 +133,8 @@
        <Button Grid.Row="3" Grid.Column="1" Content="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="0"/>
        <Button Grid.Row="3" Grid.Column="2" Content="⌫" AutomationProperties.Name="حذف آخر رقم" Style="{StaticResource KeypadButtonStyle}" Command="{Binding PressAmountKeyCommand}" CommandParameter="back"/>
       </Grid>
+      </StackPanel></ContentControl>
+      </StackPanel>
      </StackPanel></ScrollViewer>
     </Grid>
     <Border Grid.Row="2" Padding="24,14" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="0,1,0,0">

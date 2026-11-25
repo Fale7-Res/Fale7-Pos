@@ -145,7 +145,7 @@ public partial class CashierViewModel
     [ObservableProperty] private string? _pendingPaymentActionError;
     [ObservableProperty] private long _voidCashToHandBackPiastres;
     public string? VoidCashToHandBackText => VoidCashToHandBackPiastres > 0
-        ? $"أعد للعميل {CashInput.Format(VoidCashToHandBackPiastres)} ج من الدرج. تم تسجيل المبلغ على الوردية الحالية." : null;
+        ? $"أعد للعميل {CashInput.Display(VoidCashToHandBackPiastres)} ج من الدرج. تم تسجيل المبلغ على الوردية الحالية." : null;
     partial void OnVoidCashToHandBackPiastresChanged(long value) => OnPropertyChanged(nameof(VoidCashToHandBackText));
 
     public bool IsElectronicPaymentPending => LastCheckoutResult?.ElectronicPaymentStatus == "pending";
@@ -234,6 +234,7 @@ public partial class CashierViewModel
     partial void OnLastCheckoutResultChanged(CheckoutOrderResult? value)
     {
         if (value?.Status != "cancelled") VoidCashToHandBackPiastres = 0;
+        NotifyResultCard();
         OnPropertyChanged(nameof(HasCheckoutResult));
         OnPropertyChanged(nameof(CheckoutTitle));
         OnPropertyChanged(nameof(CheckoutSubtitle));
@@ -304,6 +305,7 @@ public partial class CashierViewModel
         LastSaleNote = null;
         PaymentMethod = "cash";
         AmountPaidText = CashInput.Format(GrandTotalPiastres);
+        _prefilledTenderPiastres = GrandTotalPiastres;
         _replaceTenderOnNextKey = true;
         CurrentCheckoutRequestId ??= $"req-{Guid.NewGuid():N}";
         IsCheckoutOpen = true;
@@ -316,6 +318,7 @@ public partial class CashierViewModel
     private void SetPaymentMethod(string method)
     {
         if (!CanEditOperation) return;
+        if (method == "card" && IsDelivery) { CheckoutError = "الدفع بالبطاقة مش متاح مع التوصيل."; return; }
         PaymentMethod = method;
         // Non-cash methods always collect exactly the total - only cash needs a typed amount.
         if (method != "cash") AmountPaidText = CashInput.Format(GrandTotalPiastres);
@@ -493,10 +496,13 @@ public partial class CashierViewModel
 
         _reviewingExistingOrder = false;
         LastCheckoutResult = result.Value;
-        LastSaleNote = $"آخر طلب {result.Value.OrderNumber}"
-            + (result.Value.ChangeDuePiastres > 0 ? $" — الباقي للعميل {CashInput.Format(result.Value.ChangeDuePiastres)} ج" : "");
+        LastSaleNote = $"آخر طلب {Ltr(result.Value.OrderNumber)}"
+            + (result.Value.ChangeDuePiastres > 0 ? $" — الباقي للعميل {CashInput.Display(result.Value.ChangeDuePiastres)} ج" : "");
         DrawerCashAlert = result.Value.DrawerCashAlert;
         IsCheckoutOpen = false;
+        _prefilledTenderPiastres = null;
+        // Audit 2026-11-25 U11: the next customer starts on the whole menu, not the last one's search.
+        SearchQuery = string.Empty;
         Cart.Clear();
         RecomputeCartTotals();
         CurrentCheckoutRequestId = null;

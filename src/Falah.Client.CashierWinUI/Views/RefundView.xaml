@@ -15,7 +15,7 @@
               Visibility="{Binding NeedsRefundMethod, Converter={StaticResource BoolToVisibleConverter}}"/>
     <PasswordBox Header="رمز المدير" Password="{Binding RefundManagerPin, Mode=TwoWay}" IsEnabled="{Binding CanEditOperation}" Visibility="{Binding RefundNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"/>
     <TextBlock Text="{Binding RefundError}" TextWrapping="Wrap" Foreground="{ThemeResource DangerBrush}"/>
-    <Button Content="تأكيد الاسترداد" Command="{Binding SubmitRefundCommand}" Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Stretch"/>
+    <Button AutomationProperties.AutomationId="Refund_Confirm" Content="{Binding RefundConfirmText}" Command="{Binding SubmitRefundCommand}" Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Stretch"/>
     <Button Content="رجوع للطلب" Command="{Binding CancelRefundCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"/>
    </StackPanel></ScrollViewer>
   </Border>

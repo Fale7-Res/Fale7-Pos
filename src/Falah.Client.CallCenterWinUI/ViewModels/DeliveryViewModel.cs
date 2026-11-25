@@ -111,7 +111,7 @@ public partial class DeliveryViewModel : ObservableObject
         public bool HasAddress => AddressDisplay.Length > 0;
 
         public string AmountToCollectDisplay =>
-            CollectPiastres(Delivery) > 0 ? CashInput.Format(CollectPiastres(Delivery)) + " ج" : "—";
+            CollectPiastres(Delivery) > 0 ? CashInput.Display(CollectPiastres(Delivery)) + " ج" : "—";
 
         /// <summary>Three states, not two. "Paid" and "collect on delivery" are both settled
         /// questions; a transfer nobody has confirmed is neither, and handing that order to a driver
@@ -189,7 +189,8 @@ public partial class DeliveryViewModel : ObservableObject
     /// <summary>Never under the dispatcher's hands: not while anything is loading or being sent, an answer is still
     /// awaited, or a dialog about one delivery or driver is open.</summary>
     public bool CanAutoRefresh => !IsLoading && !IsBusy && CanEditAction
-        && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null;
+        && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null
+        && QueueCancelTarget is null;
 
     [RelayCommand]
     private async Task AutoRefreshAsync()
@@ -221,6 +222,9 @@ public partial class DeliveryViewModel : ObservableObject
             OnPropertyChanged(nameof(BoardSummary));
             OnPropertyChanged(nameof(HasBoardSummary));
 
+            // Workflow redesign (owner, 2026-11-24): the staged delivery and pickup queue, over the same board.
+            await LoadQueueAsync();
+
             var drivers = await _session.Api.GetActiveDriversAsync();
             if (!drivers.Success || drivers.Value is null) { LoadError = drivers.Error ?? "تعذر تحميل السائقين."; return; }
             if (drivers.Success && drivers.Value is not null)
@@ -234,6 +238,7 @@ public partial class DeliveryViewModel : ObservableObject
             IsLoading = false;
             OnPropertyChanged(nameof(HasNoDeliveries));
             OnPropertyChanged(nameof(HasNoDrivers));
+            OnPropertyChanged(nameof(HasNoPickups));
         }
     }
 
@@ -364,7 +369,7 @@ public partial class DeliveryViewModel : ObservableObject
         d.PaymentMethod == "cash" || !d.PaymentAlreadySettled ? d.AmountToCollectPiastres : 0;
 
     public string AssignCollectDisplay => AssignTarget is { } t && CollectPiastres(t) > 0
-        ? CashInput.Format(CollectPiastres(t)) + " ج" : "لا شيء (مدفوع)";
+        ? CashInput.Display(CollectPiastres(t)) + " ج" : "لا شيء (مدفوع)";
 
     public bool IsAssignOpen => AssignTarget is not null;
     partial void OnAssignTargetChanged(DeliveryDto? value) { OnPropertyChanged(nameof(IsAssignOpen)); OnPropertyChanged(nameof(AssignCollectDisplay)); }
@@ -455,13 +460,13 @@ public partial class DeliveryViewModel : ObservableObject
     /// that approves a settlement difference, so a user without it is asked for a manager's PIN.</summary>
     public bool IsOutcomeShortfall =>
         IsDeliveredOutcome && OutcomeTarget is { } t
-        && CashInput.TryParse(OutcomeCollectedText, out var collected) && collected < t.AmountToCollectPiastres;
+        && CashInput.TryParse(OutcomeCollectedText, out var collected) && collected < CollectPiastres(t);
 
     public bool OutcomeShortfallNeedsApproval => IsOutcomeShortfall && !_session.HasPermission("delivery_settlement_approve");
 
     public string OutcomeShortfallLabel =>
-        OutcomeTarget is { } t && CashInput.TryParse(OutcomeCollectedText, out var collected) && collected < t.AmountToCollectPiastres
-            ? $"المحصّل أقل من المستحق بـ {Egp(t.AmountToCollectPiastres - collected)}. يحتاج اعتماد مدير مخوّل باعتماد فروق التسليم."
+        OutcomeTarget is { } t && CashInput.TryParse(OutcomeCollectedText, out var collected) && collected < CollectPiastres(t)
+            ? $"المحصّل أقل من المستحق بـ {Egp(CollectPiastres(t) - collected)}. يحتاج اعتماد مدير مخوّل باعتماد فروق التسليم."
             : "";
 
     partial void OnOutcomeCollectedTextChanged(string value) => RaiseShortfall();
@@ -530,14 +535,14 @@ public partial class DeliveryViewModel : ObservableObject
     /// <summary>Exactly the six codes RecordDeliveryResultHandler.ValidFailureReasons accepts - a
     /// failure reason outside this set is rejected server-side, so the UI offers the real set rather
     /// than a free-text box that would fail on submit.</summary>
+    /// <summary>Workflow redesign (owner, 2026-11-24): the dispatcher's list; "other" needs the reason typed.</summary>
     public IReadOnlyList<FailureReasonOption> FailureReasons { get; } = new[]
     {
-        new FailureReasonOption("customer_unreachable", "العميل لا يرد"),
+        new FailureReasonOption("customer_unreachable", "العميل ما بيردش"),
+        new FailureReasonOption("phone_off", "التليفون مقفول"),
         new FailureReasonOption("customer_refused", "العميل رفض الاستلام"),
-        new FailureReasonOption("wrong_address", "عنوان خاطئ"),
-        new FailureReasonOption("order_problem", "مشكلة في الطلب"),
-        new FailureReasonOption("driver_problem", "مشكلة لدى السائق"),
-        new FailureReasonOption("other", "سبب آخر"),
+        new FailureReasonOption("wrong_address", "العنوان غلط"),
+        new FailureReasonOption("other", "سبب تاني (اكتبه)"),
     };
 
     [RelayCommand]
@@ -546,7 +551,7 @@ public partial class DeliveryViewModel : ObservableObject
         if (!CanEditAction || !CanDispatch) return;
         OutcomeError = null;
         OutcomeResult = "delivered";
-        OutcomeCollectedText = CashInput.Format(delivery.AmountToCollectPiastres);
+        OutcomeCollectedText = CashInput.Format(CollectPiastres(delivery));   // audit 2026-11-24 (#5): nothing on a paid order
         OutcomeReason = "";
         OutcomeNotes = "";
         OutcomeManagerPin = "";
@@ -586,6 +591,12 @@ public partial class DeliveryViewModel : ObservableObject
                 return;
             }
             collected = piastres;
+        }
+        // Workflow redesign (owner, 2026-11-24): "other" carries the reason typed.
+        if (OutcomeResult == "failed" && OutcomeReason == "other" && string.IsNullOrWhiteSpace(OutcomeNotes))
+        {
+            OutcomeError = "اكتب سبب فشل التوصيل.";
+            return;
         }
         if (NeedsFoodDisposition && OutcomeStockDisposition is null)
         {
@@ -668,7 +679,7 @@ public partial class DeliveryViewModel : ObservableObject
     [ObservableProperty] private bool _settleKeepRemainderOpen;
     public bool IsDriverAccountOpen => AccountDriver is not null;
 
-    private static string Egp(long piastres) => CashInput.Format(piastres) + " ج";
+    private static string Egp(long piastres) => CashInput.Display(piastres) + " ج";
     public string SettleCollectedText => DriverAccount is null ? "—" : Egp(DriverAccount.CashCustodyPiastres);
     public string SettleFeesText => DriverAccount is null ? "—" : Egp(DriverAccount.PendingFeesPiastres);
     public string SettleCarriedText => DriverAccount is null ? "—" : DriverAccount.CarriedBalancePiastres switch
@@ -835,11 +846,11 @@ public partial class DeliveryViewModel : ObservableObject
             }
 
             var v = result.Value;
-            SettleNote = $"تمت التسوية: {v.OrderCount} طلب - أجر توصيل {CashInput.Format(v.FeeEntitlementPiastres)} ج"
-                + (v.ActualPiastres > 0 ? $" - استُلم {CashInput.Format(v.ActualPiastres)} ج" : "")
-                + (v.PaidToDriverPiastres > 0 ? $" - صُرف للسائق {CashInput.Format(v.PaidToDriverPiastres)} ج" : "")
-                + (v.CarriedOutPiastres != 0 ? $" - مرحّل {CashInput.Format(v.CarriedOutPiastres)} ج" : "")
-                + (v.DifferencePiastres != 0 ? $" - فارق {CashInput.Format(v.DifferencePiastres)} ج" : "") + ".";
+            SettleNote = $"تمت التسوية: {v.OrderCount} طلب - أجر توصيل {CashInput.Display(v.FeeEntitlementPiastres)} ج"
+                + (v.ActualPiastres > 0 ? $" - استُلم {CashInput.Display(v.ActualPiastres)} ج" : "")
+                + (v.PaidToDriverPiastres > 0 ? $" - صُرف للسائق {CashInput.Display(v.PaidToDriverPiastres)} ج" : "")
+                + (v.CarriedOutPiastres != 0 ? $" - مرحّل {CashInput.Display(v.CarriedOutPiastres)} ج" : "")
+                + (v.DifferencePiastres != 0 ? $" - فارق {CashInput.Display(v.DifferencePiastres)} ج" : "") + ".";
             _settleRequestId = $"set-{Guid.NewGuid():N}";
             DriverAccount = null;
             await LoadDriverAccountAsync(request.DriverId);

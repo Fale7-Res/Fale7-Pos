@@ -9,7 +9,7 @@ namespace Falah.Client.CallCenterWinUI.Models;
 public sealed record OfferChoice(MenuProductDto Product, MenuOfferDto Offer)
 {
     /// <summary>What a screen reader and UI Automation call the offer pill: what is printed on it.</summary>
-    public override string ToString() => $"{Offer.Name} {Services.CashInput.Format(Offer.FixedPricePiastres)} ج";
+    public override string ToString() => $"{Offer.Name} {Services.CashInput.Display(Offer.FixedPricePiastres)} ج";
     public string AccessibleName => ToString();
 }
 
@@ -29,7 +29,7 @@ public sealed record ProductTile(MenuProductDto Product, IReadOnlyList<OfferChoi
     public string FallbackIcon => string.IsNullOrWhiteSpace(CategoryIcon) ? "🍽️" : CategoryIcon!;
 
     public string StartingPriceDisplay => (Product.Variants.Count > 1 ? "من " : "") +
-        Services.CashInput.Format(Product.Variants.Count > 0 ? Product.Variants.Min(v => v.PricePiastres) : Product.BasePricePiastres) + " ج";
+        Services.CashInput.Display(Product.Variants.Count > 0 ? Product.Variants.Min(v => v.PricePiastres) : Product.BasePricePiastres) + " ج";
 
     /// <summary>Which kitchen station this item is actually routed to, from the product's real
     /// PreparationStation (the same field that decides its print job - see PrintRules). Null for

@@ -92,6 +92,15 @@ public class OrderEntity
     public string? CollectionRequestId { get; set; }
     public string? CollectedBy { get; set; }
 
+    /// <summary>Owner decision 2026-11-24 (workflow redesign): the moment a pickup's bag was handed to its customer -
+    /// the end of a pickup's life (Status becomes completed and it leaves the active queue; the row is never deleted).
+    /// Set by the collection of an unpaid pickup (it is handed over as it is paid) or by the handover of a prepaid
+    /// one. Null on every other order type, and on a pickup still waiting at the counter.</summary>
+    public DateTimeOffset? HandedOverAtUtc { get; set; }
+    public string? HandedOverBy { get; set; }
+    /// <summary>The handover request of a prepaid pickup - its replay key (a collected one replays by CollectionRequestId).</summary>
+    public string? HandoverRequestId { get; set; }
+
     /// <summary>INV-0011 / FIN-0044 (owner decision 2026-11-22): when the order's business day closed,
     /// its food cost was frozen - each line's FrozenUnitFoodCostPiastres and this order's packaging -
     /// so a later recipe or purchase-price change never moves a closed day's food cost or profit.

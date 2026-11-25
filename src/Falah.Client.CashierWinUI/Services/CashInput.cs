@@ -26,4 +26,8 @@ public static class CashInput
     }
 
     public static string Format(long piastres) => (piastres / 100m).ToString("0.00", CultureInfo.InvariantCulture);
+
+    /// <summary>Audit 2026-11-25 U6: an amount for reading - thousands separated ("5,000.00"). Never for a value a
+    /// cashier edits: Format stays the input form, which TryParse reads back.</summary>
+    public static string Display(long piastres) => (piastres / 100m).ToString("#,##0.00", CultureInfo.InvariantCulture);
 }

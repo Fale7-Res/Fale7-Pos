@@ -8,7 +8,11 @@ namespace Falah.Application.Orders;
 /// <param name="StockDisposition">Whether the order's food was prepared ("prepared" - its ingredients
 /// are recorded as waste) or not ("not_prepared" - they go back into stock). Required: checkout took
 /// them out of stock, and only the operator knows which of the two happened.</param>
-public sealed record CancelPendingElectronicPaymentRequest(string OrderId, string Reason, string CashierId, string? StockDisposition = null);
+/// <param name="ManagerApprovalId">Workflow redesign (owner, 2026-11-24): a delivery or pickup whose kitchen paper
+/// already printed is cancelled only with a manager's approval ("delivery_override" for a delivery, "pickup_cancel"
+/// for a pickup), unless a manager is the one cancelling.</param>
+public sealed record CancelPendingElectronicPaymentRequest(string OrderId, string Reason, string CashierId, string? StockDisposition = null,
+    string? ManagerApprovalId = null, string? ManagerApproverUserId = null);
 
 public sealed record CancelPendingElectronicPaymentResult(
     string OrderId, string Status, string ElectronicPaymentStatus, bool WasReplayed, long CashToHandBackPiastres = 0);

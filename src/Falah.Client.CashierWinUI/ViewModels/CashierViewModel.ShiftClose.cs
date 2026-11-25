@@ -34,9 +34,15 @@ public partial class CashierViewModel
 
     public bool CloseShiftNeedsApproval => CloseShiftPreview?.RequiresManagerApproval ?? false;
     public bool IsCloseShiftCounting => CloseShiftPreview is null;
+    /// <summary>Why a manager is needed - audit 2026-11-25: a re-count matching the expected cash was told "the
+    /// difference is over the limit" on a 0.00 difference. A re-count needs a manager whatever the difference.</summary>
+    public string CloseShiftApprovalMessage => CloseShiftPreview?.IsRecount == true
+        ? "العدّ اتغيّر بعد ما ظهر المتوقع - إعادة العدّ محتاجة اعتماد مدير: اكتب السبب أعلاه وأدخل رمز المدير."
+        : "الفارق يتجاوز الحد المسموح - السبب أعلاه إلزامي، وأدخل رمز المدير المخوّل باعتماد الإغلاق.";
     partial void OnCloseShiftPreviewChanged(PrepareShiftCloseResult? value)
     {
         OnPropertyChanged(nameof(CloseShiftNeedsApproval));
+        OnPropertyChanged(nameof(CloseShiftApprovalMessage));
         OnPropertyChanged(nameof(IsCloseShiftCounting));
         if (value is not null)
             CloseShiftRetainedText = CashInput.Format(Math.Min(value.ActualCashPiastres, Math.Max(0, TargetFloatPiastres)));
@@ -47,7 +53,7 @@ public partial class CashierViewModel
     /// <summary>Counted minus retained: what physically goes to the receiver.</summary>
     public string CloseShiftHandedOverText =>
         CloseShiftPreview is null || !CashInput.TryParse(CloseShiftRetainedText, out var retained) || retained < 0 || retained > CloseShiftPreview.ActualCashPiastres
-            ? "—" : CashInput.Format(CloseShiftPreview.ActualCashPiastres - retained) + " ج";
+            ? "—" : CashInput.Display(CloseShiftPreview.ActualCashPiastres - retained) + " ج";
 
     private async Task LoadHandoverReceiversAsync()
     {
@@ -148,7 +154,9 @@ public partial class CashierViewModel
             {
                 if (string.IsNullOrWhiteSpace(CloseShiftReason))
                 {
-                    CloseShiftError = "الفارق يتجاوز الحد المسموح ويتطلب سببًا واضحًا.";
+                    CloseShiftError = CloseShiftPreview.IsRecount
+                        ? "إعادة العدّ محتاجة سبب واضح واعتماد مدير."
+                        : "الفارق يتجاوز الحد المسموح ويتطلب سببًا واضحًا.";
                     return;
                 }
                 if (CloseShiftManagerPin.Length < 4)

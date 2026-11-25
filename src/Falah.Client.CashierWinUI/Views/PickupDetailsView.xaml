@@ -11,7 +11,7 @@
    <StackPanel Grid.Row="1" Padding="24,0,24,20" Spacing="14">
     <TextBlock Text="اسم العميل ورقم هاتفه، عشان نعرف الطلب ده بتاع مين وقت الاستلام."
                TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource TextMutedBrush}"/>
-    <TextBox MaxLength="30" AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
+    <TextBox x:Name="PickupPhoneBox" MaxLength="30" AutomationProperties.AutomationId="Pickup_Phone" IsEnabled="{Binding CanEditOperation}" Header="رقم الهاتف" InputScope="TelephoneNumber"
              Text="{Binding CustomerPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <TextBox MaxLength="200" AutomationProperties.AutomationId="Pickup_Name" IsEnabled="{Binding CanEditOperation}" Header="اسم العميل"
              Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -21,8 +21,18 @@
      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <CalendarDatePicker x:Name="PickupDatePicker" AutomationProperties.AutomationId="Pickup_Date" Header="التاريخ" PlaceholderText="اختر التاريخ" HorizontalAlignment="Stretch"
                          IsEnabled="{Binding CanEditOperation}" DateChanged="OnPickupDateChanged"/>
-     <TimePicker x:Name="PickupTimePicker" Grid.Column="1" AutomationProperties.AutomationId="Pickup_Time" Header="الوقت" HorizontalAlignment="Stretch"
-                 ClockIdentifier="24HourClock" IsEnabled="{Binding CanEditOperation}" SelectedTimeChanged="OnPickupTimeChanged"/>
+     <!-- Audit 2026-11-25 U16: the framework time picker showed "hour"/"minute" in English whatever its Language, so the
+          time is two lists with Arabic placeholders. FlowDirection left-to-right keeps "ساعة : دقيقة" in reading order. -->
+     <StackPanel Grid.Column="1" Spacing="4">
+      <TextBlock Text="الوقت"/>
+      <Grid ColumnSpacing="6" FlowDirection="LeftToRight">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <ComboBox x:Name="PickupHourBox" PlaceholderText="الساعة" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditOperation}"
+                 AutomationProperties.AutomationId="Pickup_Hour" AutomationProperties.Name="ساعة الاستلام" SelectionChanged="OnPickupTimePartChanged"/>
+       <ComboBox x:Name="PickupMinuteBox" Grid.Column="1" PlaceholderText="الدقيقة" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditOperation}"
+                 AutomationProperties.AutomationId="Pickup_Minute" AutomationProperties.Name="دقيقة الاستلام" SelectionChanged="OnPickupTimePartChanged"/>
+      </Grid>
+     </StackPanel>
     </Grid>
     <!-- UI-0025 (owner decision 2026-11-22): register now, the customer pays when collecting. -->
     <ToggleSwitch AutomationProperties.AutomationId="Pickup_PayOnCollection" AutomationProperties.Name="العميل يدفع وهو بيستلم"

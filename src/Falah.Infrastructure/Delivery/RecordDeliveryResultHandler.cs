@@ -28,7 +28,10 @@ public sealed class RecordDeliveryResultHandler
 {
     private static readonly IReadOnlySet<string> ValidFailureReasons = new HashSet<string>
     {
-        "customer_unreachable", "customer_refused", "wrong_address", "order_problem", "driver_problem", "other",
+        // Workflow redesign (owner, 2026-11-24): the dispatcher's list is didn't answer (customer_unreachable), phone
+        // switched off, refused, wrong address, other (with the reason typed). The two older codes stay accepted for
+        // results recorded before.
+        "customer_unreachable", "phone_off", "customer_refused", "wrong_address", "order_problem", "driver_problem", "other",
     };
 
     private readonly FalahDbContext _db;
@@ -123,11 +126,21 @@ public sealed class RecordDeliveryResultHandler
                     custody.CollectedPiastres = collected.Piastres;
                     custody.DifferencePiastres = collected.Piastres - custody.ExpectedPiastres;
                 }
+
+                // Workflow redesign (owner, 2026-11-24): the order itself reads completed once its customer has it.
+                var deliveredOrder = await _db.Orders.FirstAsync(o => o.Id == order.Id, ct);
+                if (deliveredOrder.Status is not ("cancelled" or "refunded"))
+                {
+                    deliveredOrder.Status = Falah.Domain.Orders.OrderStatus.Completed.ToWireString();
+                    deliveredOrder.Version++;
+                }
             }
             else if (targetStatus == DeliveryStatus.Failed)
             {
                 if (request.Reason is null || !ValidFailureReasons.Contains(request.Reason))
                     throw new DomainException("سبب فشل التوصيل غير صالح.");
+                if (request.Reason == "other" && string.IsNullOrWhiteSpace(request.Notes))
+                    throw new DomainException("اكتب سبب فشل التوصيل.");
                 delivery.FailedAtUtc = now;
                 delivery.FailureReason = request.Reason;
                 delivery.FailureNotes = request.Notes;

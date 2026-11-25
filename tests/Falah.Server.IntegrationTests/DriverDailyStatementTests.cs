@@ -58,7 +58,10 @@ public class DriverDailyStatementTests : IAsyncLifetime
             TableNumber: null, CustomerName: "عميل تجريبي", CustomerPhone: "01000000001", DeliveryAddress: "شارع تجريبي 1", DeliveryArea: "المنطقة أ", BusinessDayId: null,
             DeliveryStreet: "شارع 9", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل سريع"));
         Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
-        return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+        var sold = (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+        if (method is "instapay" or "wallet")   // confirmed before it can go out with a driver (D1)
+            (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", new ConfirmElectronicPaymentRequest(sold.OrderId, _cashierId))).EnsureSuccessStatusCode();
+        return sold;
     }
 
     private Task<string> DeliveryOf(string orderId) =>
@@ -97,7 +100,7 @@ public class DriverDailyStatementTests : IAsyncLifetime
         var b = await DriverAsync("السائق ب");
 
         var o1 = await SellAsync(shiftId, 10_000, 1_500, "cash");
-        var o2 = await SellAsync(shiftId, 8_000, 1_500, "card");
+        var o2 = await SellAsync(shiftId, 8_000, 1_500, "instapay");   // owner, 2026-11-24: no card on a delivery - a confirmed transfer
         var o3 = await SellAsync(shiftId, 6_000, 1_500, "cash");      // goes to B, then reassigned to A
         var o4 = await SellAsync(shiftId, 5_000, 0, "cash");          // B's own order
         var o5 = await SellAsync(shiftId, 4_000, 1_500, "cash");      // A, fails

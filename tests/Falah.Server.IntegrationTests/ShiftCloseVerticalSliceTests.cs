@@ -339,12 +339,16 @@ public class ShiftCloseVerticalSliceTests : IAsyncLifetime
     public async Task A_recount_that_differs_from_the_first_count_asks_for_a_manager_in_the_preview()
     {
         var shiftId = await OpenShiftAsync(50000);
-        await PrepareAsync(shiftId, 51000);
+        var first = await PrepareAsync(shiftId, 51000);
 
         var recount = await PrepareAsync(shiftId, 50000);
 
         Assert.True(recount!.RequiresManagerApproval);
         Assert.Equal(0, recount.DifferencePiastres);
+        // Audit 2026-11-25: the till said "the difference is over the limit" on a 0.00 difference; the preview now
+        // says WHY a manager is needed, so the till can say it too.
+        Assert.True(recount.IsRecount);
+        Assert.False(first!.IsRecount);
     }
 
     [Fact]

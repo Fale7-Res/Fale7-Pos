@@ -155,22 +155,49 @@ public class DeliveryRulesTests
     public void Composed_delivery_address_joins_only_the_parts_that_are_present()
     {
         var address = DeliveryRules.ComposeDeliveryAddress("المعادي", "شارع 9", "عمارة 5", "3", "12", null);
-        Assert.Equal("المنطقة المعادي، ش شارع 9، عمارة عمارة 5، دور 3، شقة 12", address);
+        Assert.Equal("المنطقة المعادي، شارع 9، عمارة 5، دور 3، شقة 12", address);
     }
 
     [Fact]
     public void Composed_delivery_address_skips_missing_parts_without_leaving_empty_separators()
     {
         var address = DeliveryRules.ComposeDeliveryAddress("المعادي", "شارع 9", building: null, floor: null, apartment: null, landmark: null);
-        Assert.Equal("المنطقة المعادي، ش شارع 9", address);
+        Assert.Equal("المنطقة المعادي، شارع 9", address);
     }
 
     [Fact]
     public void A_landmark_is_appended_after_the_composed_parts_with_its_own_separator()
     {
         var address = DeliveryRules.ComposeDeliveryAddress("المعادي", "شارع 9", null, null, null, "بجوار الصيدلية");
-        Assert.Equal("المنطقة المعادي، ش شارع 9 — بجوار الصيدلية", address);
+        Assert.Equal("المنطقة المعادي، شارع 9 — بجوار الصيدلية", address);
     }
+
+    // Audit 2026-11-25 (trading day on the real apps): a street typed "شارع النصر" became "ش شارع النصر" and a building
+    // typed "عمارة 5" became "عمارة عمارة 5" on the queue card, the receipt and the driver's paper. A part that already
+    // starts with its own word keeps it once; a bare value still gets it.
+    [Theory]
+    [InlineData("الحي السابع", "شارع النصر", "12", "المنطقة الحي السابع، شارع النصر، عمارة 12")]
+    [InlineData("منطقة الجامعة", "ش التحرير", "برج 3", "منطقة الجامعة، ش التحرير، برج 3")]
+    [InlineData("المعادي", "9", "5", "المنطقة المعادي، ش 9، عمارة 5")]
+    public void A_part_that_already_names_itself_is_not_prefixed_twice(string area, string street, string building, string expected) =>
+        Assert.Equal(expected, DeliveryRules.ComposeDeliveryAddress(area, street, building, null, null, null));
+
+    // Owner decision 2026-11-25 (audit U24): a driver's phone - optional, digits (a leading + and spaces allowed), kept as typed
+    // without the spaces around it; anything else is refused rather than stored.
+    [Theory]
+    [InlineData(" 01001234567 ", "01001234567")]
+    [InlineData("+20 100 123 4567", "+20 100 123 4567")]
+    [InlineData("", null)]
+    [InlineData(null, null)]
+    public void A_driver_phone_is_kept_trimmed_or_cleared(string? typed, string? expected) =>
+        Assert.Equal(expected, DeliveryRules.NormalizeDriverPhone(typed));
+
+    [Theory]
+    [InlineData("مش رقم")]
+    [InlineData("0100123456789012345678")]
+    [InlineData("0100-123")]
+    public void A_driver_phone_that_is_not_a_phone_is_refused(string typed) =>
+        Assert.Throws<Falah.Domain.Common.DomainException>(() => DeliveryRules.NormalizeDriverPhone(typed));
 
     [Fact]
     public void A_landmark_alone_with_no_structured_parts_is_the_entire_composed_address()

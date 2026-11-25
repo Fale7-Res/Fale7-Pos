@@ -177,7 +177,9 @@ public class DeliveryPaymentIntegrityTests : IAsyncLifetime
     public async Task A_paid_delivery_delivered_but_not_settled_with_its_driver_blocks_the_close_until_settled()
     {
         var shiftId = await OpenShiftAsync();
-        var order = await CheckoutDeliveryAsync(shiftId, 12000, "card");
+        var order = await CheckoutDeliveryAsync(shiftId, 12000, "instapay");   // owner, 2026-11-24: no card on a delivery
+        (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment",
+            new ConfirmElectronicPaymentRequest(order.OrderId, _cashierId))).EnsureSuccessStatusCode();
         var deliveryId = await DeliveryIdOfAsync(order.OrderId);
         (await MarkReadyAsync(deliveryId)).EnsureSuccessStatusCode();
         var driverId = await CreateDriverAsync();

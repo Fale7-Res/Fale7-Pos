@@ -39,7 +39,7 @@ public partial class CashCountViewModel : ObservableObject
             : $"{DenominationPiastres} قرش";
 
         public long Quantity => CashInput.TryParseCount(QuantityText, out var q) && q > 0 ? q : 0;
-        public string LineTotalDisplay => CashInput.Format(Quantity * DenominationPiastres) + " ج";
+        public string LineTotalDisplay => CashInput.Display(Quantity * DenominationPiastres) + " ج";
 
         partial void OnQuantityTextChanged(string value)
         {
@@ -69,7 +69,7 @@ public partial class CashCountViewModel : ObservableObject
         : _write.HasPending ? "التحقق من الحفظ السابق" : "حفظ العدّ";
 
     /// <summary>A live aid for the person counting - never the figure that decides anything.</summary>
-    public string CountedTotalDisplay => CashInput.Format(Rows.Sum(r => r.Quantity * r.DenominationPiastres)) + " ج";
+    public string CountedTotalDisplay => CashInput.Display(Rows.Sum(r => r.Quantity * r.DenominationPiastres)) + " ج";
 
     partial void OnIsBusyChanged(bool value) => NotifyState();
     partial void OnIsLoadingChanged(bool value) => NotifyState();
@@ -169,12 +169,12 @@ public partial class CashCountViewModel : ObservableObject
 
             var saved = result.Value;
             var difference = saved.DifferencePiastres;
-            var expectedDisplay = $"المتوقع في درج الوردية {CashInput.Format(saved.ExpectedPiastres)} ج. ";
+            var expectedDisplay = $"المتوقع في درج الوردية {CashInput.Display(saved.ExpectedPiastres)} ج. ";
             ActionNote = expectedDisplay + (difference == 0
-                ? $"تم تسجيل العدّ. المبلغ المعدود {CashInput.Format(saved.TotalPiastres)} ج مطابق للمتوقع."
+                ? $"تم تسجيل العدّ. المبلغ المعدود {CashInput.Display(saved.TotalPiastres)} ج مطابق للمتوقع."
                 : difference > 0
-                    ? $"تم تسجيل العدّ. زيادة {CashInput.Format(difference)} ج عن المتوقع."
-                    : $"تم تسجيل العدّ. عجز {CashInput.Format(-difference)} ج عن المتوقع.");
+                    ? $"تم تسجيل العدّ. زيادة {CashInput.Display(difference)} ج عن المتوقع."
+                    : $"تم تسجيل العدّ. عجز {CashInput.Display(-difference)} ج عن المتوقع.");
             _pendingId = null;
             foreach (var row in Rows) row.QuantityText = "";
             ExpectedText = "";

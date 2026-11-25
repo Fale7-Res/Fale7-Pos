@@ -87,6 +87,9 @@ public class FalahDbContext : DbContext
             // UI-0025: the replay key of a pickup's collection or cancellation - one order per request id.
             // (Two tills collecting the same pickup are stopped by the handler's row lock.)
             b.HasIndex(o => o.CollectionRequestId).IsUnique().HasFilter("[CollectionRequestId] IS NOT NULL");
+            // Workflow redesign (owner, 2026-11-24): a prepaid pickup's handover replays by its request id.
+            b.Property(o => o.HandoverRequestId).HasMaxLength(100);
+            b.HasIndex(o => o.HandoverRequestId).IsUnique().HasFilter("[HandoverRequestId] IS NOT NULL");
             b.HasIndex(o => o.SequenceNumber).IsUnique();
             // Audit 2026-11-18: every daily/monthly/dashboard figure selects orders by a UTC range on
             // CreatedAtUtc; without this each report scanned the whole table, slower every month.
@@ -332,7 +335,11 @@ public class FalahDbContext : DbContext
         });
         modelBuilder.Entity<CustomerAddressEntity>(b => b.HasKey(a => a.Id));
 
-        modelBuilder.Entity<DriverEntity>(b => b.HasKey(d => d.Id));
+        modelBuilder.Entity<DriverEntity>(b =>
+        {
+            b.HasKey(d => d.Id);
+            b.Property(d => d.Phone).HasMaxLength(Falah.Domain.Delivery.DeliveryRules.MaxDriverPhoneLength);
+        });
         modelBuilder.Entity<DeliveryServiceEntity>(b => b.HasKey(d => d.Id));
 
         modelBuilder.Entity<DeliveryEntity>(b =>

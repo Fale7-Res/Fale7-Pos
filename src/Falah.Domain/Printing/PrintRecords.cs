@@ -18,7 +18,9 @@ public enum PrintJobStatus { Pending, Succeeded, Failed, Sending }
 
 /// <summary>What a print job reproduces. Order is the default and what every job was before the
 /// shift and expense slips existed, so it is first and a null column reads as Order.</summary>
-public enum PrintDocumentKind { Order, ShiftOpen, ShiftClose, Expense, DriverStatement }
+/// <summary>PickupReceipt (owner, 2026-11-24): the customer's receipt printed when a pickup is handed over - the
+/// order's kitchen papers printed when it was taken, so it is a document of its own, not a second "first print".</summary>
+public enum PrintDocumentKind { Order, ShiftOpen, ShiftClose, Expense, DriverStatement, PickupReceipt }
 
 /// <summary>Where a piece of text sits across the paper. Start/End rather than Right/Left because
 /// these tickets are laid out right-to-left: Start is the right edge, which is where an Arabic line

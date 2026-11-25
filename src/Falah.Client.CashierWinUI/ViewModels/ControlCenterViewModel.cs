@@ -73,6 +73,7 @@ public partial class ControlCenterViewModel : ObservableObject
         OnPropertyChanged(nameof(HasBusinessDay));
         OnPropertyChanged(nameof(HasNoBusinessDay));
         RefreshActionState();
+        NotifyDayDialogs();
     }
 
     [RelayCommand]

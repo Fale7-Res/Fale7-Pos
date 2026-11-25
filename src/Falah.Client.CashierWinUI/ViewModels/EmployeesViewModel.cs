@@ -44,7 +44,7 @@ public partial class EmployeesViewModel : ObservableObject
     {
         public required EmployeeDto Employee { get; init; }
         [ObservableProperty] private long _balancePiastres;
-        public string BalanceDisplay => CashInput.Format(BalancePiastres) + " ج";
+        public string BalanceDisplay => CashInput.Display(BalancePiastres) + " ج";
         partial void OnBalancePiastresChanged(long value) => OnPropertyChanged(nameof(BalanceDisplay));
     }
 
@@ -249,8 +249,8 @@ public partial class EmployeesViewModel : ObservableObject
 
     /// <summary>Overtime's total is always rate x hours server-side (RecordOvertimeHandler) - shown
     /// here for the manager to see before confirming, not sent back as an override.</summary>
-    public string OvertimePreviewAmount => CashInput.Format(_overtimeRatePiastres * OvertimeHours) + " ج";
-    public string ExtraShiftPreviewAmount => CashOutEmployee is null ? "" : CashInput.Format(ShiftValueOrDailyWage(CashOutEmployee.Employee)) + " ج";
+    public string OvertimePreviewAmount => CashInput.Display(_overtimeRatePiastres * OvertimeHours) + " ج";
+    public string ExtraShiftPreviewAmount => CashOutEmployee is null ? "" : CashInput.Display(ShiftValueOrDailyWage(CashOutEmployee.Employee)) + " ج";
 
     private void OpenAction(EmployeeRow row, string kind)
     {
@@ -356,7 +356,7 @@ public partial class EmployeesViewModel : ObservableObject
     {
         var result = await _cashOutRequest.SendAsync(request, r => _session.Api.EmployeeCashOutAsync(r));
         if (!result.Success || result.Value is null) { CashOutError = _cashOutRequest.FailureMessage(result.Error); return; }
-        await FinishActionAsync($"تم الصرف. الرصيد بعد العملية: {CashInput.Format(result.Value.BalanceAfterPiastres)} ج");
+        await FinishActionAsync($"تم الصرف. الرصيد بعد العملية: {CashInput.Display(result.Value.BalanceAfterPiastres)} ج");
     }
 
     private async Task CompleteDailyWageAsync(RecordDailyWageRequest request)

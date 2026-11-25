@@ -67,7 +67,7 @@ public partial class CallCenterViewModel
             if (!result.Success || result.Value is null)
             {
                 ResetResolvedCustomer();
-                CustomerLookupNote = "عميل جديد - أدخل الاسم والعنوان.";
+                CustomerLookupNote = NewCustomerNote;
                 return;
             }
 
@@ -131,8 +131,12 @@ public partial class CallCenterViewModel
         DeliveryError = FirstMissingDeliveryField();
         if (DeliveryError is not null) return;
         IsDeliveryEditorOpen = false;
+        // Audit 2026-11-25 U25: "new customer - enter the name and address" is done once they are saved.
+        if (CustomerLookupNote == NewCustomerNote) CustomerLookupNote = null;
         NotifyDeliverySummary();
     }
+
+    internal const string NewCustomerNote = "عميل جديد - أدخل الاسم والعنوان.";
 
     private string? FirstMissingDeliveryField()
     {

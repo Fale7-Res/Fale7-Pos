@@ -21,7 +21,7 @@ public partial class CashierViewModel
         if (left.Success && left.Value?.InheritedFloatPiastres is { } inherited)
         {
             OpeningCashText = CashInput.Format(inherited);
-            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Format(inherited)} ج. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل عليك. لإكمال العهدة استخدم «إضافة نقدية» من الخزنة بعد الفتح.";
+            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Display(inherited)} ج. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل عليك. لإكمال العهدة استخدم «إضافة نقدية» من الخزنة بعد الفتح.";
             return;
         }
         OpeningInheritedNote = null;

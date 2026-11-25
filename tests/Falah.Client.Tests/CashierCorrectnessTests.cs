@@ -110,6 +110,23 @@ public class CashierCorrectnessTests
         Assert.Contains("التوصيل", vm.CheckoutError);
     }
 
+    /// <summary>Owner decision 2026-11-24: a delivery is paid cash, InstaPay or wallet - the card choice goes away.</summary>
+    [Fact]
+    public void A_delivery_order_offers_no_card_payment()
+    {
+        var (vm, _) = Create(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)));
+        vm.PaymentMethod = "card";
+
+        vm.OrderType = "delivery";
+
+        Assert.False(vm.CanPayByCard);
+        Assert.Equal("cash", vm.PaymentMethod);
+        vm.SetPaymentMethodCommand.Execute("card");
+        Assert.Equal("cash", vm.PaymentMethod);
+        vm.OrderType = "pickup";
+        Assert.True(vm.CanPayByCard);
+    }
+
     [Fact]
     public async Task A_recorded_cash_in_is_confirmed_on_the_till()
     {

@@ -13,7 +13,9 @@ public sealed record SalesReportDto(
     long OffersValuePiastres, long CompsValuePiastres, long ManualDiscountsPiastres, long PendingElectronicSalesPiastres,
     long CashWithDriversPiastres, long CollectedSalesPiastres, long AverageOrderValuePiastres,
     long CashPiastres, long CardPiastres, long InstaPayPiastres, long WalletPiastres,
-    long PickupPiastres, long TakeawayPiastres, long DeliveryPiastres);
+    long PickupPiastres, long TakeawayPiastres, long DeliveryPiastres,
+    /// <summary>Owner decision 2026-11-25 (audit R1): cash-on-delivery the drivers have settled - in no other payment line.</summary>
+    long DeliveryCashPiastres = 0);
 
 public sealed record ExpenseReportDto(long TotalPiastres, IReadOnlyList<Falah.Application.Expenses.ExpenseDto> Expenses);
 

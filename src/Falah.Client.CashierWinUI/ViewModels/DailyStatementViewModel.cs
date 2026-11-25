@@ -262,8 +262,8 @@ public partial class DailyStatementViewModel : ObservableObject
             }
             ReversalTarget = null;
             ReprintMessage = result.Value.CashDisposition == "cash_returned"
-                ? $"سُجّل عودة {CashInput.Format(result.Value.AmountPiastres)} ج نقدًا إلى حساب المصروف."
-                : $"سُجّل تصحيح خطأ التسجيل: {CashInput.Format(result.Value.AmountPiastres)} ج لم تُصرف وتعود لحساب المصروف.";
+                ? $"سُجّل عودة {CashInput.Display(result.Value.AmountPiastres)} ج نقدًا إلى حساب المصروف."
+                : $"سُجّل تصحيح خطأ التسجيل: {CashInput.Display(result.Value.AmountPiastres)} ج لم تُصرف وتعود لحساب المصروف.";
         }
         finally
         {

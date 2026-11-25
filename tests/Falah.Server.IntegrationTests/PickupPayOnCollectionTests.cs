@@ -182,6 +182,8 @@ public class PickupPayOnCollectionTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.UnprocessableEntity, blocked.StatusCode);
         Assert.Contains("UNCOLLECTED_PICKUP", await blocked.Content.ReadAsStringAsync());
 
+        // Owner, 2026-11-24: a manager is needed once the kitchen has its paper (before it, no admin code at all).
+        await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == registered.OrderId).ExecuteUpdateAsync(s => s.SetProperty(j => j.Status, "Succeeded")));
         // The cashier alone cannot cancel it.
         var refused = await _client.PostAsJsonAsync("/api/orders/cancel-uncollected-pickup",
             new CancelUncollectedPickupRequest($"cx-{Guid.NewGuid():N}", registered.OrderId, "العميل ما جاش", "not_prepared", _cashierId, null, null));
@@ -199,7 +201,7 @@ public class PickupPayOnCollectionTests : IAsyncLifetime
         Assert.Equal(0, noMoney);
     }
 
-    // Owner, 2026-11-23: cancelling an unpaid pickup always takes a manager's PIN - a cashier's own
+    // Owner, 2026-11-23 (2026-11-24: once its kitchen paper printed): cancelling an unpaid pickup takes a manager's PIN - a cashier's own
     // permissions (even orders_refund) are not enough. A manager logged in at the till is the manager.
     [Fact]
     public async Task A_cashier_cannot_cancel_an_unpaid_pickup_without_a_managers_pin_whatever_they_hold()
@@ -208,6 +210,8 @@ public class PickupPayOnCollectionTests : IAsyncLifetime
         await OpenDayAsync();
         var shiftId = await OpenShiftAsync();
         var registered = await RegisterOkAsync(shiftId);
+        // Owner, 2026-11-24: a manager is needed once the kitchen has its paper (before it, no admin code at all).
+        await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == registered.OrderId).ExecuteUpdateAsync(s => s.SetProperty(j => j.Status, "Succeeded")));
 
         var refused = await _client.PostAsJsonAsync("/api/orders/cancel-uncollected-pickup",
             new CancelUncollectedPickupRequest($"cx-{Guid.NewGuid():N}", registered.OrderId, "العميل ما جاش", "prepared", trusted, null, null));

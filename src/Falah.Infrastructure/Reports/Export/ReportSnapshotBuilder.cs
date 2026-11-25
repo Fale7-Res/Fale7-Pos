@@ -191,7 +191,8 @@ public sealed class ReportSnapshotBuilder
         {
             new[] { T("نقدي"), M(s.CashPiastres) }, new[] { T("بطاقة"), M(s.CardPiastres) },
             new[] { T("إنستاباي (المؤكد)"), M(s.InstaPayPiastres) }, new[] { T("محفظة (المؤكد)"), M(s.WalletPiastres) },
-        }, new[] { T("الإجمالي"), M(s.CashPiastres + s.CardPiastres + s.InstaPayPiastres + s.WalletPiastres) },
+            new[] { T("كاش توصيل (بعد تسوية الطيار)"), M(s.DeliveryCashPiastres) },
+        }, new[] { T("الإجمالي"), M(s.CashPiastres + s.CardPiastres + s.InstaPayPiastres + s.WalletPiastres + s.DeliveryCashPiastres) },
             "الفرق عن صافي المبيعات = التحويلات غير المؤكدة وطلبات الدفع عند الاستلام التي لم تُسوَّ.");
         var types = Table("order_types", "حسب نوع الطلب", "بوقت البيع", money, new[]
         {

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryModalsView"
+<UserControl x:Class="Falah.Client.CashierWinUI.Views.DeliveryModalsView"
              x:Name="Root"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -44,34 +44,79 @@
             </Border>
         </Grid>
 
-        <!-- ================= CANCEL BEFORE IT LEAVES (FIN-0051) ================= -->
-        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCancelOpen, Converter={StaticResource BoolToVisibleConverter}}">
+        <!-- ================= CANCEL AN UNPAID ORDER (workflow redesign, owner 2026-11-24) =================
+             Before the kitchen has its paper: a plain confirmation, every ingredient back. After it: the
+             manager's PIN, then whether the food was prepared. A paid order is refunded, never cancelled here. -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsQueueCancelOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel Spacing="14">
-                    <controls:ModalHeaderView Title="إلغاء طلب لم يخرج" CloseCommand="{Binding CloseCancelCommand}"/>
-                    <TextBlock Style="{StaticResource MutedText}" TextWrapping="Wrap">
-                        <Run Text="الطلب "/><Run Text="{Binding CancelTarget.OrderNumber}" FontWeight="Bold"/>
-                        <Run Text=" — دفع عند الاستلام، ما اتحصّلش منه حاجة. هيخرج من المبيعات ومفيش فلوس بتتحرك."/>
-                    </TextBlock>
+                    <controls:ModalHeaderView Title="{Binding QueueCancelTitle}" CloseCommand="{Binding CloseQueueCancelCommand}"/>
+                    <TextBlock Text="{Binding QueueCancelTarget.CustomerDisplay}" Style="{StaticResource SectionTitleText}"/>
+                    <TextBlock Text="{Binding QueueCancelEffect}" Style="{StaticResource MutedText}" TextWrapping="Wrap"
+                               AutomationProperties.AutomationId="QueueCancel_Effect"/>
                     <TextBox Header="سبب الإلغاء (إلزامي)" MinHeight="44" TextWrapping="Wrap" IsEnabled="{Binding CanEditAction}"
-                             AutomationProperties.AutomationId="DeliveryCancel_Reason"
-                             Text="{Binding CancelReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Text="الأكل:" Style="{StaticResource CaptionText}"/>
-                    <RadioButton GroupName="CancelFood" Content="تم التحضير — يُسجَّل هالكًا" IsEnabled="{Binding CanEditAction}"
-                                 IsChecked="{Binding IsCancelFoodPrepared, Mode=TwoWay}"/>
-                    <RadioButton GroupName="CancelFood" Content="لم يُحضَّر — تعود الخامات للمخزون" IsEnabled="{Binding CanEditAction}"
-                                 IsChecked="{Binding IsCancelFoodNotPrepared, Mode=TwoWay}"/>
-                    <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" IsEnabled="{Binding CanEditAction}"
-                                 AutomationProperties.AutomationId="DeliveryCancel_ManagerPin" AutomationProperties.Name="رمز المدير لاعتماد إلغاء الطلب"
-                                 Visibility="{Binding CancelNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}"
-                                 Password="{Binding CancelManagerPin, Mode=TwoWay}"/>
-                    <TextBlock Text="{Binding CancelError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
+                             AutomationProperties.AutomationId="QueueCancel_Reason"
+                             Text="{Binding QueueCancelReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <StackPanel Spacing="8" Visibility="{Binding QueueCancelNeedsAdmin, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="محتاج اعتماد المدير" Style="{StaticResource SectionTitleText}" Foreground="{ThemeResource WarningTextBrush}"/>
+                        <PasswordBox PlaceholderText="رمز المدير" MinHeight="44" IsEnabled="{Binding CanEditAction}"
+                                     AutomationProperties.AutomationId="QueueCancel_ManagerPin" AutomationProperties.Name="رمز المدير لاعتماد الإلغاء"
+                                     Visibility="{Binding QueueCancelAsksForPin, Converter={StaticResource BoolToVisibleConverter}}"
+                                     Password="{Binding QueueCancelManagerPin, Mode=TwoWay}"/>
+                        <TextBlock Text="هل الأكل اتحضّر؟" Style="{StaticResource BodyText}" FontWeight="SemiBold"/>
+                        <RadioButton GroupName="QueueCancelFood" Content="أيوه، اتحضّر - الخامات ما ترجعش للمخزون" IsEnabled="{Binding CanEditAction}"
+                                     AutomationProperties.AutomationId="QueueCancel_Prepared" IsChecked="{Binding IsQueueCancelPrepared, Mode=TwoWay}"/>
+                        <RadioButton GroupName="QueueCancelFood" Content="لأ، ما اتحضّرش - الخامات ترجع للمخزون" IsEnabled="{Binding CanEditAction}"
+                                     AutomationProperties.AutomationId="QueueCancel_NotPrepared" IsChecked="{Binding IsQueueCancelNotPrepared, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding QueueCancelError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
                                TextWrapping="Wrap" TextAlignment="Center"
-                               Visibility="{Binding CancelError, Converter={StaticResource NullToCollapsedConverter}}"/>
-                    <Button Content="تأكيد الإلغاء" MinHeight="52" HorizontalAlignment="Stretch"
-                            AutomationProperties.AutomationId="DeliveryCancel_Confirm"
-                            Style="{StaticResource CtaButtonStyle}" Command="{Binding ConfirmCancelCommand}"/>
+                               Visibility="{Binding QueueCancelError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Button Content="إلغاء الطلب" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource CtaButtonStyle}"
+                                AutomationProperties.AutomationId="QueueCancel_Confirm" Command="{Binding ConfirmQueueCancelCommand}"/>
+                        <Button Grid.Column="1" Content="سيب الطلب" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="QueueCancel_Keep" Command="{Binding CloseQueueCancelCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ================= PICKUP: THE CUSTOMER ARRIVED - PAY AND TAKE THE BAG ================= -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCollectOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <controls:ModalHeaderView Title="العميل وصل: حصّل وسلّم" CloseCommand="{Binding CloseCollectCommand}"/>
+                    <TextBlock Text="{Binding CollectTitle}" Style="{StaticResource SectionTitleText}" TextWrapping="Wrap"/>
+                    <TextBlock Text="الدفع:" Style="{StaticResource CaptionText}"/>
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <Button Content="نقدي" MinHeight="44" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="Collect_Cash" Command="{Binding SetCollectMethodCommand}" CommandParameter="cash"/>
+                        <Button Grid.Column="1" Content="بطاقة" MinHeight="44" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="Collect_Card" Command="{Binding SetCollectMethodCommand}" CommandParameter="card"/>
+                        <Button Grid.Column="2" Content="إنستاباي" MinHeight="44" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="Collect_InstaPay" Command="{Binding SetCollectMethodCommand}" CommandParameter="instapay"/>
+                        <Button Grid.Column="3" Content="محفظة" MinHeight="44" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="Collect_Wallet" Command="{Binding SetCollectMethodCommand}" CommandParameter="wallet"/>
+                    </Grid>
+                    <TextBlock Style="{StaticResource BodyText}">
+                        <Run Text="الطريقة: "/><Run Text="{Binding CollectMethod, Converter={StaticResource PaymentMethodLabelConverter}}" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBox Header="المبلغ المستلم بالجنيه" MinHeight="44" InputScope="Number" FontSize="18" TextAlignment="Center"
+                             IsEnabled="{Binding CanEditAction}" AutomationProperties.AutomationId="Collect_Tender"
+                             Visibility="{Binding IsCollectCash, Converter={StaticResource BoolToVisibleConverter}}"
+                             Text="{Binding CollectTenderText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Text="{Binding CollectChangeDisplay}" Style="{StaticResource SectionTitleText}" Foreground="{ThemeResource BrandPrimaryBrush}"/>
+                    <TextBlock Text="الدفع بطريقتين متاح من شاشة الكاشير (البحث عن الطلب)." Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding CollectError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Visibility="{Binding CollectError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Button Content="حصّل وسلّم واطبع الإيصال" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource CtaButtonStyle}"
+                            AutomationProperties.AutomationId="Collect_Confirm" Command="{Binding ConfirmCollectCommand}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -321,6 +366,10 @@
                                        TextWrapping="Wrap" TextAlignment="Center"
                                        Visibility="{Binding SettleNote, Converter={StaticResource NullToCollapsedConverter}}"/>
 
+                            <!-- Audit 2026-11-25 U27: the settled cash is posted into the open shift's drawer; the dialog never said so, and the
+                                 cashier's blind count came up short by exactly the driver's money. -->
+                            <TextBlock Text="الفلوس اللي الطيار بيسلّمها بتتسجل في درج الكاشير (الوردية المفتوحة دلوقتي) - حطها في الدرج."
+                                       TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource WarningTextBrush}" AutomationProperties.AutomationId="Settle_DrawerNote"/>
                             <Button Content="تسوية العهدة" MinHeight="52" HorizontalAlignment="Stretch"
                                     Style="{StaticResource CtaButtonStyle}" Command="{Binding SettleDriverCommand}"/>
                         </StackPanel>

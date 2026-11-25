@@ -49,6 +49,7 @@ which cash-on-delivery orders are still unsettled.
 | `CollectedSales` | What the restaurant actually holds from the period's trade | `NetSales − PendingElectronicSales − CashWithDrivers` |
 | `AverageOrderValue` | | `NetSales / OrderCount` (0 for no orders) |
 | `Cash` / `Card` / `InstaPay` / `Wallet` | Channel totals | the period's sales through the channel (split legs as-is; electronic legs only once confirmed; single-method orders only once paid) **minus** the period's refunds through that channel |
+| `DeliveryCash` ("كاش توصيل") | Cash-on-delivery the drivers have settled (owner decision 2026-11-25, audit R1) | Σ `Order.Total` of the period's COD orders (delivery, cash, not `IsPaid`) whose custody is settled - at full value, like `CashWithDrivers`. Refunds of them stay in the `Cash` line, which the drawer paid. With it, `Cash + Card + InstaPay + Wallet + DeliveryCash + CashWithDrivers + PendingElectronicSales = NetSales` for single-method sales (split and partly-refunded edge cases aside) |
 | `Pickup` / `Takeaway` / `Delivery` | Order-type totals | the period's sales of that type minus the period's refunds of orders of that type |
 
 `NetSales` is not profit, not cash flow and not collections: it includes VAT and delivery fees, and

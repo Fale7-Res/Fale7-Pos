@@ -53,7 +53,7 @@ public partial class MenuViewModel : ObservableObject
         public string ToggleAccessibleName => (IsAvailable ? "إيقاف توفر " : "إتاحة ") + Product.Name;
 
         public string PriceDisplay => (Product.Variants.Count > 1 ? "من " : "") +
-            CashInput.Format(Product.Variants.Count > 0 ? Product.Variants.Min(v => v.PricePiastres) : Product.BasePricePiastres) + " ج";
+            CashInput.Display(Product.Variants.Count > 0 ? Product.Variants.Min(v => v.PricePiastres) : Product.BasePricePiastres) + " ج";
 
         public string StationLabel => Product.PreparationStation switch
         {

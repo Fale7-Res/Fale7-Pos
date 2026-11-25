@@ -27,7 +27,12 @@ public partial class CallCenterViewModel : ObservableObject
         _session = session;
         _header = header;
         OwnerUserId = session.CurrentUser?.Id ?? "";
-        Cart.CollectionChanged += (_, _) => RecomputeCartTotals();
+        Cart.CollectionChanged += (_, _) =>
+        {
+            RecomputeCartTotals();
+            // Audit 2026-11-25 U25: "السلة فارغة" stayed on screen after items were added.
+            if (Cart.Count > 0 && CheckoutError == EmptyCartMessage) CheckoutError = null;
+        };
         // An operation that was still in flight when this station last stopped comes back here, so
         // the desk offers the same retry it would have offered had the process survived.
         RecoverPendingOperations();

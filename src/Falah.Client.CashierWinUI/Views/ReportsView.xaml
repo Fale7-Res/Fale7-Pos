@@ -169,7 +169,7 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="نقدًا" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.CashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
@@ -179,6 +179,9 @@
                                 <TextBlock Grid.Row="2" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.InstaPayPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                                 <TextBlock Grid.Row="3" Text="محفظة" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
                                 <TextBlock Grid.Row="3" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.WalletPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                <!-- Owner decision 2026-11-25 (audit R1): settled cash-on-delivery, so the lines add up to net sales. -->
+                                <TextBlock Grid.Row="4" Text="كاش توصيل (بعد التسوية)" Style="{StaticResource TableCellText}" Foreground="{ThemeResource TextMutedBrush}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Sales.DeliveryCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
                             </Grid>
                         </StackPanel>
                     </Border>

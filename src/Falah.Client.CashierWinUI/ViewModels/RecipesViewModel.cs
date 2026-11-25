@@ -54,16 +54,16 @@ public partial class RecipesViewModel : ObservableObject
         public string CostDisplay =>
             CostsHidden ? "—"
             : IsUnknown ? "—"
-            : IsComplete ? CashInput.Format(Cost.KnownCostPiastres) + " ج"
-            : "من " + CashInput.Format(Cost.KnownCostPiastres) + " ج";
+            : IsComplete ? CashInput.Display(Cost.KnownCostPiastres) + " ج"
+            : "من " + CashInput.Display(Cost.KnownCostPiastres) + " ج";
 
-        public string PriceDisplay => Cost.SellingPricePiastres is { } p and > 0 ? CashInput.Format(p) + " ج" : "—";
+        public string PriceDisplay => Cost.SellingPricePiastres is { } p and > 0 ? CashInput.Display(p) + " ج" : "—";
 
         public string FoodCostPercentDisplay =>
             Cost.FoodCostPercent is { } percent ? $"{percent:0.#}%" : "—";
 
         public string ContributionDisplay =>
-            Cost.ContributionPiastres is { } c ? CashInput.Format(c) + " ج" : "—";
+            Cost.ContributionPiastres is { } c ? CashInput.Display(c) + " ج" : "—";
 
         public string StatusLabel =>
             CostsHidden ? $"{Cost.LineCount} مكوّن"
@@ -254,9 +254,9 @@ public partial class RecipesViewModel : ObservableObject
 
         public bool IsPackaging => Line.Kind == "Packaging";
 
-        public string UnitCostDisplay => Line.UnitCostPiastres is { } c ? $"{CashInput.Format(c)} ج / {Line.Unit}" : "—";
+        public string UnitCostDisplay => Line.UnitCostPiastres is { } c ? $"{CashInput.Display(c)} ج / {Line.Unit}" : "—";
 
-        public string ExtendedCostDisplay => Line.ExtendedCostPiastres is { } c ? CashInput.Format(c) + " ج" : "—";
+        public string ExtendedCostDisplay => Line.ExtendedCostPiastres is { } c ? CashInput.Display(c) + " ج" : "—";
 
         /// <summary>Where the number came from matters as much as the number. A price nobody has
         /// paid yet must never look like one somebody has.</summary>
@@ -334,15 +334,15 @@ public partial class RecipesViewModel : ObservableObject
 
     public string DetailCostDisplay =>
         Detail is not { } d ? "—"
-        : IsDetailComplete ? CashInput.Format(d.KnownCostPiastres) + " ج"
+        : IsDetailComplete ? CashInput.Display(d.KnownCostPiastres) + " ج"
         : d.KnownLineCount == 0 ? "—"
-        : "من " + CashInput.Format(d.KnownCostPiastres) + " ج";
+        : "من " + CashInput.Display(d.KnownCostPiastres) + " ج";
 
-    public string DetailFoodCostDisplay => Detail is { } d ? CashInput.Format(d.FoodCostPiastres) + " ج" : "—";
-    public string DetailPackagingCostDisplay => Detail is { } d ? CashInput.Format(d.PackagingCostPiastres) + " ج" : "—";
+    public string DetailFoodCostDisplay => Detail is { } d ? CashInput.Display(d.FoodCostPiastres) + " ج" : "—";
+    public string DetailPackagingCostDisplay => Detail is { } d ? CashInput.Display(d.PackagingCostPiastres) + " ج" : "—";
 
     public string DetailPriceDisplay =>
-        Detail?.SellingPricePiastres is { } p and > 0 ? CashInput.Format(p) + " ج" : "—";
+        Detail?.SellingPricePiastres is { } p and > 0 ? CashInput.Display(p) + " ج" : "—";
 
     /// <summary>A margin measured against the cheapest size is not the margin of the dish; say so
     /// rather than let the figure be read as one number for the whole product.</summary>
@@ -354,7 +354,7 @@ public partial class RecipesViewModel : ObservableObject
     };
 
     public string DetailContributionDisplay =>
-        Detail?.ContributionPiastres is { } c ? CashInput.Format(c) + " ج" : "—";
+        Detail?.ContributionPiastres is { } c ? CashInput.Display(c) + " ج" : "—";
 
     public string DetailFoodCostPercentDisplay =>
         Detail?.FoodCostPercent is { } percent ? $"{percent:0.#}%" : "—";

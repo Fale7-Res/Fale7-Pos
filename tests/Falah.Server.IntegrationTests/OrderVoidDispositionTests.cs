@@ -93,6 +93,9 @@ public class OrderVoidDispositionTests : IAsyncLifetime
     public async Task Without_the_permission_a_cancellation_needs_a_managers_approval()
     {
         var (orderId, itemId) = await SellAsync("cash", "delivery");
+        // Owner, 2026-11-24: the manager is needed once the kitchen has its paper (before it, no admin code at all).
+        await _factory.QueryAsync(db => db.PrintJobs.Where(j => j.OrderId == orderId)
+            .ExecuteUpdateAsync(s => s.SetProperty(j => j.Status, "Succeeded")));
 
         var refused = await CancelUndispatchedAsync(orderId, _dispatcherId, "prepared");
         Assert.Equal(HttpStatusCode.UnprocessableEntity, refused.StatusCode);
@@ -123,7 +126,10 @@ public class OrderVoidDispositionTests : IAsyncLifetime
     [Fact]
     public async Task A_paid_delivery_order_is_refunded_not_cancelled_this_way()
     {
-        var (orderId, _) = await SellAsync("card", "delivery");
+        // Owner, 2026-11-24: no card on a delivery - the paid one is a confirmed transfer.
+        var (orderId, _) = await SellAsync("instapay", "delivery");
+        (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment",
+            new ConfirmElectronicPaymentRequest(orderId, _cashierId))).EnsureSuccessStatusCode();
 
         var response = await CancelUndispatchedAsync(orderId, _managerId, "prepared");
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);

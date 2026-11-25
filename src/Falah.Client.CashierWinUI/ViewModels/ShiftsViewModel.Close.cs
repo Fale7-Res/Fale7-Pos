@@ -46,7 +46,7 @@ public partial class ShiftsViewModel
 
     public string CloseShiftHandedOverText =>
         CloseShiftPreview is null || !CashInput.TryParse(CloseShiftRetainedText, out var retained) || retained < 0 || retained > CloseShiftPreview.ActualCashPiastres
-            ? "—" : CashInput.Format(CloseShiftPreview.ActualCashPiastres - retained) + " ج";
+            ? "—" : CashInput.Display(CloseShiftPreview.ActualCashPiastres - retained) + " ج";
 
     private async Task LoadHandoverChoicesAsync()
     {

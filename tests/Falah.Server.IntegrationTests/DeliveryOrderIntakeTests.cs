@@ -105,7 +105,7 @@ public class DeliveryOrderIntakeTests : IAsyncLifetime
         var checkout = await (await _client.PostAsJsonAsync("/api/orders/checkout", request)).Content.ReadFromJsonAsync<CheckoutOrderResult>();
 
         var order = await (await _client.GetAsync($"/api/orders/{checkout!.OrderId}")).Content.ReadFromJsonAsync<OrderDetailsDto>();
-        Assert.Equal("المنطقة المعادي، ش شارع 9، عمارة 5، دور 3، شقة 12 — بجوار الصيدلية", order!.DeliveryAddress);
+        Assert.Equal("المنطقة المعادي، شارع 9، عمارة 5، دور 3، شقة 12 — بجوار الصيدلية", order!.DeliveryAddress);
     }
 
     [Fact]

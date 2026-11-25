@@ -136,6 +136,27 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
+                    <!-- Owner decision 2026-11-25 (audit U19): transfers still waiting, without remembering their numbers. -->
+                    <Button AutomationProperties.AutomationId="OrderLookup_PendingTransfers" Content="تحويلات إنستاباي/محفظة مستنية تأكيد"
+                            Command="{Binding LoadPendingTransfersCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"/>
+                    <ItemsControl ItemsSource="{Binding PendingTransfers}" MaxHeight="200"
+                                  Visibility="{Binding HasPendingTransfers, Converter={StaticResource BoolToVisibleConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,6" Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding DataContext.OpenPendingTransferCommand, ElementName=Root}" CommandParameter="{Binding}"
+                                        AutomationProperties.Name="{Binding OrderNumber}">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding OrderNumber}" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Method, Converter={StaticResource PaymentMethodLabelConverter}}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding AmountPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                     <StackPanel Spacing="10" Visibility="{Binding OrderLookupResult, Converter={StaticResource NullToCollapsedConverter}}">
                         <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="14">
                             <StackPanel Spacing="6">
@@ -193,8 +214,24 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
+                        <!-- Audit 2026-11-25 U15: what already went back, so the same item is not refunded twice. -->
+                        <TextBlock AutomationProperties.AutomationId="OrderLookup_RefundLine" Text="{Binding LookupRefundLine}" FontWeight="Bold"
+                                   Foreground="{ThemeResource DangerBrush}" TextAlignment="Left" TextWrapping="Wrap"
+                                   Visibility="{Binding HasLookupRefund, Converter={StaticResource BoolToVisibleConverter}}"/>
+                        <TextBlock AutomationProperties.AutomationId="OrderLookup_HandedOverLine" Text="{Binding LookupHandedOverLine}" Style="{StaticResource MutedText}"
+                                   TextAlignment="Left" TextWrapping="Wrap" Visibility="{Binding HasLookupHandedOver, Converter={StaticResource BoolToVisibleConverter}}"/>
+
                         <TextBlock Text="{Binding ReprintStatusMessage}" Style="{StaticResource MutedText}" TextAlignment="Center" TextWrapping="Wrap"
                                    Visibility="{Binding ReprintStatusMessage, Converter={StaticResource NullToCollapsedConverter}}"/>
+
+                        <!-- Audit 2026-11-25 G1: a paid pickup is handed to its customer from here, by the cashier at the counter. -->
+                        <StackPanel Spacing="6" Visibility="{Binding CanHandOverPickup, Converter={StaticResource BoolToVisibleConverter}}">
+                            <Button AutomationProperties.AutomationId="OrderLookup_HandOver" Content="العميل وصل: سلّم واطبع الإيصال"
+                                    Command="{Binding HandOverPickupCommand}" IsEnabled="{Binding CanEditOperation}"
+                                    Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"/>
+                            <TextBlock Text="{Binding HandOverError}" Foreground="{ThemeResource DangerBrush}" TextWrapping="Wrap" TextAlignment="Left"
+                                       Visibility="{Binding HandOverError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                        </StackPanel>
 
                         <!-- UI-0025: collect an awaiting pickup, or a manager cancels one nobody came for. -->
                         <Border Background="{ThemeResource NeutralBackgroundBrush}" BorderBrush="{ThemeResource BrandPrimaryBrush}" BorderThickness="1" CornerRadius="16" Padding="14"

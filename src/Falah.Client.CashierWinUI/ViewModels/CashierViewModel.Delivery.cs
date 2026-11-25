@@ -51,7 +51,10 @@ public partial class CashierViewModel
         if (value != "pickup") { ClearRequestedPickupTime(); PayOnCollection = false; }
         // D3 (owner, 2026-11-24): a delivery is all cash with the driver or all paid; the server refuses a split on it.
         if (value == "delivery") IsSplitPaymentEnabled = false;
+        // Owner, 2026-11-24: no card on a delivery.
+        if (value == "delivery" && PaymentMethod == "card") PaymentMethod = "cash";
         OnPropertyChanged(nameof(CanSplitPayment));
+        OnPropertyChanged(nameof(CanPayByCard));
         OnPropertyChanged(nameof(IsPayOnCollection));
         if (value == "delivery") OpenDeliveryEditor();
         if (value == "pickup") OpenPickupEditor();

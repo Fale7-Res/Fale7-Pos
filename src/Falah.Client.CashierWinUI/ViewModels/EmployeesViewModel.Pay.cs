@@ -89,7 +89,7 @@ public partial class EmployeesViewModel
             // Caught here for a fast, friendly message - PayEmployeeHandler enforces the same cap
             // server-side regardless, so a stale client-side balance can never let an overpayment
             // through even if this check is skipped or the number shown here is out of date.
-            PayError = $"لا يمكن دفع أكثر من الرصيد الحالي المستحق ({CashInput.Format(PayEmployee.BalancePiastres)} ج).";
+            PayError = $"لا يمكن دفع أكثر من الرصيد الحالي المستحق ({CashInput.Display(PayEmployee.BalancePiastres)} ج).";
             return;
         }
 
@@ -111,7 +111,7 @@ public partial class EmployeesViewModel
         var result = await _payRequest.SendAsync(request, r => _session.Api.PayEmployeeAsync(r));
         if (!result.Success || result.Value is null) { PayError = _payRequest.FailureMessage(result.Error); return; }
         PayError = null;
-        ActionNote = $"تم الدفع. الرصيد المتبقي: {CashInput.Format(result.Value.BalanceAfterPiastres)} ج";
+        ActionNote = $"تم الدفع. الرصيد المتبقي: {CashInput.Display(result.Value.BalanceAfterPiastres)} ج";
         PayEmployee = null;
         _payRequestId = null;
         await ReloadAsync();

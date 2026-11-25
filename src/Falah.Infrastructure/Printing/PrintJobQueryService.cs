@@ -151,7 +151,9 @@ public sealed class PrintJobQueryService
         var route = Enum.Parse<PrintRoute>(job.Route);
 
         // A shift or expense slip describes no order, so it never touches the order composition below.
-        if (job.DocumentKind is { } kindName && kindName != nameof(PrintDocumentKind.Order))
+        // Owner, 2026-11-24: the pickup's handover receipt is an order paper - composed below as the customer's copy.
+        var isPickupReceipt = job.DocumentKind == nameof(PrintDocumentKind.PickupReceipt);
+        if (job.DocumentKind is { } kindName && kindName != nameof(PrintDocumentKind.Order) && !isPickupReceipt)
         {
             var slip = Enum.Parse<PrintDocumentKind>(kindName) switch
             {
@@ -174,12 +176,16 @@ public sealed class PrintJobQueryService
             i.PreparationStation)).ToList();
 
         var orderType = OrderEnumMapping.ParseOrderType(order.OrderType);
+        // A pickup's station copy is its prep slip until the customer takes it; its handover receipt (and any reprint
+        // after the handover) is the customer's priced receipt. Takeaway is always the receipt; delivery never is.
+        var customerCopy = orderType == OrderType.Takeaway
+            || (orderType == OrderType.Pickup && (isPickupReceipt || order.HandedOverAtUtc is not null));
         var composed = route switch
         {
             PrintRoute.Charcoal or PrintRoute.Grill =>
                 PrintRules.ComposeKitchenTicket(route, (await _settings.GetAsync(ct)).RestaurantName, order.Id, order.OrderNumber,
                     orderType, ticketItems, order.CreatedAtUtc, order.RequestedPickupAtUtc),
-            PrintRoute.Receipt or PrintRoute.CallCenter => await ComposeReceiptAsync(route, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
+            PrintRoute.Receipt or PrintRoute.CallCenter => await ComposeReceiptAsync(route, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct, customerCopy),
             PrintRoute.DeliveryOrder => await ComposeDeliveryOrderAsync(order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
             PrintRoute.DriverDispatch => await ComposeDriverDispatchAsync(job, order, orderType, cashier?.Name ?? order.CashierId, ticketItems, ct),
             _ => throw new InvalidOperationException($"مسار طباعة غير معروف: {route}"),
@@ -187,7 +193,8 @@ public sealed class PrintJobQueryService
 
         // PRT-0008 (owner decision 2026-11-22): "عدد نسخ الإيصال" - the till receipt's first print comes out
         // as that many copies, cut apart. A reprint or an automatic retry is one copy, marked as such.
-        if (route == PrintRoute.Receipt && !job.IsReprint && job.AttemptCount == 0)
+        // Copies are of the customer's receipt; a prep slip is one paper for the kitchen.
+        if (route == PrintRoute.Receipt && customerCopy && !job.IsReprint && job.AttemptCount == 0)
         {
             var copies = Math.Clamp((await _settings.GetAsync(ct)).NumberOfReceiptCopies, 1, 5);
             if (copies > 1)
@@ -328,10 +335,10 @@ public sealed class PrintJobQueryService
     /// from live data.</summary>
     private async Task<ComposedTicket> ComposeReceiptAsync(
         PrintRoute route, OrderEntity order, OrderType orderType, string cashierName,
-        IReadOnlyList<TicketItem> ticketItems, CancellationToken ct)
+        IReadOnlyList<TicketItem> ticketItems, CancellationToken ct, bool customerCopy = true)
     {
         var (header, totals) = await ReceiptPartsAsync(order, orderType, cashierName, ct);
-        return PrintRules.ComposeReceiptTicket(route, header, ticketItems, totals);
+        return PrintRules.ComposeReceiptTicket(route, header, ticketItems, totals, customerCopy);
     }
 
     /// <summary>The customer-receipt header and frozen totals of an order - shared by the takeaway

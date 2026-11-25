@@ -5,7 +5,6 @@ using Falah.Application.CashDrawer;
 using Falah.Application.Orders;
 using Falah.Application.Printing;
 using Falah.Application.Treasury;
-using Falah.Client.CashierWinUI.Services;
 
 namespace Falah.Client.CashierWinUI.ViewModels;
 
@@ -424,7 +423,7 @@ public partial class CashierViewModel
 
         IsCashMovementOpen = false;
         // UI review 2026-11-24: confirmed on the till's last-action line instead of the dialog just vanishing.
-        LastSaleNote = $"تم تسجيل {(request.MovementType == "cash_in" ? "إيداع نقدي في الدرج" : "سحب نقدي من الدرج")} {CashInput.Format(request.AmountPiastres)} ج";
+        LastSaleNote = $"تم تسجيل {(request.MovementType == "cash_in" ? "إيداع نقدي في الدرج" : "سحب نقدي من الدرج")} {CashInput.Display(request.AmountPiastres)} ج";
     }
 
     private OpenCashDrawerRequest? _pendingCashDrawer;

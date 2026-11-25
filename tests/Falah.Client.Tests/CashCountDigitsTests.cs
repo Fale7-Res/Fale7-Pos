@@ -23,6 +23,6 @@ public class CashCountDigitsTests
     {
         var row = new CashCountViewModel.DenominationRow { DenominationPiastres = 20_000, QuantityText = typed };
         Assert.Equal(expected, row.Quantity);
-        Assert.Equal(CashInput.Format(expected * 20_000) + " ج", row.LineTotalDisplay);
+        Assert.Equal(CashInput.Display(expected * 20_000) + " ج", row.LineTotalDisplay);   // audit 2026-11-25 U6: separated
     }
 }

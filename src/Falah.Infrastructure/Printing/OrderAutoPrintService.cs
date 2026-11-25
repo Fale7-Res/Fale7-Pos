@@ -3,6 +3,7 @@ namespace Falah.Infrastructure.Printing;
 using Falah.Application.Orders;
 using Falah.Application.Printing;
 using Falah.Infrastructure.Settings;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 /// <summary>
@@ -31,13 +32,15 @@ public sealed class OrderAutoPrintService
     private readonly CreatePrintJobsHandler _createJobs;
     private readonly SettingsQueryService _settings;
     private readonly ILogger<OrderAutoPrintService> _log;
+    private readonly Falah.Infrastructure.Persistence.FalahDbContext _db;
 
     public OrderAutoPrintService(CreatePrintJobsHandler createJobs, SettingsQueryService settings,
-        ILogger<OrderAutoPrintService> log)
+        ILogger<OrderAutoPrintService> log, Falah.Infrastructure.Persistence.FalahDbContext db)
     {
         _createJobs = createJobs;
         _settings = settings;
         _log = log;
+        _db = db;
     }
 
     /// <summary>PRT-0016 (owner decision 2026-11-22): the transfer was confirmed, so the kitchen ticket
@@ -66,23 +69,39 @@ public sealed class OrderAutoPrintService
         }
     }
 
-    /// <summary>UI-0025: the customer paid for an awaiting pickup at collection; their receipt prints now
-    /// (the kitchen ticket printed when it was registered). Keyed on the order, so a retried collection
-    /// never prints a second receipt. Never fails the payment; the receipt stays printable from Order Lookup.</summary>
-    public async Task<bool> TryPrintCollectionReceiptAsync(string orderId, string actorUserId, CancellationToken ct = default)
+    /// <summary>Workflow redesign (owner, 2026-11-24): a pickup's customer took the bag - collected and paid, or
+    /// handed over prepaid - and the customer's receipt prints on the till now (the kitchen papers printed when the
+    /// order was taken). A document of its own (PickupReceipt), so the till's earlier "first print" of the order does
+    /// not swallow it. Keyed on the order: a retried collection or handover - a replay included - queues it once.
+    /// Never fails the handover; the receipt stays printable from Order Lookup.</summary>
+    public async Task<bool> TryPrintPickupReceiptAsync(string orderId, string actorUserId, CancellationToken ct = default)
     {
         try
         {
             var settings = await _settings.GetAsync(ct);
             if (!settings.AutoPrintReceipt) return true;
-            await _createJobs.HandleAsync(new CreatePrintJobsRequest(
-                RequestId: $"collected-{orderId}", OrderId: orderId, CustomerRoute: "Receipt",
-                IsReprint: false, ActorUserId: actorUserId, IncludeKitchenRoutes: false), ct);
+            var jobId = $"printjob-pickup-receipt-{orderId}";
+            if (await _db.PrintJobs.AsNoTracking().AnyAsync(j => j.Id == jobId, ct)) return true;
+            var order = await _db.Orders.AsNoTracking().Where(o => o.Id == orderId).Select(o => new { o.OrderNumber }).FirstAsync(ct);
+            var actor = await _db.Users.AsNoTracking().Where(u => u.Id == actorUserId).Select(u => u.Name).FirstOrDefaultAsync(ct);
+            _db.PrintJobs.Add(new Falah.Infrastructure.Persistence.Entities.PrintJobEntity
+            {
+                Id = jobId, CreateRequestId = $"pickup-receipt-{orderId}", OrderId = orderId, OrderNumber = order.OrderNumber,
+                Route = nameof(Falah.Domain.Printing.PrintRoute.Receipt), Status = nameof(Falah.Domain.Printing.PrintJobStatus.Pending),
+                AttemptCount = 0, IsReprint = false, CreatedBy = actor ?? actorUserId, CreatedAtUtc = DateTimeOffset.UtcNow,
+                DocumentKind = nameof(Falah.Domain.Printing.PrintDocumentKind.PickupReceipt),
+            });
+            try { await _db.SaveChangesAsync(ct); }
+            catch (DbUpdateException)
+            {
+                // Queued by a sibling (a retried handover arriving at the same instant) is not a failure.
+                if (!await _db.PrintJobs.AsNoTracking().AnyAsync(j => j.Id == jobId, ct)) throw;
+            }
             return true;
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "Printing the collection receipt failed for order {OrderId}; the payment itself is unaffected.", orderId);
+            _log.LogError(ex, "Printing the pickup receipt failed for order {OrderId}; the handover itself is unaffected.", orderId);
             return false;
         }
     }
@@ -98,8 +117,10 @@ public sealed class OrderAutoPrintService
 
             // A station that did not say which customer ticket it prints gets the till's receipt -
             // the Call Center is the only caller that says otherwise, and it says so explicitly.
-            // UI-0025: a pickup paid on collection gets its receipt when it is paid (TryPrintCollectionReceiptAsync).
-            var customerRoute = settings.AutoPrintReceipt && !result.AwaitingCollection
+            // Workflow redesign (owner, 2026-11-24): a pickup prints its kitchen papers now - the station's copy is the
+            // "تحضير طلب" slip (PrintRules.ComposeReceiptTicket) - and the customer's receipt when it is handed over
+            // (TryPrintPickupReceiptAsync), paid in advance or not.
+            var customerRoute = settings.AutoPrintReceipt
                 ? string.IsNullOrWhiteSpace(request.CustomerPrintRoute) ? "Receipt" : request.CustomerPrintRoute
                 : null;
 

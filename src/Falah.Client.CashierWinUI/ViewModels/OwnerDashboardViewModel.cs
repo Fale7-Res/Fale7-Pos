@@ -270,7 +270,7 @@ public partial class OwnerDashboardViewModel : ObservableObject
         _ => "بلا تغيير",
     };
 
-    private static string Money(long piastres) => CashInput.Format(piastres) + " ج";
+    private static string Money(long piastres) => CashInput.Display(piastres) + " ج";
 
     // ---------------- work that needs a person ----------------
 

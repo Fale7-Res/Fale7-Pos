@@ -20,7 +20,9 @@ public static class SalesRules
         Money OffersValue, Money CompsValue, Money ManualDiscounts, Money PendingElectronicSales,
         Money CashWithDrivers, Money CollectedSales, Money AverageOrderValue,
         Money Cash, Money Card, Money InstaPay, Money Wallet,
-        Money Pickup, Money Takeaway, Money Delivery);
+        Money Pickup, Money Takeaway, Money Delivery,
+        // Owner decision 2026-11-25 (audit R1): cash-on-delivery the drivers have settled - in no other payment line.
+        Money DeliveryCash = default);
 
     /// <summary>One refund as an event of the period it happened in. The refunded order's type, total
     /// and tax ride along because a refund can reverse a sale from outside the period - the order
@@ -112,11 +114,20 @@ public static class SalesRules
 
         var averageOrderValue = sales.Count > 0 ? Money.FromPiastres(netSales.Piastres / sales.Count) : Money.Zero;
 
+        // Owner decision 2026-11-25 (audit R1): cash-on-delivery the drivers have settled. A COD order is never IsPaid
+        // (its money is tracked through the driver's custody), so PaymentMethodTotalsAsSold leaves it out of every
+        // channel and the lines could not add up to net sales. At the sale's full value, like CashWithDrivers; its
+        // refunds already leave through the cash line, where the drawer paid them.
+        var deliveryCash = Money.FromPiastres(sales
+            .Where(o => o.OrderType == OrderType.Delivery && o.PaymentMethod == PaymentMethod.Cash && !o.IsPaid
+                && !orderIdsWithCashOutsideRestaurant.Contains(o.Id))
+            .Sum(o => o.Total.Piastres));
+
         return new SalesReport(
             sales.Count, grossSales, refunds, netSales, listSales, offersValue, compsValue, manualDiscounts,
             pendingElectronicSales, cashWithDrivers, collectedSales, averageOrderValue,
             Channel(PaymentMethod.Cash), Channel(PaymentMethod.Card), Channel(PaymentMethod.InstaPay), Channel(PaymentMethod.Wallet),
-            OrderTypeNet(OrderType.Pickup), OrderTypeNet(OrderType.Takeaway), OrderTypeNet(OrderType.Delivery));
+            OrderTypeNet(OrderType.Pickup), OrderTypeNet(OrderType.Takeaway), OrderTypeNet(OrderType.Delivery), deliveryCash);
     }
 
     private static Money SumMoney(IReadOnlyList<Order> orders, Func<Order, Money> selector) =>

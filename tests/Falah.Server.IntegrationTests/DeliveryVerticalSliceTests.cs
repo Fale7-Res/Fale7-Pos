@@ -1,4 +1,4 @@
-﻿namespace Falah.Server.IntegrationTests;
+namespace Falah.Server.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
@@ -48,7 +48,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
             new OpenShiftRequest($"open-{Guid.NewGuid():N}", "صباحية", _cashierId, openingCashPiastres)))
             .Content.ReadFromJsonAsync<OpenShiftResult>())!.ShiftId;
 
-    private async Task<CheckoutOrderResult> CheckoutDeliveryOrderAsync(string shiftId, long totalPiastres, string paymentMethod = "cash")
+    private async Task<CheckoutOrderResult> CheckoutDeliveryOrderAsync(string shiftId, long totalPiastres, string paymentMethod = "cash", bool confirmTransfer = true)
     {
         await _factory.SeedDeliveryServiceAsync("svc-1", 0, "توصيل سريع"); // AUD-01: the zone the order names, at the fee it sends
         var productId = await _factory.SeedProductAsync(totalPiastres);
@@ -64,7 +64,13 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
             DeliveryStreet: "شارع 9", DeliveryServiceId: "svc-1", DeliveryServiceName: "توصيل سريع");
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", request);
         response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+        var result = (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+        // Owner, 2026-11-24: a delivery is never paid by card; the prepaid one is a confirmed transfer, and it is
+        // confirmed before it can go out with a driver (D1).
+        if (confirmTransfer && paymentMethod is "instapay" or "wallet")
+            (await _client.PostAsJsonAsync("/api/orders/confirm-electronic-payment",
+                new ConfirmElectronicPaymentRequest(result.OrderId, _cashierId))).EnsureSuccessStatusCode();
+        return result;
     }
 
     private Task<string> GetDeliveryIdForOrderAsync(string orderId) =>
@@ -202,7 +208,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task Assigning_a_driver_to_a_card_paid_order_creates_no_custody_row()
     {
         var shiftId = await OpenShiftAsync();
-        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "card"); // paid up front - nothing for the driver to collect
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "instapay"); // paid up front - nothing for the driver to collect
         var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
         await MarkReadyAsync(deliveryId);
         var driverId = await CreateDriverAsync();
@@ -415,7 +421,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task Reassigning_a_settled_delivery_is_rejected()
     {
         var shiftId = await OpenShiftAsync();
-        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "card"); // no custody, settles cleanly with zero cash
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "instapay"); // no custody, settles cleanly with zero cash
         var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
         await MarkReadyAsync(deliveryId);
         var driverId = await CreateDriverAsync();
@@ -626,7 +632,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task A_prepaid_delivery_dispatch_ticket_shows_no_amount_to_collect()
     {
         var shiftId = await OpenShiftAsync();
-        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "card"); // prepaid, no COD
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, "instapay"); // prepaid, no COD
         var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
         await MarkReadyAsync(deliveryId);
         var driverId = await CreateDriverAsync();
@@ -1120,6 +1126,11 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         Assert.Equal(0, afterSettlement.CashWithDriversPiastres);
         Assert.Equal(20000, afterSettlement.CollectedSalesPiastres);
         Assert.Equal(20000, afterSettlement.NetSalesPiastres);
+        // Owner decision 2026-11-25 (audit R1): the settled cash is its own payment line; before settlement it is not.
+        Assert.Equal(0, afterDelivery.DeliveryCashPiastres);
+        Assert.Equal(20000, afterSettlement.DeliveryCashPiastres);
+        Assert.Equal(afterSettlement.NetSalesPiastres, afterSettlement.CashPiastres + afterSettlement.CardPiastres
+            + afterSettlement.InstaPayPiastres + afterSettlement.WalletPiastres + afterSettlement.DeliveryCashPiastres);
     }
 
     /// <summary>A delivery order paid electronically up front is not cash-on-delivery, so it must be
@@ -1128,7 +1139,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task A_prepaid_delivery_order_is_not_treated_as_cash_with_drivers()
     {
         var shiftId = await OpenShiftAsync();
-        await CheckoutDeliveryOrderAsync(shiftId, 15000, paymentMethod: "instapay");
+        await CheckoutDeliveryOrderAsync(shiftId, 15000, paymentMethod: "instapay", confirmTransfer: false);
 
         var sales = (await (await _client.GetAsync($"/api/reports/sales?actorUserId={_managerId}")).Content
             .ReadFromJsonAsync<Falah.Application.Reports.SalesReportDto>())!;
@@ -1204,10 +1215,12 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     }
 
 
+    /// <summary>Owner decision 2026-11-24: a settled cash delivery is refundable up to what its driver actually collected -
+    /// nothing at all when nothing came in, and a short-collected one only as far as the cash that did.</summary>
     [Theory]
     [InlineData(0)]
     [InlineData(5000)]
-    public async Task A_settled_flag_without_full_customer_cash_cannot_authorize_a_refund(long collected)
+    public async Task A_settled_cash_delivery_is_refundable_only_up_to_what_its_driver_collected(long collected)
     {
         var shift = await OpenShiftAsync();
         var order = await CheckoutDeliveryOrderAsync(shift, 10000);
@@ -1217,8 +1230,16 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
         await _factory.QueryAsync(db => db.DriverCustodies.Where(c => c.OrderId == order.OrderId)
             .ExecuteUpdateAsync(s => s.SetProperty(c => c.Status, "Settled").SetProperty(c => c.CollectedPiastres, collected)));
         var response = await _client.PostAsJsonAsync("/api/orders/refund", new RefundOrderRequest(Guid.NewGuid().ToString("N"), order.OrderId, 10000, "اختبار", _managerId, null, null));
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
-        Assert.False(await _factory.QueryAsync(db => db.OrderRefunds.AnyAsync(r => r.OrderId == order.OrderId)));
+        if (collected == 0)
+        {
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+            Assert.False(await _factory.QueryAsync(db => db.OrderRefunds.AnyAsync(r => r.OrderId == order.OrderId)));
+            return;
+        }
+        response.EnsureSuccessStatusCode();   // asked for the whole 100, clamped to the 50 that came in
+        Assert.Equal(collected, await _factory.QueryAsync(db => db.OrderRefunds.Where(r => r.OrderId == order.OrderId).SumAsync(r => r.AmountPiastres)));
+        var again = await _client.PostAsJsonAsync("/api/orders/refund", new RefundOrderRequest(Guid.NewGuid().ToString("N"), order.OrderId, 1000, "اختبار", _managerId, null, null));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, again.StatusCode);   // nothing left of what was collected
     }
 
 
@@ -1228,7 +1249,7 @@ public class DeliveryVerticalSliceTests : IAsyncLifetime
     public async Task A_paid_delivery_that_failed_is_shown_as_owed_until_it_is_refunded()
     {
         var shiftId = await OpenShiftAsync();
-        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, paymentMethod: "card");
+        var order = await CheckoutDeliveryOrderAsync(shiftId, 15000, paymentMethod: "instapay");
         var deliveryId = await GetDeliveryIdForOrderAsync(order.OrderId);
         await MarkReadyAsync(deliveryId);
         var driverId = await CreateDriverAsync();

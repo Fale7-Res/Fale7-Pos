@@ -22,6 +22,17 @@ public class CheckoutRulesTests
         Assert.Contains("التوصيل", ex.Message);
     }
 
+    /// <summary>Owner decision 2026-11-24 (workflow redesign): cash, InstaPay or wallet on a delivery - never card.</summary>
+    [Fact]
+    public void A_card_payment_is_refused_on_a_delivery_order()
+    {
+        var ex = Assert.Throws<DomainException>(() => CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.Card, new[] { Item(100m) },
+            Money.Zero, taxRule: null, Money.Zero, Money.Zero, Money.FromEgp(100m), null, null));
+        Assert.Contains("البطاقة", ex.Message);
+        Assert.Equal(PaymentMethod.InstaPay, CheckoutRules.BuildPlan(OrderType.Delivery, PaymentMethod.InstaPay, new[] { Item(100m) },
+            Money.Zero, taxRule: null, Money.Zero, Money.Zero, Money.FromEgp(100m), null, null).PaymentMethod);
+    }
+
     // ---- UI-0025, owner decision 2026-11-22: a pickup is registered and prepared, the customer pays on collection ----
 
     [Fact]

@@ -69,7 +69,7 @@ public partial class ShiftsViewModel
         if (left.Success && left.Value?.InheritedFloatPiastres is { } inherited)
         {
             suggested = inherited;
-            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Format(inherited)} ج - لن تُصرف عهدة جديدة من الخزنة. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل على الكاشير. لإكمال العهدة استخدم «إضافة نقدية» بعد الفتح.";
+            OpeningInheritedNote = $"الوردية السابقة ({left.Value.FromShiftName}) تركت في الدرج {CashInput.Display(inherited)} ج - لن تُصرف عهدة جديدة من الخزنة. عُدّ الدرج وأدخل ما وجدته فعلًا؛ أي فرق يُسجَّل منفصلًا ولا يُحمَّل على الكاشير. لإكمال العهدة استخدم «إضافة نقدية» بعد الفتح.";
         }
 
         OpeningCashText = Services.CashInput.Format(suggested);

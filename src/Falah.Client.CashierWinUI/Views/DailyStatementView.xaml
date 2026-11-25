@@ -105,6 +105,8 @@
                             </Border>
                         </Grid>
                         <StackPanel Orientation="Horizontal" Spacing="16">
+                            <!-- Owner decision 2026-11-25 (audit R1): settled cash-on-delivery, in no payment tile above. -->
+                            <TextBlock FontSize="12"><Run Text="كاش توصيل (بعد التسوية): "/><Run Text="{Binding Statement.Sales.DeliveryCashPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></TextBlock>
                             <TextBlock FontSize="12"><Run Text="تحويلات إلكترونية معلّقة: "/><Run Text="{Binding Statement.Sales.PendingElectronicSalesPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></TextBlock>
                             <TextBlock FontSize="12"><Run Text="نقدية مع السائقين: "/><Run Text="{Binding Statement.Sales.CashWithDriversPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></TextBlock>
                             <TextBlock FontSize="12"><Run Text="خصومات يدوية: "/><Run Text="{Binding Statement.Sales.ManualDiscountsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold"/></TextBlock>

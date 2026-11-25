@@ -59,8 +59,20 @@
                                 <!-- Not bound: a bound null reaches the pickers as 1/1/1926 and 0:00 (see the code-behind). -->
                                 <CalendarDatePicker x:Name="PickupDatePicker" Header="اليوم" PlaceholderText="اختر اليوم" HorizontalAlignment="Stretch" MinHeight="44"
                                                     AutomationProperties.AutomationId="CallCenter_PickupDate" DateChanged="OnPickupDateChanged"/>
-                                <TimePicker x:Name="PickupTimePicker" Grid.Column="1" Header="الساعة" HorizontalAlignment="Stretch" MinHeight="44" MinuteIncrement="5"
-                                            AutomationProperties.AutomationId="CallCenter_PickupTime" SelectedTimeChanged="OnPickupTimeChanged"/>
+                                <!-- Audit 2026-11-25 U16: two lists with Arabic placeholders instead of the framework TimePicker
+                                     ("hour"/"minute" in English). -->
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="الساعة"/>
+                                    <Grid ColumnSpacing="6" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <ComboBox x:Name="PickupHourBox" PlaceholderText="الساعة" HorizontalAlignment="Stretch" MinHeight="44"
+                                                  AutomationProperties.AutomationId="CallCenter_PickupHour" AutomationProperties.Name="ساعة الاستلام"
+                                                  SelectionChanged="OnPickupTimePartChanged"/>
+                                        <ComboBox x:Name="PickupMinuteBox" Grid.Column="1" PlaceholderText="الدقيقة" HorizontalAlignment="Stretch" MinHeight="44"
+                                                  AutomationProperties.AutomationId="CallCenter_PickupMinute" AutomationProperties.Name="دقيقة الاستلام"
+                                                  SelectionChanged="OnPickupTimePartChanged"/>
+                                    </Grid>
+                                </StackPanel>
                                 <Button Grid.Column="2" Content="بدون موعد" VerticalAlignment="Bottom" MinHeight="44"
                                         Style="{StaticResource GhostButtonStyle}" Command="{Binding ClearPickupTimeCommand}"/>
                             </Grid>

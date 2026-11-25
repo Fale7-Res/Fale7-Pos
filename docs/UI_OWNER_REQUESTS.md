@@ -636,3 +636,128 @@ Not taken (owner): a second person to close the day, a witness at the shift clos
 Tests: `OperatingLimitsTests` (5) - written with the code, not seen red. Run together with `DeliveryPaymentIntegrityTests`
 and the two rewritten tests: 14/14; domain 607/607, client 493/493. The full suite has not been run since group A
 (the PIN check runs on every request).
+
+### Delivery and pickup workflow redesign — Claude, 2026-11-24
+
+Baseline before it: `b1fc586` ("chore: checkpoint before delivery pickup workflow redesign"). Owner decisions the
+same day, applied as given:
+
+| Topic | Decision | Where |
+|---|---|---|
+| Delivery payment | Cash with the driver, InstaPay or wallet - never card, never split. Refused by the server; the till hides card and split for a delivery | `CheckoutRules.BuildPlan`, `CheckoutView.xaml`, `CashierViewModel.CanPayByCard` |
+| Kitchen paper | Printed automatically when the order is saved, as before. "Printed" is read from the print queue (first paper Sending/Succeeded) - no status stored | `KitchenTicket` |
+| Cancel | Unpaid orders only (a paid one is refunded). Before the kitchen paper: no admin code, every ingredient back. After it: manager's PIN (`delivery_override` / `pickup_cancel`) and "was it prepared?" (yes = stays out of stock as waste, no = back to stock) | `CancelUndispatchedDeliveryHandler`, `CancelUncollectedPickupHandler`, `CancelPendingElectronicPaymentHandler` (new approval fields) |
+| Pickup | Two steps after it is saved: kitchen paper (a "تحضير طلب" slip, like a delivery) and, when the customer takes it, the customer's receipt. An unpaid pickup is paid and handed over in one step; a prepaid one has its own "handed over" press. Either ends it: `HandedOverAtUtc`/`HandedOverBy`, status completed, out of the active queue, row kept | `HandOverPickupHandler`, `CollectPickupPaymentHandler`, migration `AddPickupHandover`, `PrintDocumentKind.PickupReceipt` |
+| Delivery failure | Didn't answer, phone switched off, refused, wrong address, other (typed, required) | `RecordDeliveryResultHandler`, both outcome dialogs |
+| Paid delivery failed / returned | Refunded by hand; the queue marks it "needs a refund" | `OrderQueueQueryService` |
+| Short-collected cash delivery | Refundable after the driver's settlement, up to what was collected | `RefundOrderHandler` |
+| Order status | A delivery or pickup reads "preparing" until delivered / handed over, then "completed" | `Order.Create`, `RecordDeliveryResultHandler`, pickup handover |
+
+**The order queue.** `GET /api/orders/queue` (pos or delivery_manage) maps the records the system already keeps to a
+stage and one next action - delivery: new (kitchen paper not printed) → preparing → ready → out → delivered / failed
+/ returned until the driver is settled; pickup: new → preparing → completed (handed over in the open day). Both
+clients' "طابور الطلبات والتوصيل" page shows deliveries and pickups side by side, grouped by stage, each card with
+its customer, address, amount, payment state, attention line and the next step; Cancel only when the server allows
+it. The till hands pickups over and collects; the Call Center follows pickups and cancels unpaid ones (money is taken
+at the till). The page is open to `pos` as well as `delivery_manage` on the till; dispatch actions stay
+`delivery_manage` on the server.
+
+Unchanged on purpose: Call Center has no payment choice (delivery = cash with the driver, pickup = paid at the
+counter); the existing delivery dialogs (assign with the custody-cap PIN, result, driver settlement) do the work.
+
+Open question recorded in `state.json`: WF-PICKUP-CLOSE - should a prepaid pickup never marked handed over block the
+day close? Today it does not.
+
+**Deployment.** One more additive migration (`20261124194004_AddPickupHandover`: three nullable columns on Orders and
+a filtered unique index) - backup first, as for the others. Pickups taken before this build have no handover record:
+the queue shows a pickup not handed over only for the open day or the last 24 hours.
+
+Tests: `DeliveryPickupWorkflowTests` (14), `OrderQueueScreenTests` (6), `CheckoutRulesTests.A_card_payment_is_refused_on_a_delivery_order`,
+`CashierCorrectnessTests.A_delivery_order_offers_no_card_payment` - written with the code (not seen red). Card-paid
+delivery tests in `DeliveryVerticalSliceTests`, `DriverFeeSettlementAndHandoverTests` and `DeliveryPaymentIntegrityTests`
+now use a confirmed transfer (the only prepaid delivery left).
+
+**Owner review the same evening, with the printer unplugged:** "assign is gone". The first queue made the kitchen
+paper a gate - an order whose paper had not printed offered only "print kitchen paper", so no ready, no assign, no
+handover. Fixed: a missing kitchen paper is a warning line and a secondary button (`QueueOrderDto.SecondaryAction`),
+never a gate; the main step is always there; the paper still decides only whether a cancellation needs a manager.
+Test `A_printer_that_is_off_never_holds_an_order_back`.
+
+Neighbours: the 42 classes touching delivery, pickup, payments, printing or the day close ran 436/443 before that fix;
+the 7 failures asserted rules the owner changed (card deliveries ×3, cancel always needing a manager ×3, a
+short-collected delivery never refundable ×1) and were rewritten to the decisions. After the fix the five affected
+classes (`PickupPayOnCollectionTests`, `DriverDailyStatementTests`, `OrderVoidDispositionTests`,
+`DeliveryVerticalSliceTests`, `DeliveryPickupWorkflowTests`) ran 91/91; client 500/500, domain 608/608.
+
+**Audit fix, 2026-11-25: a fully refunded prepaid pickup could be "handed over".** `HandOverPickupHandler` refused a
+cancelled pickup but not a refunded one, and the queue kept it with its "hand over" button; pressing it overwrote
+`refunded` with `completed` and recorded a handover for an order whose money had gone back (no money moved). Now the
+handler refuses it (422) and the queue drops it, like a cancelled one; a partly refunded pickup is unchanged. Test
+`DeliveryPickupWorkflowTests.A_prepaid_pickup_refunded_in_full_is_not_offered_or_accepted_for_handover_and_stays_refunded`
+seen red twice for the right reasons (queue still listed it; then handover answered 200 instead of 422), then green.
+`DeliveryPickupWorkflowTests`, `PickupPayOnCollectionTests`, `OrderVoidDispositionTests` and the `RefundOrder*`
+classes ran 35/35 (in a scratchpad copy of the tree: a running `Falah.Server` locked `src/Falah.Server/bin`).
+
+### Trading-day audit on the real apps — Claude, 2026-11-25
+
+Owner: "fix all findings; test the whole UI button by button as a full working day". Run on this machine against an
+isolated server (Development, port 5252, databases `FalahTest_ui_20261125` and `FalahTest_ui2_20261125`, automatic
+backup off) with the real Cashier and Call Center apps (`FALAH_SERVER_URL`, `FALAH_CLIENT_DATA_ROOT`, `FALAH_LOG_DIR`
+pointing at the scratchpad), driven through Windows UI Automation. The owner's own server (port 5151, `Falah`) was not
+touched. The day: open day → owner deposit → shift → cash, card, InstaPay (confirmed later), comp with a wrong then a
+right manager PIN, refund, drawer expense, prepaid and pay-on-collection pickups → delivery (driver and service set up,
+ready, assigned, delivered, settled) → blind count, re-count, close shift → checklist → close day → reports, then every
+management screen opened once. The slip, reconciliation, daily statement and dashboard figures matched by hand
+(gross 460, refunds 45, net 415, cash 245 + card 45 + InstaPay 45, drawer 780).
+
+Fixed (test first unless noted; client tests 500 → 521, domain 608 → 615):
+
+| # | What the day showed | Fix |
+|---|---|---|
+| G1 | A cashier holding only `pos` lands on the till, never the shell, so the order queue - the only place a prepaid pickup was handed over - was out of reach: the pickup stayed "preparing" and its customer's receipt never printed | Order lookup hands it over (`CanHandOverPickup`, `HandOverPickupCommand`; `OrderDetailsDto.HandedOverAtUtc/HandedOverBy`). `LookupHandoverAndRefundLineTests`; run on screen |
+| 4 | A handover request id reused for another order answered with the first order's handover | Refused (`HandOverPickupHandler.ReplayAsync`). `DeliveryPickupWorkflowTests.A_handover_request_id_used_for_one_pickup_is_refused_for_another_and_leaves_it_open` |
+| F-19 | Recipes, stock balance and movements, drivers, delivery timelines and print status readable by any session | Gated on the permissions of the screens that use them. `StationReadPermissionTests.Recipes_stock_drivers_timelines_and_print_status_need_a_role_that_uses_them`; allow-list trimmed in `EndpointReadGateCoverageTests`; `PrintingVerticalSliceTests` reads the overview as `settings_manage` |
+| U29 | A re-count equal to the expected cash (difference 0.00) was told "the difference is over the limit" | `PrepareShiftCloseResult.IsRecount`; the till says a re-count needs a manager. `ShiftCloseVerticalSliceTests` (extended), client test; run on screen |
+| U28 | Close-shift confirm/back buttons scrolled out of sight under the handover section | Pinned below the scrolling content; run on screen |
+| U21 | A comp lowered the total 90 → 45 but "amount received" stayed 90: the screen showed 45 change never paid | The till's own pre-fill follows the total until the cashier types |
+| U15 / U14 | The lookup never showed a partial refund; the refund amount defaults to the whole balance | "اترجّع 45.00 ج — المتبقي 45.00 ج"; the button says "تأكيد استرداد 45.00 ج" |
+| U9 / U20 | Green tick on a transfer NOT received and on a cancelled order; a later transfer confirmation was titled "تم تسجيل الطلب" | ⏳ / ✕ / ✓ marks; "تم تأكيد استلام التحويل" |
+| U10 | "#0130" laid out as "0130#" in Arabic text (footer, result card), dates as "25-11-2026" | Left-to-right marks (U+200E; WinUI ignored the isolates U+2066/2069 tried first); run on screen |
+| U11 | The menu search kept the last word after a sale, even across a lock and another login | Cleared after each sale |
+| U18 / U8 | A pay-on-collection pickup showed payment methods and "amount received 50.00"; with a card the keypad looked live and did nothing | Hidden for pay-on-collection; quick amounts and keypad disabled unless the amount can be typed |
+| U1 / U33 / U32 | Opening a day: a raw "YYYY-MM-DD" box and no word on which day opens. Closing: only a date and "تأكيد العملية". "عدّ النقدية" stayed the main action with no shift open and refused after a full count | The dialog says which day opens; the close lists net, refunds, expenses and shift difference and its button names the day; the count is disabled with a reason when no shift is open. `ControlCenterTradingDayTests`; run on screen (these three were written with the code, not seen red) |
+| U2 | Header pill "مغلق" (= no shift) read as "the restaurant is closed" | "لا توجد وردية مفتوحة" (both apps) |
+| U3 / U30 / U12 / U13 | Zero refunds/expenses in red; checklist rows and expense-dialog labels on the left of a right-to-left page ("Right" is mirrored); expense categories ragged | `NonZeroToBrushConverter`; "Left" (reading start) alignment; categories in three full rows with the purchasing note below |
+| U26 | Queue card and receipts: "الحي السابع · المنطقة الحي السابع، ش شارع النصر" | `DeliveryRules.ComposeDeliveryAddress` does not prefix a part that already names itself (the old tests pinned "ش شارع 9", "عمارة عمارة 5" and were corrected); the card names the area once |
+| U27 | Driver settlement never said the cash goes into the open shift's drawer - the cashier's blind count came up 65 short | One line in both apps' settlement dialog |
+| U25 | Call Center kept "السلة فارغة" with items, and "عميل جديد" after saving the details | Cleared. `CallCenterDeskHintTests` |
+| U4 / U17 | The unlock button had no automation id; the pickup dialog's cursor started in the name, not the phone | `Login_Submit`; phone focused |
+| 5 | Compiler warnings CS0105, CS8625, CA1416 | Removed (`WindowsOnly.cs` for the Windows-only test suite) |
+
+**Second round, same day - the owner answered the open questions ("كمّل وصلّح الحاجات اللي فاضلة"):**
+
+| # | Owner's answer | Done |
+|---|---|---|
+| G2 | A takeaway is complete when it is paid | `Order.Create`: only delivery and pickup start "preparing". `OrderInitialStatusTests` (seen red: Preparing) |
+| R1 | A separate "كاش توصيل" payment line | `SalesRules.DeliveryCash` / `SalesReportDto.DeliveryCashPiastres`: settled COD at full value; cash line unchanged, so no reported figure moves. Reports screen, daily statement and the export's payment table (whose note about the difference became true). `SalesRulesTests` (seen red: 0.00), `DeliveryVerticalSliceTests` extended; `METRIC_DEFINITIONS.md` row |
+| U19 | Pending-transfer list on the till | `GET /api/orders/pending-transfers` (pos) and "تحويلات إنستاباي/محفظة مستنية تأكيد" in the order lookup; a row opens the order where confirm/cancel already are. `ConfirmElectronicPaymentTests`, `PendingTransfersListTests`; run on screen |
+| U24 | Driver phone | Migration `AddDriverPhone` (nullable `Drivers.Phone nvarchar(20)`; generated with the pinned tool against `FalahDesignTime_DoNotConnect`, snapshot diff = that column only; `DEPLOYMENT.md`), `DeliveryRules.NormalizeDriverPhone`, phone on add, `PUT /api/delivery/drivers/{id}/phone`, shown in the drivers list and the queue's drivers column (both apps). `DriverPhoneTests`, `DeliveryRulesTests`, `DriverPhoneDirectoryTests`; run on screen |
+| U7 | Keep the shift names | No change |
+| U5 | Not chosen | No change |
+
+Also fixed in the second round: U16 - the framework time picker was replaced, in the till's pickup details and the
+Call Center's editor, by two lists (hour 00-23, minute every 5 - a held odd minute is kept) with Arabic placeholders;
+`PickupPickerBindingTests` and the Call Center counterpart now check the lists stay unbound and wired to the
+code-behind. U6 - amounts read thousands-separated ("5,000.00 ج"): both apps' money converters and a display-only
+`CashInput.Display` replacing `CashInput.Format` wherever an amount is followed by " ج" (119 places); `Format` stays the
+input form that `TryParse` reads. Client tests 521 → 525, domain 615 → 626.
+
+First-round note, superseded above: U16 (the pickup time picker's empty fields read "hour"/"minute" - framework strings; the
+control's `Language` and rewriting its template parts were both tried and both overridden, the code was removed; an
+app-wide UI language would also change date-picker digits, so it is left for a decision), U6 (no thousands separator
+in amounts - the shared formatter feeds receipts and tests; left as a separate change), U22 (Call Center submit looks
+active with an empty cart but explains itself - kept). Owner questions recorded in `state.json`: G2 (takeaway with grill
+items stays "preparing" for ever), U7 (shift names on a 24-hour restaurant), R1 (payment lines exclude settled
+cash-on-delivery, with DRV-FEE-04), U19/U24 (pending-transfer list, driver phone), U5 (first-day float vs an empty main
+treasury). Not changed here: F-17 (needs production data checked first), F-20 (print-agent PIN, after an on-site trial),
+backup encryption (needs a certificate kept off the machine).

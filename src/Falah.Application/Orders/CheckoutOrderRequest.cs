@@ -101,7 +101,19 @@ public sealed record CancelUncollectedPickupRequest(
     string? ManagerApprovalId,
     string? ManagerApproverUserId);
 
+/// <summary>Workflow redesign (owner, 2026-11-24): a prepaid pickup's customer arrived and took the bag. An unpaid
+/// one is handed over by its collection (CollectPickupPaymentRequest) instead. RequestId is minted once per press.</summary>
+public sealed record HandOverPickupRequest(string RequestId, string OrderId, string ActorUserId);
+
+public sealed record HandOverPickupResult(string OrderId, string OrderNumber, DateTimeOffset HandedOverAtUtc, bool WasReplayed,
+    bool PrintJobsQueued = true);
+
 /// <summary>An order waiting at the counter for its customer to pay and collect.</summary>
+/// <summary>Owner decision 2026-11-25 (audit U19): an InstaPay/wallet transfer still waiting for its confirmation, for the
+/// till's list - AmountPiastres is the transfer itself (the electronic leg of a split, the whole order otherwise).</summary>
+public sealed record PendingTransferDto(
+    string OrderId, string OrderNumber, string Method, long AmountPiastres, string? CustomerName, DateTimeOffset CreatedAtUtc);
+
 public sealed record AwaitingPickupDto(
     string OrderId, string OrderNumber, string? CustomerName, string? CustomerPhone, long TotalPiastres,
     DateTimeOffset RegisteredAtUtc, DateTimeOffset? RequestedPickupAtUtc);

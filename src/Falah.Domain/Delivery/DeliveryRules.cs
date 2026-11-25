@@ -174,13 +174,27 @@ public static class DeliveryRules
     /// effectiveAddress in lib/store.tsx checkout(). The free-text landmark is appended last and
     /// separately (it is notes, not a geographic part), joined only when non-empty on either
     /// side.</summary>
+    public const int MaxDriverPhoneLength = 20;
+
+    /// <summary>Owner decision 2026-11-25 (audit U24): a driver's phone is optional; when given it is digits, with a leading
+    /// "+" and spaces allowed, at most <see cref="MaxDriverPhoneLength"/> characters. Empty clears it.</summary>
+    public static string? NormalizeDriverPhone(string? typed)
+    {
+        if (string.IsNullOrWhiteSpace(typed)) return null;
+        var phone = typed.Trim();
+        var body = phone.StartsWith('+') ? phone[1..] : phone;
+        if (phone.Length > MaxDriverPhoneLength || body.Length == 0 || !body.All(c => char.IsAsciiDigit(c) || c == ' '))
+            throw new DomainException("رقم تليفون الطيار غير صحيح - أرقام بس (ومسموح بـ + في الأول).");
+        return phone;
+    }
+
     public static string ComposeDeliveryAddress(string? area, string? street, string? building, string? floor, string? apartment, string? landmark)
     {
         var parts = new[]
         {
-            string.IsNullOrWhiteSpace(area) ? null : $"المنطقة {area}",
-            string.IsNullOrWhiteSpace(street) ? null : $"ش {street}",
-            string.IsNullOrWhiteSpace(building) ? null : $"عمارة {building}",
+            Labelled("المنطقة", area, "المنطقة", "منطقة"),
+            Labelled("ش", street, "ش ", "شارع"),
+            Labelled("عمارة", building, "عمارة", "برج", "مبنى", "فيلا"),
             string.IsNullOrWhiteSpace(floor) ? null : $"دور {floor}",
             string.IsNullOrWhiteSpace(apartment) ? null : $"شقة {apartment}",
         }.Where(p => p is not null);
@@ -188,6 +202,15 @@ public static class DeliveryRules
 
         var withLandmark = new[] { composed, landmark?.Trim() }.Where(p => !string.IsNullOrEmpty(p));
         return string.Join(" — ", withLandmark);
+    }
+
+    /// <summary>"ش 9", but "شارع النصر" as typed - audit 2026-11-25: a part that already starts with its own word
+    /// ("شارع النصر", "عمارة 5", "منطقة الجامعة") was printed "ش شارع النصر", "عمارة عمارة 5".</summary>
+    private static string? Labelled(string label, string? value, params string[] alreadyLabelled)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var text = value.Trim();
+        return alreadyLabelled.Any(word => text.StartsWith(word, StringComparison.Ordinal)) ? text : $"{label} {text}";
     }
 
     public static bool EmployeeDriverEligible(Employee? employee) => employee is { IsActive: true, CanDeliver: true };

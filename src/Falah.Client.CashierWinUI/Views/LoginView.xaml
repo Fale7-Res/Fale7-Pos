@@ -74,7 +74,7 @@
 
                 <!-- Signing in is the primary, expected action, not a destructive one - DangerButtonStyle
                      painted it red, which both read as an error state and broke the brand palette. -->
-                <Button Content="{Binding SubmitLabel}"
+                <Button AutomationProperties.AutomationId="Login_Submit" Content="{Binding SubmitLabel}"
                         Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitCommand}"
                         Margin="0,16,0,0" MinHeight="52" FontSize="16" HorizontalAlignment="Stretch"/>
 

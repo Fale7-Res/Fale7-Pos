@@ -321,8 +321,14 @@ public class PrintingVerticalSliceTests : IAsyncLifetime
             new ReportPrintJobResultRequest($"pra-{Guid.NewGuid():N}", failing.Id, false, "الطابعة مش راضية تطبع", _agentId)))
             .EnsureSuccessStatusCode();
 
-        var overview = await (await _client.GetAsync("/api/print-jobs/overview"))
-            .Content.ReadFromJsonAsync<PrintingOverviewDto>();
+        // Read as the printing screen's user (settings_manage) - audit 2026-11-25, F-19: the overview is no longer open
+        // to every session.
+        var printingAdmin = await _factory.SeedUserAsync("مسؤول الطباعة", "supervisor", "settings_manage");
+        var overviewRequest = new HttpRequestMessage(HttpMethod.Get, "/api/print-jobs/overview");
+        overviewRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _factory.TokenFor(printingAdmin));
+        var overviewResponse = await _client.SendAsync(overviewRequest);
+        overviewResponse.EnsureSuccessStatusCode();
+        var overview = await overviewResponse.Content.ReadFromJsonAsync<PrintingOverviewDto>();
 
         var charcoal = Assert.Single(overview!.Routes, r => r.Route == "Charcoal");
         Assert.Equal(1, charcoal.FailedCount);

@@ -16,6 +16,8 @@ namespace Falah.Client.CallCenterWinUI.ViewModels;
 /// </summary>
 public partial class CallCenterViewModel
 {
+    internal const string EmptyCartMessage = "السلة فارغة.";
+
     [ObservableProperty] private string _paymentMethod = "cash";
     [ObservableProperty] private string? _walletProvider;
     [ObservableProperty] private string? _checkoutError;
@@ -128,7 +130,7 @@ public partial class CallCenterViewModel
                 return;
             }
 
-            if (Cart.Count == 0) { CheckoutError = "السلة فارغة."; return; }
+            if (Cart.Count == 0) { CheckoutError = EmptyCartMessage; return; }   // cleared again by the first item (U25)
             if (string.IsNullOrWhiteSpace(CustomerPhone)) { CheckoutError = "أدخل رقم هاتف العميل."; return; }
             if (string.IsNullOrWhiteSpace(CustomerName)) { CheckoutError = "أدخل اسم العميل."; return; }
             if (IsDelivery)
@@ -321,7 +323,7 @@ public partial class CallCenterViewModel
         {
             if (LookedUpOrder is not { } order) return "";
             var how = order.SplitPayments is { Count: > 0 } splits
-                ? string.Join(" + ", splits.Select(s => $"{PaymentLabel(s.Method)} {CashInput.Format(s.AmountPiastres)} ج"))
+                ? string.Join(" + ", splits.Select(s => $"{PaymentLabel(s.Method)} {CashInput.Display(s.AmountPiastres)} ج"))
                 : PaymentLabel(order.PaymentMethod);
             if (string.Equals(order.Status, "cancelled", StringComparison.OrdinalIgnoreCase))
                 return $"{how} - ملغى؛ لا يوجد مبلغ مطلوب تحصيله";

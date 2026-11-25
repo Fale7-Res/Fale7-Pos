@@ -90,7 +90,8 @@ public sealed class PrepareShiftCloseHandler
         var result = shift.PrepareBlindClose(actual, expected, threshold, firstDeclared);
 
         return new PrepareShiftCloseResult(
-            entity.Id, result.Expected.Piastres, result.Actual.Piastres, result.Difference.Piastres, result.RequiresManagerApproval);
+            entity.Id, result.Expected.Piastres, result.Actual.Piastres, result.Difference.Piastres, result.RequiresManagerApproval,
+            result.IsRecount);
     }
 
     /// <summary>Ported from settings.cashDiscrepancyThreshold in lib/store.tsx (a live, owner-

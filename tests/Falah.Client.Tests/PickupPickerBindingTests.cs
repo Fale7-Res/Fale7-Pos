@@ -11,6 +11,8 @@ namespace Falah.Client.Tests;
 /// </summary>
 public class PickupPickerBindingTests
 {
+    private static readonly System.Xml.Linq.XName XName = System.Xml.Linq.XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
+
     private static XDocument PickupView()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
@@ -24,12 +26,17 @@ public class PickupPickerBindingTests
     {
         var elements = PickupView().Descendants().ToList();
         var date = Assert.Single(elements, e => e.Name.LocalName == "CalendarDatePicker");
-        var time = Assert.Single(elements, e => e.Name.LocalName == "TimePicker");
 
         Assert.Null(date.Attribute("Date"));
-        Assert.Null(time.Attribute("SelectedTime"));
         Assert.Equal("OnPickupDateChanged", (string?)date.Attribute("DateChanged"));
-        Assert.Equal("OnPickupTimeChanged", (string?)time.Attribute("SelectedTimeChanged"));
+        // Audit 2026-11-25 U16: the time is two lists (hour, minute) with Arabic placeholders - the framework TimePicker
+        // showed "hour"/"minute" in English. Still not bound (a bound null showed "0:00"); the code-behind owns them.
+        Assert.DoesNotContain(elements, e => e.Name.LocalName == "TimePicker");
+        var boxes = elements.Where(e => e.Name.LocalName == "ComboBox" && ((string?)e.Attribute(XName))?.EndsWith("Box") == true).ToList();
+        Assert.Equal(new[] { "PickupHourBox", "PickupMinuteBox" }, boxes.Select(b => (string?)b.Attribute(XName)));
+        Assert.All(boxes, b => Assert.Null(b.Attribute("SelectedItem")));
+        Assert.All(boxes, b => Assert.Equal("OnPickupTimePartChanged", (string?)b.Attribute("SelectionChanged")));
+        Assert.Equal(new[] { "الساعة", "الدقيقة" }, boxes.Select(b => (string?)b.Attribute("PlaceholderText")));
         Assert.Equal("اختر التاريخ", (string?)date.Attribute("PlaceholderText"));
     }
 }

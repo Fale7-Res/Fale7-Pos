@@ -5,7 +5,10 @@ namespace Falah.Application.Shifts;
 public sealed record PrepareShiftCloseRequest(string ShiftId, long ActualCashCountedPiastres);
 
 public sealed record PrepareShiftCloseResult(
-    string ShiftId, long ExpectedCashPiastres, long ActualCashPiastres, long DifferencePiastres, bool RequiresManagerApproval);
+    string ShiftId, long ExpectedCashPiastres, long ActualCashPiastres, long DifferencePiastres, bool RequiresManagerApproval,
+    /// <summary>The count differs from the first one declared for this shift - a re-count after the expected cash was
+    /// shown, which needs a manager whatever the difference (Shift.PrepareBlindClose). Lets the till say why.</summary>
+    bool IsRecount = false);
 
 /// <summary>One cash count typed for a shift's close, in the order they were typed. More than one
 /// means the count was changed after the expected cash was shown.</summary>

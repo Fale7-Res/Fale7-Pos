@@ -58,20 +58,23 @@ public partial class CashierViewModel
     }
     /// <summary>D3: the split toggle is offered on every order type but delivery.</summary>
     public bool CanSplitPayment => CanEditOperation && !IsDelivery;
+    /// <summary>Owner, 2026-11-24: no card on a delivery (the server refuses it too).</summary>
+    public bool CanPayByCard => !IsDelivery;
     public bool CanOpenShift => _session.HasPermission("shifts_open_own") || _session.HasPermission("shifts_manage");
     public bool CanCloseShift => _session.HasPermission("shifts_blind_close");
     public bool CanCountCash => _session.HasPermission("cash_count");
     public bool IsDelivery => OrderType == "delivery";
     public bool IsPickup => OrderType == "pickup";
     public string OrderTypeLabel => OrderType switch { "delivery" => "توصيل", "pickup" => "استلام من المطعم", _ => "تيك أواي" };
-    public string DeliveryFeeDisplay => CashInput.Format(IsDelivery ? SelectedDeliveryService?.FeePiastres ?? 0 : 0) + " ج";
-    public string DiscountDisplay => CashInput.Format(DiscountAmountPiastres) + " ج";
-    public string CompDisplay => CashInput.Format(CompAmountPiastres) + " ج";
+    public string DeliveryFeeDisplay => CashInput.Display(IsDelivery ? SelectedDeliveryService?.FeePiastres ?? 0 : 0) + " ج";
+    public string DiscountDisplay => CashInput.Display(DiscountAmountPiastres) + " ج";
+    public string CompDisplay => CashInput.Display(CompAmountPiastres) + " ج";
     public bool HasTax => _taxRule is { Enabled: true, RateBasisPoints: > 0 };
     public string TaxLabel => _taxRule?.Mode == Falah.Domain.Financial.TaxMode.Inclusive ? "الضريبة (مشمولة)" : "الضريبة";
-    public string TaxDisplay => CashInput.Format(Falah.Domain.Financial.TaxEngine.Calculate(
+    public string TaxDisplay => CashInput.Display(Falah.Domain.Financial.TaxEngine.Calculate(
         Falah.Domain.Common.Money.FromPiastres(Math.Max(0, CartSubtotalPiastres - DiscountAmountPiastres)), _taxRule).Tax.Piastres) + " ج";
     public string CheckoutTitle => LastCheckoutResult?.Status == "cancelled" ? "تم إلغاء الطلب" : IsElectronicPaymentPending ? "بانتظار تأكيد التحويل"
+        : LastCheckoutResult is { ElectronicPaymentStatus: "confirmed" } ? "تم تأكيد استلام التحويل"   // audit 2026-11-25 U20
         : LastCheckoutResult is { AwaitingCollection: true } ? "اتسجل طلب الاستلام" : "تم تسجيل الطلب";
     public string CheckoutSubtitle => IsElectronicPaymentPending ? "الطلب مسجل؛ المبلغ لم يُحصّل بعد"
         : LastCheckoutResult is { AwaitingCollection: true } ? "راح المطبخ. العميل هيدفع وهو بيستلم - حصّله من «البحث عن طلب»." : "راجع رقم الطلب والمبلغ المسجل";
@@ -105,6 +108,7 @@ public partial class CashierViewModel
         NotifyCheckoutAvailability();
         if (IsCheckoutOpen && (PaymentMethod != "cash" || IsCashOnDelivery) && CanEditOperation)
             AmountPaidText = CashInput.Format(GrandTotalPiastres);
+        else FollowTotalWithPrefilledTender();
     }
 
     [RelayCommand]

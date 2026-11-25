@@ -171,15 +171,25 @@
                  scrolls rather than overflowing a 768-high screen. -->
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="28" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" MaxHeight="680"><ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14" HorizontalAlignment="Center">
-                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="40" Width="72" Height="72">
+                    <!-- Audit 2026-11-25 U9: a tick only for what is done; a transfer not received waits, a cancel is a cancel. -->
+                    <Border Background="{ThemeResource SuccessBackgroundBrush}" CornerRadius="40" Width="72" Height="72"
+                            Visibility="{Binding ShowSuccessMark, Converter={StaticResource BoolToVisibleConverter}}">
                         <TextBlock Text="✓" FontSize="34" Foreground="{ThemeResource SuccessTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="40" Width="72" Height="72"
+                            AutomationProperties.Name="بانتظار تأكيد التحويل" Visibility="{Binding ShowPendingMark, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="⏳" FontSize="30" Foreground="{ThemeResource WarningTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Border Background="{ThemeResource DangerBackgroundBrush}" CornerRadius="40" Width="72" Height="72"
+                            AutomationProperties.Name="تم الإلغاء" Visibility="{Binding ShowCancelledMark, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="✕" FontSize="30" Foreground="{ThemeResource DangerBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="{Binding VoidCashToHandBackText}" TextWrapping="Wrap" TextAlignment="Center" FontWeight="Bold"
                                Foreground="{ThemeResource WarningTextBrush}" Width="300"
                                Visibility="{Binding VoidCashToHandBackText, Converter={StaticResource NullToCollapsedConverter}}"/>
                     <TextBlock Text="{Binding CheckoutTitle}" Style="{StaticResource TitleText}" HorizontalAlignment="Center"/>
                     <TextBlock HorizontalAlignment="Center" FontSize="13" Foreground="{ThemeResource TextMutedBrush}">
-                        <Run Text="رقم الطلب: "/><Run Text="{Binding LastCheckoutResult.OrderNumber}" FontWeight="Bold"/>
+                        <Run Text="رقم الطلب: "/><Run Text="{Binding LastCheckoutOrderNumberDisplay}" FontWeight="Bold"/>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Black">
                         <Run Text="{Binding LastCheckoutResult.TotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}"/>
@@ -228,7 +238,11 @@
         <!-- ================= CLOSE SHIFT MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsCloseShiftOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="24" Padding="24" Width="420" MaxHeight="640"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24"><ScrollViewer VerticalScrollBarVisibility="Auto">
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="24">
+              <!-- Audit 2026-11-25 U28: the confirm/back buttons scrolled out of sight under the handover section and the
+                   manager PIN; they are pinned below the scrolling content so the cashier always sees how to finish. -->
+              <Grid RowSpacing="12"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     <controls:ModalHeaderView Title="إغلاق الوردية" CloseCommand="{Binding CancelCloseShiftCommand}"/>
 
@@ -296,26 +310,28 @@
                         </Border>
 
                         <StackPanel Spacing="8" Visibility="{Binding CloseShiftNeedsApproval, Converter={StaticResource BoolToVisibleConverter}}">
-                            <TextBlock Text="الفارق يتجاوز الحد المسموح - السبب أعلاه إلزامي، وأدخل رمز المدير المخوّل باعتماد الإغلاق."
+                            <TextBlock Text="{Binding CloseShiftApprovalMessage}"
                                        Foreground="{ThemeResource DangerBrush}" FontWeight="Bold" TextWrapping="Wrap"/>
                             <PasswordBox IsEnabled="{Binding CanEditOperation}" Password="{Binding CloseShiftManagerPin, Mode=TwoWay}"
                                      PlaceholderText="رمز المدير" FontSize="18"/>
                         </StackPanel>
 
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+              <StackPanel Grid.Row="1" Spacing="10" Visibility="{Binding CloseShiftPreview, Converter={StaticResource NullToCollapsedConverter}}">
                         <TextBlock Text="{Binding CloseShiftError}" Foreground="{ThemeResource DangerBrush}" FontWeight="Bold"
                                    TextAlignment="Center" TextWrapping="Wrap"
                                    Visibility="{Binding CloseShiftError, Converter={StaticResource NullToCollapsedConverter}}"/>
-
                         <Grid ColumnSpacing="8">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="رجوع" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"
+                            <Button Grid.Column="0" AutomationProperties.AutomationId="CloseShift_Back" Content="رجوع" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Stretch"
                                     Command="{Binding BackToCloseShiftCountCommand}"/>
                             <Button Grid.Column="1" AutomationProperties.AutomationId="CloseShift_Confirm" Content="تأكيد الإغلاق" Style="{StaticResource CtaButtonStyle}" HorizontalAlignment="Stretch"
                                     Command="{Binding ConfirmCloseShiftCommand}"/>
                         </Grid>
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer></Border>
+              </StackPanel>
+              </Grid></Border>
         </Grid>
 
         <!-- ================= ADD EXPENSE MODAL ================= -->
@@ -338,41 +354,42 @@
                          distinction is preserved here: reports group by the stored value, so
                          "simplifying" these strings would silently split historical expense
                          reporting across two vocabularies. -->
-                    <TextBlock Text="الفئة" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
+                    <!-- Audit 2026-11-25 U13: "Right" is mirrored to the left in this right-to-left dialog; "Left" is the reading start. -->
+                    <TextBlock Text="الفئة" Style="{StaticResource MutedText}" HorizontalAlignment="Left"/>
                     <Grid ColumnSpacing="6" RowSpacing="6">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <Button Grid.Row="0" Grid.Column="0" Content="مستلزمات تشغيل (غير الخامات)" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                        <Button Grid.Row="0" Grid.Column="0" Content="مستلزمات تشغيل (غير الخامات)" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" HorizontalAlignment="Stretch" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="مستلزمات تشغيل"
                                 Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مستلزمات تشغيل|ActionBlueBrush|CardBackgroundBrush}"
                                 Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مستلزمات تشغيل|AccentTextBrush|TextPrimaryBrush}"/>
-                        <Button Grid.Row="0" Grid.Column="1" Content="غاز وفحم وشواية" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                        <Button Grid.Row="0" Grid.Column="1" Content="غاز وفحم وشواية" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" HorizontalAlignment="Stretch" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="غاز وفحم"
                                 Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=غاز وفحم|ActionBlueBrush|CardBackgroundBrush}"
                                 Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=غاز وفحم|AccentTextBrush|TextPrimaryBrush}"/>
                         <!-- Ingredients and packaging are stock: bought through Purchasing so they enter the
                              inventory at their cost, never as an expense (ExpenseCategories, owner's decision). -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="الخامات والتغليف تُشترى من شاشة المشتريات" Style="{StaticResource CaptionText}"
+                        <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="الخامات والتغليف تُشترى من شاشة المشتريات" Style="{StaticResource CaptionText}"
                                    TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"/>
-                        <Button Grid.Row="1" Grid.Column="1" Content="نظافة ومطهرات" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                        <Button Grid.Row="1" Grid.Column="0" Content="نظافة ومطهرات" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" HorizontalAlignment="Stretch" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="نظافة ومطهرات"
                                 Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=نظافة ومطهرات|ActionBlueBrush|CardBackgroundBrush}"
                                 Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=نظافة ومطهرات|AccentTextBrush|TextPrimaryBrush}"/>
-                        <Button Grid.Row="2" Grid.Column="0" Content="مواصلات وبنزين" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                        <Button Grid.Row="1" Grid.Column="1" Content="مواصلات وبنزين" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" HorizontalAlignment="Stretch" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="مواصلات ودليفري"
                                 Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مواصلات ودليفري|ActionBlueBrush|CardBackgroundBrush}"
                                 Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=مواصلات ودليفري|AccentTextBrush|TextPrimaryBrush}"/>
-                        <Button Grid.Row="2" Grid.Column="1" Content="صيانة سريعة وأدوات" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                        <Button Grid.Row="2" Grid.Column="0" Content="صيانة سريعة وأدوات" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" HorizontalAlignment="Stretch" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="صيانة سريعة"
                                 Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=صيانة سريعة|ActionBlueBrush|CardBackgroundBrush}"
                                 Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=صيانة سريعة|AccentTextBrush|TextPrimaryBrush}"/>
-                        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="نثريات أخرى" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" FontSize="12"
+                        <Button Grid.Row="2" Grid.Column="1" Content="نثريات أخرى" Style="{StaticResource SecondaryButtonStyle}" MinHeight="44" HorizontalAlignment="Stretch" FontSize="12"
                                 Command="{Binding SetExpenseCategoryCommand}" CommandParameter="أخرى"
                                 Background="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أخرى|ActionBlueBrush|CardBackgroundBrush}"
                                 Foreground="{Binding ExpenseCategory, Converter={StaticResource StringEqualsToBrushConverter}, ConverterParameter=أخرى|AccentTextBrush|TextPrimaryBrush}"/>
                     </Grid>
 
-                    <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Right"/>
+                    <TextBlock Text="المبلغ بالجنيه" Style="{StaticResource MutedText}" HorizontalAlignment="Left"/>
                     <TextBox AutomationProperties.Name="مبلغ المصروف بالجنيه" IsEnabled="{Binding CanEditOperation}" AutomationProperties.AutomationId="Expense_Amount" Text="{Binding ExpenseAmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputScope="Number"
                              FontSize="20" TextAlignment="Center"/>
 

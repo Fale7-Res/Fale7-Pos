@@ -25,11 +25,13 @@ public sealed class CancelPendingElectronicPaymentHandler
 {
     private readonly FalahDbContext _db;
     private readonly IAuditLog _auditLog;
+    private readonly IApprovalRegistry _approvalRegistry;
 
-    public CancelPendingElectronicPaymentHandler(FalahDbContext db, IAuditLog auditLog)
+    public CancelPendingElectronicPaymentHandler(FalahDbContext db, IAuditLog auditLog, IApprovalRegistry approvalRegistry)
     {
         _db = db;
         _auditLog = auditLog;
+        _approvalRegistry = approvalRegistry;
     }
 
     public async Task<CancelPendingElectronicPaymentResult> HandleAsync(CancelPendingElectronicPaymentRequest request, CancellationToken ct = default)
@@ -58,7 +60,30 @@ public sealed class CancelPendingElectronicPaymentHandler
             await transaction.CommitAsync(ct);
             return new CancelPendingElectronicPaymentResult(orderEntity.Id, orderEntity.Status, orderEntity.ElectronicPaymentStatus ?? "cancelled", true, returnedCash);
         }
-        var disposition = Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+        // Workflow redesign (owner decision 2026-11-24): a delivery or a pickup is cancelled before its kitchen paper
+        // printed with no admin code, every ingredient back in stock; after it, only with a manager's approval and the
+        // operator's word on whether the food was prepared. A walk-in takeaway keeps its own rule (pos, and the question).
+        var isQueued = orderEntity.OrderType is "delivery" or "pickup";
+        var kitchenPrinted = isQueued && await KitchenTicket.IsPrintedAsync(_db, orderEntity.Id, ct);
+        var disposition = isQueued && !kitchenPrinted
+            ? Falah.Domain.Inventory.StockDisposition.NotPrepared
+            : Falah.Domain.Inventory.InventoryRules.ParseStockDisposition(request.StockDisposition);
+        string? approvedBy = null;
+        if (kitchenPrinted)
+        {
+            var action = orderEntity.OrderType == "delivery" ? "delivery_override" : CancelUncollectedPickupHandler.ApprovalAction;
+            if (AuthorizationPolicy.CanIssueApproval(actor, action)) approvedBy = cashierUser.Name;
+            else if (string.IsNullOrEmpty(request.ManagerApprovalId) || string.IsNullOrEmpty(request.ManagerApproverUserId))
+                throw new DomainException("إلغاء الطلب بعد ما ورقة المطبخ اتطبعت محتاج رمز المدير.");
+            else
+            {
+                var approver = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.ManagerApproverUserId, ct)
+                    ?? throw new DomainException("المعتمد غير موجود.");
+                approvedBy = AuthorizationPolicy.ValidateApproval(_approvalRegistry, action, new ManagerApproval(
+                    request.ManagerApprovalId, approver.Id, approver.Name, approver.Role, DateTimeOffset.UtcNow, action, request.Reason),
+                    cashierUser.Id).ApproverName;
+            }
+        }
 
         // Delivery audit, owner decision 2026-11-24 (D2): a delivery order's own delivery is cancelled with it while it
         // is still at the restaurant - before this it stayed on the dispatch board and could still be sent out. One
@@ -128,7 +153,7 @@ public sealed class CancelPendingElectronicPaymentHandler
                 $"audit-{Guid.NewGuid():N}", cashierUser.Id, cashierUser.Name, cashierUser.Role,
                 $"إلغاء محاولة دفع إلكتروني {orderEntity.OrderNumber}", "cash",
                 $"لم يصل التحويل - {order.ElectronicPayment?.Amount.Piastres} قرش - السبب: {request.Reason.Trim()}",
-                "warning", now, ShiftId: orderEntity.ShiftId, Reason: request.Reason.Trim(), ReferenceId: orderEntity.Id));
+                "warning", now, ShiftId: orderEntity.ShiftId, Reason: request.Reason.Trim(), AuthorizedBy: approvedBy, ReferenceId: orderEntity.Id));
         }
 
         await _db.SaveChangesAsync(ct);

@@ -174,8 +174,8 @@ public partial class MenuEditorViewModel : ObservableObject
         {
             "categories" => _categories.OrderBy(c => c.SortOrder).Select(c => new CatalogRow(c.Name, c.Active ? "نشط" : "متوقف", c)),
             "tax" => _tax.Select(t => new CatalogRow(t.Name, $"{t.RateBasisPoints / 100m:0.##}% • {(t.Enabled ? "مفعّلة" : "متوقفة")}", t)),
-            "prices" => _prices.Select(p => new CatalogRow(p.Name, CashInput.Format(p.FixedPricePiastres) + " ج • " + (p.Active ? "نشط" : "متوقف"), p)),
-            _ => _products.OrderBy(p => p.SortOrder).Select(p => new CatalogRow(p.Name, CashInput.Format(p.BasePricePiastres) + " ج • " + (p.IsAvailable ? "متاح" : "متوقف"), p))
+            "prices" => _prices.Select(p => new CatalogRow(p.Name, CashInput.Display(p.FixedPricePiastres) + " ج • " + (p.Active ? "نشط" : "متوقف"), p)),
+            _ => _products.OrderBy(p => p.SortOrder).Select(p => new CatalogRow(p.Name, CashInput.Display(p.BasePricePiastres) + " ج • " + (p.IsAvailable ? "متاح" : "متوقف"), p))
         };
         var term = SearchText.Trim();
         if (term.Length > 0)

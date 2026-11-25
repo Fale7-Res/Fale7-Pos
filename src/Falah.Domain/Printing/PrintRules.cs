@@ -70,7 +70,10 @@ public static class PrintRules
     /// Amendment 2): the takeaway receipt - one piece, led by the logo, no QR - and the call center's
     /// copy, which goes into the restaurant as a preparation paper without money.
     /// </summary>
-    public static ComposedTicket ComposeReceiptTicket(PrintRoute route, ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals)
+    /// <param name="customerCopy">Workflow redesign (owner, 2026-11-24): false for a pickup still at the restaurant -
+    /// its station copy is the prep slip, like a delivery's; true for the receipt the customer takes at the handover.</param>
+    public static ComposedTicket ComposeReceiptTicket(PrintRoute route, ReceiptHeader header, IReadOnlyList<TicketItem> items, ReceiptTotals totals,
+        bool customerCopy = true)
     {
         if (!CustomerRoutes.Contains(route)) throw new DomainException($"{route} ليس مسار إيصال عميل.");
 
@@ -83,6 +86,7 @@ public static class PrintRules
         // printer - the delivery customer's receipt is the driver's paper, so a priced one here was a
         // second customer receipt.
         if (header.OrderType == OrderType.Delivery) return ComposeCallCenterPrepTicket(header, items) with { Route = route };
+        if (header.OrderType == OrderType.Pickup && !customerCopy) return ComposeCallCenterPrepTicket(header, items) with { Route = route };
         var lines = ComposeCashierDetailSection(header, items, totals).ToList();
         return new ComposedTicket(route, header.OrderId, header.OrderNumber, lines);
     }

@@ -53,12 +53,12 @@ public partial class PayrollViewModel : ObservableObject
 
         public long NetPayablePiastres => Line.NetPayablePiastres;
 
-        public string BaseDisplay => CashInput.Format(Line.BasePiastres) + " ج";
+        public string BaseDisplay => CashInput.Display(Line.BasePiastres) + " ج";
 
         /// <summary>Everything added on top of the base, itemised underneath so a disputed figure
         /// can be traced without opening the ledger.</summary>
         public long AdditionsPiastres => Line.OvertimePiastres + Line.ExtraShiftsPiastres + Line.BonusesPiastres;
-        public string AdditionsDisplay => CashInput.Format(AdditionsPiastres) + " ج";
+        public string AdditionsDisplay => CashInput.Display(AdditionsPiastres) + " ج";
 
         public string AdditionsBreakdown => Describe(new[]
         {
@@ -68,7 +68,7 @@ public partial class PayrollViewModel : ObservableObject
         });
 
         public long SubtractionsPiastres => Line.DeductionsPiastres + Line.AdvanceDeductionsPiastres + Line.PaidOutsidePayrollPiastres;
-        public string SubtractionsDisplay => CashInput.Format(SubtractionsPiastres) + " ج";
+        public string SubtractionsDisplay => CashInput.Display(SubtractionsPiastres) + " ج";
 
         public string SubtractionsBreakdown => Describe(new[]
         {
@@ -76,7 +76,7 @@ public partial class PayrollViewModel : ObservableObject
             ("سلف", Line.AdvanceDeductionsPiastres),
         });
 
-        public string NetDisplay => CashInput.Format(Line.NetPayablePiastres) + " ج";
+        public string NetDisplay => CashInput.Display(Line.NetPayablePiastres) + " ج";
 
         public bool IsPaid => Line.Status == "paid";
         public string StatusLabel => IsPaid
@@ -137,7 +137,7 @@ public partial class PayrollViewModel : ObservableObject
 
     public long SelectedRunTotalPiastres => Lines.Sum(l => l.NetPayablePiastres);
     public string SelectedRunTotalDisplay => IsLoadingLines || LoadError is not null || SelectedRun is null
-        ? "—" : CashInput.Format(SelectedRunTotalPiastres) + " ج";
+        ? "—" : CashInput.Display(SelectedRunTotalPiastres) + " ج";
     private int _linesVersion;
 
     partial void OnSelectedRunChanged(PayrollRunDto? value)
@@ -355,7 +355,7 @@ public partial class PayrollViewModel : ObservableObject
             }
             IsPayOpen = false;
             ActionError = null;
-            ActionNote = $"تم صرف {CashInput.Format(result.Value.TotalPaidPiastres)} ج لعدد {result.Value.SettlementCount} موظف.";
+            ActionNote = $"تم صرف {CashInput.Display(result.Value.TotalPaidPiastres)} ج لعدد {result.Value.SettlementCount} موظف.";
             await ReloadAsync();
         }
         finally { IsBusy = false; }

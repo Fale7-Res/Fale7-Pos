@@ -38,7 +38,8 @@
                 <Button Content="فتح يوم" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
                         IsEnabled="{Binding CanOpenDay}" Command="{Binding OpenDayActionCommand}" CommandParameter="open"/>
                 <Button Content="عدّ النقدية" MinHeight="44" Style="{StaticResource PrimaryButtonStyle}"
-                        IsEnabled="{Binding HasBusinessDay}"
+                        AutomationProperties.AutomationId="ControlCenter_CountCash"
+                        IsEnabled="{Binding CanStartCashCount}" ToolTipService.ToolTip="{Binding CashCountUnavailableHint}"
                         Visibility="{Binding CanCountCash, Converter={StaticResource BoolToVisibleConverter}}"
                         Command="{Binding OpenCashCountCommand}"/>
                 <Button Content="إيداع آمن" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
@@ -73,7 +74,7 @@
                             <Border Grid.Column="1" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="المرتجعات" Style="{StaticResource CaptionText}"/>
-                                    <TextBlock Text="{Binding Reconciliation.Sales.RefundsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/>
+                                    <TextBlock Text="{Binding Reconciliation.Sales.RefundsPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{Binding Reconciliation.Sales.RefundsPiastres, Converter={StaticResource NonZeroToBrushConverter}, ConverterParameter=DangerBrush|TextPrimaryBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
@@ -85,7 +86,7 @@
                             <Border Grid.Column="3" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
                                 <StackPanel Spacing="2">
                                     <TextBlock Text="المصروفات" Style="{StaticResource CaptionText}"/>
-                                    <TextBlock Text="{Binding Reconciliation.ExpensesTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{ThemeResource DangerBrush}"/>
+                                    <TextBlock Text="{Binding Reconciliation.ExpensesTotalPiastres, Converter={StaticResource PiastresToDisplayConverter}}" FontWeight="Bold" Foreground="{Binding Reconciliation.ExpensesTotalPiastres, Converter={StaticResource NonZeroToBrushConverter}, ConverterParameter=DangerBrush|TextPrimaryBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="4" Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="14" Padding="12">
@@ -188,7 +189,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" MinHeight="44"
+                                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" MinHeight="44"
                                                 Style="{StaticResource GhostButtonStyle}"
                                                 IsEnabled="{Binding ElementName=Root, Path=DataContext.CanChangeChecklist}"
                                                 AutomationProperties.Name="{Binding Converter={StaticResource ChecklistAccessibleNameConverter}}"
@@ -292,15 +293,20 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Spacing="16">
                         <controls:ModalHeaderView Title="{Binding DayActionTitle}" CloseCommand="{Binding CloseDayActionCommand}"/>
-                        <TextBlock Text="{Binding BusinessDay.BusinessDate}" Style="{StaticResource SectionTitleText}"/>
-                        <TextBox Header="التاريخ YYYY-MM-DD (فارغ = تاريخ القاهرة على السيرفر)" MinHeight="48"
+                        <TextBlock Text="{Binding BusinessDay.BusinessDate}" Style="{StaticResource SectionTitleText}"
+                                   Visibility="{Binding IsOpeningDay, Converter={StaticResource InverseBoolToVisibleConverter}}"/>
+                        <!-- Audit 2026-11-25 U1/U33: say what will happen - which day opens, which figures a close seals. -->
+                        <TextBlock AutomationProperties.AutomationId="DayAction_Summary" Text="{Binding DayActionSummary}" TextWrapping="Wrap"
+                                   Style="{StaticResource BodyText}"/>
+                        <TextBox Header="تاريخ تاني (اختياري) - مثال 2026-11-25" PlaceholderText="سيبه فاضي ليوم النهارده" MinHeight="48"
+                                 FlowDirection="LeftToRight" AutomationProperties.Name="تاريخ يوم عمل آخر (اختياري)"
                                  Text="{Binding NewBusinessDateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  IsEnabled="{Binding CanEditAction}" Visibility="{Binding IsOpeningDay, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <TextBox Header="سبب إعادة الفتح" MinHeight="48" TextWrapping="Wrap" AcceptsReturn="True"
                                  Text="{Binding ActionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  IsEnabled="{Binding CanEditAction}" Visibility="{Binding IsReopeningDay, Converter={StaticResource BoolToVisibleConverter}}"/>
                         <TextBlock Text="{Binding ActionError}" TextWrapping="Wrap" Foreground="{ThemeResource DangerBrush}"/>
-                        <Button Content="تأكيد العملية" MinHeight="52" HorizontalAlignment="Stretch"
+                        <Button AutomationProperties.AutomationId="DayAction_Confirm" Content="{Binding DayActionConfirmText}" MinHeight="52" HorizontalAlignment="Stretch"
                                 Style="{StaticResource CtaButtonStyle}" Command="{Binding SubmitDayActionCommand}"/>
                     </StackPanel>
                 </ScrollViewer>

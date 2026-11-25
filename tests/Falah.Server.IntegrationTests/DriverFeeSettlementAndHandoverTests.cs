@@ -106,6 +106,9 @@ public class DriverFeeSettlementAndHandoverTests : IAsyncLifetime
             TableNumber: null, CustomerName: "عميل", CustomerPhone: "01000000000", DeliveryAddress: "شارع", DeliveryArea: area, BusinessDayId: null,
             DeliveryStreet: "شارع 9", DeliveryServiceId: $"svc-{area}", DeliveryServiceName: area)));
         var order = (await response.Content.ReadFromJsonAsync<CheckoutOrderResult>())!;
+        // Owner, 2026-11-24: no card on a delivery; the prepaid one is a transfer, confirmed before it goes out (D1).
+        if (method is "instapay" or "wallet")
+            await Ok(_client.PostAsJsonAsync("/api/orders/confirm-electronic-payment", new ConfirmElectronicPaymentRequest(order.OrderId, cashierId)));
         var deliveryId = await _factory.QueryAsync(db => db.Deliveries.Where(d => d.OrderId == order.OrderId).Select(d => d.Id).FirstAsync());
         var total = await _factory.QueryAsync(db => db.Orders.Where(o => o.Id == order.OrderId).Select(o => o.TotalPiastres).FirstAsync());
         Assert.Equal(food + fee, total);
@@ -173,7 +176,7 @@ public class DriverFeeSettlementAndHandoverTests : IAsyncLifetime
         var driverId = await CreateDriverAsync();
         var o1 = await DeliveryOrderAsync(a.ShiftId, _cashierA, 20_000, 2_000, "cash", "المنطقة-1");
         var o2 = await DeliveryOrderAsync(a.ShiftId, _cashierA, 10_000, 3_000, "cash", "المنطقة-2");
-        var o3 = await DeliveryOrderAsync(a.ShiftId, _cashierA, 15_000, 2_500, "card", "المنطقة-3");
+        var o3 = await DeliveryOrderAsync(a.ShiftId, _cashierA, 15_000, 2_500, "instapay", "المنطقة-3");
         foreach (var o in new[] { o1, o2, o3 }) await DispatchAsync(o.DeliveryId, driverId);
         await Ok(ResultAsync(o1.DeliveryId, "Delivered"));                 // delivered during A
 
@@ -280,7 +283,7 @@ public class DriverFeeSettlementAndHandoverTests : IAsyncLifetime
     {
         var shift = await OpenShiftAsync(_cashierA, 50_000);
         var driverId = await CreateDriverAsync();
-        var prepaid = await DeliveryOrderAsync(shift.ShiftId, _cashierA, 15_000, 2_500, "card", "المنطقة-3");
+        var prepaid = await DeliveryOrderAsync(shift.ShiftId, _cashierA, 15_000, 2_500, "instapay", "المنطقة-3");
         await DispatchAsync(prepaid.DeliveryId, driverId);
         await Ok(ResultAsync(prepaid.DeliveryId, "Delivered"));
 

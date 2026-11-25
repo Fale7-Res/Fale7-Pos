@@ -51,7 +51,7 @@ public static class PayrollRules
     {
         var rate = NormalHourlyRate(dailyWage, workdayHours);
         var hours = CalculateLatePenaltyHours(lateMinutes, graceMinutes, maxPenaltyHours);
-        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * hours * latePenaltyMultiplier, MidpointRounding.AwayFromZero)); // PAYR-0019: half a piastre up
+        var amount = HalfPiastreUp(rate, hours, latePenaltyMultiplier); // PAYR-0019: half a piastre up
         return new LateDeductionResult(hours, rate, amount);
     }
 
@@ -61,9 +61,16 @@ public static class PayrollRules
     {
         var rate = NormalHourlyRate(dailyWage, workdayHours);
         if (overtimeHours <= 0) return new OvertimeAmountResult(rate, Money.Zero);
-        var amount = Money.FromPiastres((long)Math.Round(rate.Piastres * overtimeHours * overtimeMultiplier, MidpointRounding.AwayFromZero)); // PAYR-0019
+        var amount = HalfPiastreUp(rate, overtimeHours, overtimeMultiplier); // PAYR-0019
         return new OvertimeAmountResult(rate, amount);
     }
+
+    /// <summary>rate x hours x multiplier, half a piastre up (PAYR-0019), computed in decimal. The hours and the
+    /// multiplier arrive as double (settings and attendance store them so); multiplied in double, a multiplier such as
+    /// 1.15 made 57.5 into 57.4999... and lost a piastre. The double-to-decimal conversion keeps 15 significant digits,
+    /// so 1.15 becomes exactly 1.15m and the half is seen as a half (audit 2026-11-25).</summary>
+    private static Money HalfPiastreUp(Money rate, double hours, double multiplier) =>
+        Money.FromPiastres((long)decimal.Round(rate.Piastres * (decimal)hours * (decimal)multiplier, MidpointRounding.AwayFromZero));
 
     /// <summary>Ported verbatim from outstandingAdvance: total advances taken minus total already
     /// deducted via a payroll settlement, floored at zero (an employee's outstanding advance can

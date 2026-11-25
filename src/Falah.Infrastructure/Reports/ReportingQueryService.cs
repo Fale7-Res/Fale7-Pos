@@ -114,7 +114,7 @@ public sealed class ReportingQueryService
         r.OrderCount, r.GrossSales.Piastres, r.Refunds.Piastres, r.NetSales.Piastres, r.ListSales.Piastres,
         r.OffersValue.Piastres, r.CompsValue.Piastres, r.ManualDiscounts.Piastres, r.PendingElectronicSales.Piastres,
         r.CashWithDrivers.Piastres, r.CollectedSales.Piastres, r.AverageOrderValue.Piastres, r.Cash.Piastres, r.Card.Piastres, r.InstaPay.Piastres,
-        r.Wallet.Piastres, r.Pickup.Piastres, r.Takeaway.Piastres, r.Delivery.Piastres);
+        r.Wallet.Piastres, r.Pickup.Piastres, r.Takeaway.Piastres, r.Delivery.Piastres, r.DeliveryCash.Piastres);
 
     /// <summary>Ported from selectExpensesReport - a plain total + list, no cashier/manager
     /// visibility split (that rule belongs to ExpenseQueryService for the operational drawer view;

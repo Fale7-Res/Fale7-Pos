@@ -109,13 +109,13 @@ public partial class PurchasingViewModel : ObservableObject
     public string OverdueSummary => Aging is null ? ""
         : Aging.OverdueInvoiceCount == 0
             ? "لا توجد فواتير متأخرة عن موعد استحقاقها"
-            : $"{Aging.OverdueInvoiceCount} فاتورة متأخرة بقيمة {CashInput.Format(Aging.OverduePiastres)} ج";
+            : $"{Aging.OverdueInvoiceCount} فاتورة متأخرة بقيمة {CashInput.Display(Aging.OverduePiastres)} ج";
 
     /// <summary>Said out loud rather than left as a silent gap: an invoice with no agreed due date
     /// can never appear as late, so a payables report that looked clean while these existed would
     /// be misleading.</summary>
     public string UnscheduledSummary => Aging is null || Aging.UnscheduledInvoiceCount == 0 ? ""
-        : $"{Aging.UnscheduledInvoiceCount} فاتورة بدون تاريخ استحقاق ({CashInput.Format(Aging.UnscheduledPiastres)} ج) - لا يمكن اعتبارها متأخرة أو منتظمة";
+        : $"{Aging.UnscheduledInvoiceCount} فاتورة بدون تاريخ استحقاق ({CashInput.Display(Aging.UnscheduledPiastres)} ج) - لا يمكن اعتبارها متأخرة أو منتظمة";
 
     private async Task LoadPayablesAsync()
     {
@@ -329,7 +329,7 @@ public partial class PurchasingViewModel : ObservableObject
                 if (CurrentUnitCostPiastres is not { } previous || previous <= 0 || TypedUnitCost is not { } typed) return "";
                 if (typed == previous) return "";
                 var direction = typed > previous ? "أعلى" : "أقل";
-                var note = $"التكلفة الحالية {CashInput.Format(previous)} ج - السعر ده {direction}";
+                var note = $"التكلفة الحالية {CashInput.Display(previous)} ج - السعر ده {direction}";
                 return IsCostShiftSuspicious ? note + " بعشرة أضعاف أو أكتر، راجع الرقم" : note;
             }
         }
@@ -514,7 +514,7 @@ public partial class PurchasingViewModel : ObservableObject
                 ReceiveError = _receiveRequest.FailureMessage(result.Error);
                 return;
             }
-            ActionNote = $"تم استلام فاتورة بإجمالي {CashInput.Format(result.Value.TotalPiastres)} ج.";
+            ActionNote = $"تم استلام فاتورة بإجمالي {CashInput.Display(result.Value.TotalPiastres)} ج.";
             IsReceiveOpen = false;
             _receiveRequestId = null;
             await LoadAsync();
@@ -593,7 +593,7 @@ public partial class PurchasingViewModel : ObservableObject
                 PayError = _payRequest.FailureMessage(result.Error);
                 return;
             }
-            ActionNote = $"تم سداد {CashInput.Format(request.AmountPiastres)} ج.";
+            ActionNote = $"تم سداد {CashInput.Display(request.AmountPiastres)} ج.";
             PayTarget = null;
             _payRequestId = null;
             await LoadAsync();

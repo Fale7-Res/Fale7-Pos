@@ -56,7 +56,7 @@ public partial class HeaderViewModel : ObservableObject
 
     public bool CanLock => !_session.HasUnresolvedOperation;
     public bool IsShiftOpen => _session.ShiftId is not null;
-    public string ShiftLabel => _session.ShiftId is not null ? (_session.ShiftName ?? "وردية مفتوحة") : "مغلق";
+    public string ShiftLabel => _session.ShiftId is not null ? (_session.ShiftName ?? "وردية مفتوحة") : "لا توجد وردية مفتوحة"; // audit 2026-11-25 U2: a bare "مغلق" read as "the restaurant is closed"
 
     public void Refresh()
     {

@@ -241,10 +241,24 @@ public sealed partial class ApiClient
         SendAsync<CheckoutOrderResult>(() => _http.PostAsJsonAsync("/api/orders/collect-pickup", request, ct), ct);
 
     /// <summary>UI-0025: a manager cancels a pickup whose customer never came (nothing to refund).</summary>
+    /// <summary>Workflow redesign (owner, 2026-11-24): the live delivery and pickup queue, stages computed by the server.</summary>
+    public Task<ApiResult<List<QueueOrderDto>>> GetOrderQueueAsync(CancellationToken ct = default) =>
+        SendAsync<List<QueueOrderDto>>(() => _http.GetAsync("/api/orders/queue", ct), ct);
+
+    public Task<ApiResult<bool>> SendKitchenInvoiceAsync(SendKitchenInvoiceRequest request, CancellationToken ct = default) =>
+        SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/orders/{Uri.EscapeDataString(request.OrderId)}/kitchen-invoice", request, ct), ct);
+
+    public Task<ApiResult<HandOverPickupResult>> HandOverPickupAsync(HandOverPickupRequest request, CancellationToken ct = default) =>
+        SendAsync<HandOverPickupResult>(() => _http.PostAsJsonAsync("/api/orders/hand-over-pickup", request, ct), ct);
+
     public Task<ApiResult<bool>> CancelUncollectedPickupAsync(CancelUncollectedPickupRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync("/api/orders/cancel-uncollected-pickup", request, ct), ct);
 
     /// <summary>UI-0025: the pickups waiting at the counter to be paid and collected.</summary>
+    /// <summary>Audit 2026-11-25 U19: InstaPay/wallet transfers still waiting for their confirmation.</summary>
+    public Task<ApiResult<List<PendingTransferDto>>> GetPendingTransfersAsync(CancellationToken ct = default) =>
+        ReadAsync<List<PendingTransferDto>>(() => _http.GetAsync("/api/orders/pending-transfers", ct), ct);
+
     public Task<ApiResult<List<AwaitingPickupDto>>> GetAwaitingPickupsAsync(CancellationToken ct = default) =>
         ReadAsync<List<AwaitingPickupDto>>(() => _http.GetAsync("/api/orders/awaiting-collection", ct), ct);
 
@@ -697,6 +711,10 @@ public sealed partial class ApiClient
 
     public Task<ApiResult<DriverDto>> CreateDriverAsync(CreateDriverRequest request, CancellationToken ct = default) =>
         SendAsync<DriverDto>(() => _http.PostAsJsonAsync("/api/delivery/drivers", request, ct), ct);
+
+    /// <summary>Owner decision 2026-11-25 (audit U24): sets or clears a driver's phone.</summary>
+    public Task<ApiResult<DriverDto>> SetDriverPhoneAsync(SetDriverPhoneRequest request, CancellationToken ct = default) =>
+        SendAsync<DriverDto>(() => _http.PutAsJsonAsync($"/api/delivery/drivers/{Uri.EscapeDataString(request.DriverId)}/phone", request, ct), ct);
 
     public Task<ApiResult<DriverDto>> SetDriverActiveAsync(SetDriverActiveRequest request, CancellationToken ct = default) =>
         SendAsync<DriverDto>(() => _http.PostAsJsonAsync($"/api/delivery/drivers/{Uri.EscapeDataString(request.DriverId)}/set-active", request, ct), ct);

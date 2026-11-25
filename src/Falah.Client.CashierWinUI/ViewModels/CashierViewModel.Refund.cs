@@ -21,7 +21,7 @@ public partial class CashierViewModel
     public bool RefundNeedsApproval => !_session.HasPermission("orders_refund")
         || (!_session.CanApproveOwn("orders_refund") && CashInput.TryParse(RefundAmountText, out var amount)
             && Falah.Domain.Orders.RefundRules.NeedsManagerApproval(Falah.Domain.Common.Money.FromPiastres(amount)));
-    partial void OnRefundAmountTextChanged(string value) => OnPropertyChanged(nameof(RefundNeedsApproval));
+    partial void OnRefundAmountTextChanged(string value) { OnPropertyChanged(nameof(RefundNeedsApproval)); OnPropertyChanged(nameof(RefundConfirmText)); }
     // FIN-0005 (owner decision 2026-11-22): a split-paid order is refunded too, through ONE of its methods.
     public bool CanRefundOrder => OrderLookupResult is { } order
         && (order.IsPaid || order.CustomerFundsCollected)
@@ -51,7 +51,7 @@ public partial class CashierViewModel
             if (OrderLookupResult is { AwaitingCollection: true }) return "لسه ما اتدفعش - يدفع وهو بيستلم";
             if (OrderLookupResult?.SplitPayments is not { Count: > 0 } splits)
                 return OrderLookupResult is { } o ? MethodLabel(o.PaymentMethod) : "";
-            return string.Join(" + ", splits.Select(s => $"{MethodLabel(s.Method)} {CashInput.Format(s.AmountPiastres)} ج"));
+            return string.Join(" + ", splits.Select(s => $"{MethodLabel(s.Method)} {CashInput.Display(s.AmountPiastres)} ج"));
         }
     }
 
@@ -81,7 +81,7 @@ public partial class CashierViewModel
         "multi" => "دفع مقسّم",
         _ => method,
     };
-    public string RefundRemainingDisplay => CashInput.Format(Math.Max(0, (OrderLookupResult?.TotalPiastres ?? 0) - (OrderLookupResult?.RefundAmountPiastres ?? 0))) + " ج";
+    public string RefundRemainingDisplay => CashInput.Display(Math.Max(0, (OrderLookupResult?.TotalPiastres ?? 0) - (OrderLookupResult?.RefundAmountPiastres ?? 0))) + " ج";
     partial void OnIsRefundingChanged(bool value) => RefreshOperationState();
     partial void OnOrderLookupResultChanged(OrderDetailsDto? value)
     {
@@ -93,6 +93,7 @@ public partial class CashierViewModel
         OnPropertyChanged(nameof(RefundMethodChoices)); OnPropertyChanged(nameof(NeedsRefundMethod));
         SelectedRefundMethod = null;
         ResetCollectFor(value);
+        NotifyLookupHandoverAndRefund(value);
     }
 
     [RelayCommand] private void OpenRefund()
@@ -146,7 +147,7 @@ public partial class CashierViewModel
         if (OrderLookupResult is { } looked && looked.Id == result.Value.OrderId)
             OrderLookupResult = looked with { Status = result.Value.OrderStatus,
                 RefundAmountPiastres = looked.TotalPiastres - result.Value.RemainingRefundablePiastres };
-        ReprintStatusMessage = "تم تسجيل استرداد " + CashInput.Format(result.Value.AmountPiastres) + " ج";
+        ReprintStatusMessage = "تم تسجيل استرداد " + CashInput.Display(result.Value.AmountPiastres) + " ج";
         IsRefundOpen = false; RefundManagerPin = "";
     }
 

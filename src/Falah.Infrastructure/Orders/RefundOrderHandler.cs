@@ -93,11 +93,19 @@ public sealed class RefundOrderHandler
             var authorizedByName = authorization.Approver?.ApproverName ?? cashier.Name;
 
             var order = OrderMapper.ToDomain(orderEntity);
-            var cashOnDeliverySettled = CheckoutRules.IsCashOnDelivery(order.OrderType, order.PaymentMethod, order.Total)
-                && await _db.DriverCustodies.AsNoTracking().AnyAsync(c => c.OrderId == order.Id
-                    && c.Status == nameof(Falah.Domain.Delivery.CustodyStatus.Settled) && c.CollectedPiastres >= order.Total.Piastres, ct);
+            // Owner decision 2026-11-24: a cash delivery is refundable once its driver settled it, up to what the driver
+            // actually collected - an approved collection shortfall no longer makes the order unrefundable for good,
+            // and nothing that never came in can go back out.
+            long? collectedCap = null;
+            if (CheckoutRules.IsCashOnDelivery(order.OrderType, order.PaymentMethod, order.Total))
+                collectedCap = await _db.DriverCustodies.AsNoTracking()
+                    .Where(c => c.OrderId == order.Id && c.Status == nameof(Falah.Domain.Delivery.CustodyStatus.Settled))
+                    .MaxAsync(c => (long?)c.CollectedPiastres, ct);
+            var cashOnDeliverySettled = collectedCap is > 0;
             order.AssertCollectedForRefund(cashOnDeliverySettled);
             var refundable = RefundRules.RefundableRemaining(order.Total, order.RefundAmount);
+            if (collectedCap is { } collected)
+                refundable = Money.FromPiastres(Math.Min(refundable.Piastres, Math.Max(0, collected - order.RefundAmount.Piastres)));
             // Matches the current app's behaviour exactly: a request for more than what remains is
             // CLAMPED down to what remains, not rejected outright - see RefundRules.ClampRefundAmount.
             var safeAmount = RefundRules.ClampRefundAmount(Money.FromPiastres(request.AmountPiastres), refundable);

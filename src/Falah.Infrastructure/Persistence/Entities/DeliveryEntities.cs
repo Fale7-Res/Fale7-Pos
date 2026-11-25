@@ -24,6 +24,8 @@ public class DriverEntity
     public bool Active { get; set; }
     public string? EmployeeId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
+    /// <summary>Owner decision 2026-11-25 (audit U24): so the counter and the call center can ring the driver. Optional.</summary>
+    public string? Phone { get; set; }
 }
 
 /// <summary>One row per delivery-type order - created automatically at checkout (see

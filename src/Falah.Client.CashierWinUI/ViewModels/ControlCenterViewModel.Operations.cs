@@ -61,6 +61,7 @@ public partial class ControlCenterViewModel
     {
         OnPropertyChanged(nameof(IsDayActionOpen)); OnPropertyChanged(nameof(IsOpeningDay));
         OnPropertyChanged(nameof(IsReopeningDay)); OnPropertyChanged(nameof(DayActionTitle));
+        NotifyDayDialogs();
     }
 
     [RelayCommand]

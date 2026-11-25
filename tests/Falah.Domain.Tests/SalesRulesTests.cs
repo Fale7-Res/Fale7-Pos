@@ -236,6 +236,24 @@ public class SalesRulesTests
         Assert.Equal(Money.FromEgp(100m), report.CollectedSales);
     }
 
+    /// <summary>Owner decision 2026-11-25 (audit R1): settled cash-on-delivery appeared in no payment line, so on a day
+    /// with deliveries cash + card + InstaPay + wallet never added up to net sales (335 against 415 on the audited day).
+    /// It is its own line, "كاش توصيل"; the cash line is unchanged, so no figure already reported moves.</summary>
+    [Fact]
+    public void Settled_cash_on_delivery_is_its_own_payment_line_and_the_lines_add_up_to_net_sales()
+    {
+        var settled = MakeOrder("1", OrderType.Delivery, PaymentMethod.Cash, new[] { Item(80m, 80m) }, amountPaid: Money.Zero);
+        var stillWithDriver = MakeOrder("2", OrderType.Delivery, PaymentMethod.Cash, new[] { Item(30m, 30m) }, amountPaid: Money.Zero);
+        var counter = MakeOrder("3", OrderType.Takeaway, PaymentMethod.Cash, new[] { Item(100m, 100m) });
+
+        var report = SalesRules.ComputeSalesReport(new[] { settled, stillWithDriver, counter }, new HashSet<string> { stillWithDriver.Id });
+
+        Assert.Equal(Money.FromEgp(80m), report.DeliveryCash);
+        Assert.Equal(Money.FromEgp(100m), report.Cash);
+        Assert.Equal(Money.FromEgp(30m), report.CashWithDrivers);
+        Assert.Equal(report.NetSales, report.Cash + report.Card + report.InstaPay + report.Wallet + report.DeliveryCash + report.CashWithDrivers);
+    }
+
     /// <summary>A walk-in cash sale is money in the drawer the moment it is rung up - it must never
     /// be swept up by the cash-on-delivery exclusion.</summary>
     [Fact]
