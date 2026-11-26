@@ -827,3 +827,10 @@ Tests: domain `OfferRulesTests` (15), `DeliveryPapersTests` (+2); integration `F
 `OwnerRequestsQueueAddressTests` (11), `QuantityPadTests` (10), `OfferClientTests` (6), `OfferEditorTests` (3).
 Domain 643/643, client 565/565. Full integration suite on a copy of this tree (2026-11-26 11:47-14:17, no code
 change after the copy): 1195/1195 in 2 h 29 m.
+
+Committed as `6bb150c` on `main` and pushed. Installer built from that commit with a clean tree:
+`artifacts/install/Falah-Setup-D18D4ACBF868FF66.exe` (417 MB, SHA-256
+`ED247D459499D504E51C425D3A2A91860130BE719EAB8F9B3E2290BD6BFCF113`); its offline script holds 51 migrations, the
+last `20261126091329_AddFlexibleOffers`. Installing it on `Falah` (at 48) applies `AddPickupHandover`,
+`AddDriverPhone` and `AddFlexibleOffers`: `DEPLOYMENT.md` §0 (verified backup first, service stopped outside a
+shift). Not yet installed at the restaurant; still open before go-live as in the previous section.
