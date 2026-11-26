@@ -66,7 +66,7 @@
         Command="{Binding ElementName=Root, Path=DataContext.RemoveLineCommand}" CommandParameter="{Binding}"/>
        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
         <Button Content="+" AutomationProperties.Name="زيادة الكمية" Style="{StaticResource QuantityButtonStyle}" Command="{Binding ElementName=Root, Path=DataContext.IncreaseQuantityCommand}" CommandParameter="{Binding}"/>
-        <TextBlock Text="{Binding Quantity}" Width="28" TextAlignment="Center" VerticalAlignment="Center" FontSize="17" FontWeight="SemiBold" Foreground="{ThemeResource TextPrimaryBrush}"/>
+        <Button Content="{Binding Quantity}" MinWidth="44" MinHeight="44" Padding="4,0" FontSize="17" FontWeight="SemiBold" Style="{StaticResource GhostButtonStyle}" ToolTipService.ToolTip="اضغط لكتابة العدد" AutomationProperties.Name="كتابة العدد" Command="{Binding ElementName=Root, Path=DataContext.OpenQuantityPadCommand}" CommandParameter="{Binding}"/>
         <Button Content="−" AutomationProperties.Name="تقليل الكمية" Style="{StaticResource QuantityButtonStyle}" Command="{Binding ElementName=Root, Path=DataContext.DecreaseQuantityCommand}" CommandParameter="{Binding}"/>
         <Button Content="ملاحظات" AutomationProperties.Name="ملاحظات التحضير" Style="{StaticResource GhostButtonStyle}" FontSize="12" Padding="8,0" MinHeight="44" Margin="6,0,0,0">
          <Button.Flyout><Flyout><StackPanel Width="260" Spacing="8">
@@ -100,8 +100,18 @@
     <!-- How this order is paid - one line instead of a choice (owner 2026-11-24: the buttons were clutter). -->
     <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding PaymentHint}" FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"
                AutomationProperties.AutomationId="CallCenter_PaymentHint"/>
-    <TextBlock Grid.Row="6" Grid.ColumnSpan="2" Text="{Binding CheckoutError}" TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource DangerBrush}" Margin="0,4,0,0"
-               Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+    <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Spacing="6" Margin="0,4,0,0">
+     <TextBlock Text="{Binding CheckoutError}" TextWrapping="Wrap" FontSize="13" Foreground="{ThemeResource DangerBrush}"
+                Visibility="{Binding CheckoutError, Converter={StaticResource NullToCollapsedConverter}}"/>
+     <!-- Owner, 2026-11-25: the order reached a gift offer's amount and the offer says the operator adds the gift. -->
+     <InfoBar IsOpen="True" IsClosable="False" Severity="Success" Message="{Binding GiftSuggestion}"
+              AutomationProperties.AutomationId="Cart_GiftSuggestion" AutomationProperties.Name="هدية العرض"
+              Visibility="{Binding HasGiftSuggestion, Converter={StaticResource BoolToVisibleConverter}}">
+      <InfoBar.ActionButton>
+       <Button Content="أضف الهدية" Command="{Binding AddGiftCommand}" AutomationProperties.AutomationId="Cart_AddGift"/>
+      </InfoBar.ActionButton>
+     </InfoBar>
+    </StackPanel>
     <Button Grid.Row="7" Grid.ColumnSpan="2" Content="تأكدت - تجاهل الطلب السابق" HorizontalAlignment="Stretch" MinHeight="44" Margin="0,6,0,0"
             Command="{Binding DiscardRefusedCheckoutCommand}"
             Visibility="{Binding HasRefusedCheckoutRetry, Converter={StaticResource BoolToVisibleConverter}}"

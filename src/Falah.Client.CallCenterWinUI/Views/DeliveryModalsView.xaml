@@ -77,6 +77,39 @@
             </Border>
         </Grid>
 
+        <!-- ================= QUEUE: «ترحيل» (owner, 2026-11-25) =================
+             Clears the queue's screen of finished orders for the next shift; an order still in progress stays until it
+             finishes. Nothing is deleted. -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsQueueClearOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="480"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <controls:ModalHeaderView Title="ترحيل الطابور" CloseCommand="{Binding CloseQueueClearCommand}"/>
+                    <TextBlock Text="اختار اللي عايز تشيله من الواجهة:" Style="{StaticResource SectionTitleText}"/>
+                    <CheckBox Content="التوصيل" MinHeight="44" IsChecked="{Binding QueueClearDeliveries, Mode=TwoWay}"
+                              AutomationProperties.AutomationId="QueueClear_Deliveries"/>
+                    <CheckBox Content="الاستلام من الفرع" MinHeight="44" IsChecked="{Binding QueueClearPickups, Mode=TwoWay}"
+                              AutomationProperties.AutomationId="QueueClear_Pickups"/>
+                    <TextBlock Text="{Binding QueueClearSummary}" Style="{StaticResource MutedText}" TextWrapping="Wrap"
+                               AutomationProperties.AutomationId="QueueClear_Summary"/>
+                    <Border Background="{ThemeResource WarningBackgroundBrush}" CornerRadius="10" Padding="12,10"
+                            Visibility="{Binding HasQueueClearWarning, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="{Binding QueueClearWarning}" Foreground="{ThemeResource WarningTextBrush}" FontWeight="SemiBold"
+                                   TextWrapping="Wrap" AutomationProperties.AutomationId="QueueClear_Warning"/>
+                    </Border>
+                    <TextBlock Text="{Binding QueueClearError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold"
+                               TextWrapping="Wrap" TextAlignment="Center"
+                               Visibility="{Binding QueueClearError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Button Content="إزالة من الواجهة" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource CtaButtonStyle}"
+                                AutomationProperties.AutomationId="QueueClear_Confirm" Command="{Binding ConfirmQueueClearCommand}"/>
+                        <Button Grid.Column="1" Content="رجوع" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                AutomationProperties.AutomationId="QueueClear_Back" Command="{Binding CloseQueueClearCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsQueueCancelOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="24" Width="460"
                     HorizontalAlignment="Center" VerticalAlignment="Center">

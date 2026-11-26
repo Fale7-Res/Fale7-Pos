@@ -102,6 +102,7 @@ builder.Services.AddScoped<CancelUndispatchedDeliveryHandler>();
 builder.Services.AddScoped<CollectPickupPaymentHandler>();
 builder.Services.AddScoped<HandOverPickupHandler>();
 builder.Services.AddScoped<OrderQueueQueryService>();
+builder.Services.AddScoped<ClearOrderQueueHandler>();
 builder.Services.AddScoped<Falah.Infrastructure.Printing.SendKitchenInvoiceHandler>();
 builder.Services.AddScoped<CancelUncollectedPickupHandler>();
 builder.Services.AddScoped<IssueManagerApprovalHandler>();
@@ -1803,6 +1804,14 @@ api.MapPost("/api/orders/cancel-undispatched-delivery", async (Falah.Application
 // the server. It carries customers' names, phones and addresses: order-taking and dispatch stations only.
 app.MapGet("/api/orders/queue", async (OrderQueueQueryService query, HttpContext http, CancellationToken ct) =>
     RequireAnyPermission(http, "بيانات العملاء متاحة لمتلقي الطلبات فقط.", "pos", "delivery_manage") ?? Results.Ok(await query.ListAsync(ct)));
+
+// Owner, 2026-11-25 («ترحيل»): clears the queue's screen of finished orders; nothing is deleted.
+api.MapPost("/api/orders/queue/clear", async (Falah.Application.Orders.ClearOrderQueueRequest request, ClearOrderQueueHandler handler, CancellationToken ct) =>
+{
+    try { return Results.Ok(await handler.HandleAsync(request, ct)); }
+    catch (Falah.Domain.Common.DomainException ex) { return Results.UnprocessableEntity(new { error = ex.Message }); }
+    catch (InvalidOperationException ex) { return Results.NotFound(new { error = ex.Message }); }
+});
 
 api.MapPost("/api/orders/{id}/kitchen-invoice", async (string id, Falah.Application.Orders.SendKitchenInvoiceRequest body, Falah.Infrastructure.Printing.SendKitchenInvoiceHandler handler, CancellationToken ct) =>
 {

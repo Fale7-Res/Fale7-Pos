@@ -12,7 +12,7 @@
     </Grid>
     <TextBlock Text="{Binding CustomerLookupMessage}" TextWrapping="Wrap" Foreground="{ThemeResource TextMutedBrush}"/>
     <TextBox MaxLength="200" Header="اسم العميل" Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-    <ComboBox Header="عنوان محفوظ" ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}" DisplayMemberPath="Street" HorizontalAlignment="Stretch"/>
+    <ComboBox Header="عنوان محفوظ" ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}" DisplayMemberPath="FullText" HorizontalAlignment="Stretch"/>
     <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
      <TextBox Header="المنطقة" Text="{Binding DeliveryArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><ComboBox Grid.Column="1" Header="خدمة التوصيل" ItemsSource="{Binding DeliveryServices}" SelectedItem="{Binding SelectedDeliveryService, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>
     </Grid>

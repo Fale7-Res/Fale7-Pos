@@ -225,6 +225,38 @@ public class InventoryVerticalSliceTests : IAsyncLifetime
         Assert.Null(result.LossValuePiastres);
     }
 
+    private Task SetEstimatedCostAsync(string itemId, long piastres) => _factory.QueryAsync(db =>
+        db.InventoryItems.Where(i => i.Id == itemId).ExecuteUpdateAsync(s => s.SetProperty(i => i.EstimatedUnitCostPiastres, piastres)));
+
+    /// <summary>Owner, 2026-11-25: an ingredient never bought through the system is valued at its estimated cost, the
+    /// same figure food cost already uses for it - frozen on the movement like a purchase cost.</summary>
+    [Fact]
+    public async Task Waste_with_no_purchase_is_valued_at_the_estimated_cost()
+    {
+        var itemId = await CreateItemAsync();
+        await SetEstimatedCostAsync(itemId, 1500);
+
+        var result = (await (await _client.PostAsJsonAsync("/api/inventory/waste",
+            new RecordWasteRequest($"req-{Guid.NewGuid():N}", itemId, 2000, "Spoilage", "تلف", _inventoryManagerId, null, null))).Content.ReadFromJsonAsync<RecordWasteResult>())!;
+
+        Assert.Equal((1500L, 3000L), (result.UnitCostPiastres, result.LossValuePiastres));
+        await SetEstimatedCostAsync(itemId, 9999);   // a later change never restates a posted loss
+        Assert.Equal(3000, await _factory.QueryAsync(db => db.StockMovements.Where(m => m.InventoryItemId == itemId).Select(m => m.LossValuePiastres).FirstAsync()));
+    }
+
+    [Fact]
+    public async Task A_purchase_cost_still_wins_over_the_estimate()
+    {
+        var itemId = await CreateItemAsync();
+        await SetEstimatedCostAsync(itemId, 1500);
+        await SeedPurchaseReceiptAsync(itemId, unitCostPiastres: 1200);
+
+        var result = (await (await _client.PostAsJsonAsync("/api/inventory/waste",
+            new RecordWasteRequest($"req-{Guid.NewGuid():N}", itemId, 1000, "Waste", "خطأ", _inventoryManagerId, null, null))).Content.ReadFromJsonAsync<RecordWasteResult>())!;
+
+        Assert.Equal((1200L, 1200L), (result.UnitCostPiastres, result.LossValuePiastres));
+    }
+
     [Fact]
     public async Task Waste_rejects_a_loss_type_outside_the_three_recognized_ones()
     {

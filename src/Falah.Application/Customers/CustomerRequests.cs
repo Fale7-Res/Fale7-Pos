@@ -16,7 +16,13 @@ public sealed record UpsertCustomerRequest(
 
 public sealed record CustomerAddressDto(
     string Id, string Area, string Street, string? Building, string? Floor, string? Apartment,
-    string? Landmark, string? ServiceId, string? ServiceName, DateTimeOffset CreatedAtUtc, DateTimeOffset LastUsedAtUtc);
+    string? Landmark, string? ServiceId, string? ServiceName, DateTimeOffset CreatedAtUtc, DateTimeOffset LastUsedAtUtc)
+{
+    /// <summary>Owner, 2026-11-25: the address in full - floor, apartment and landmark too - as a saved-address list and
+    /// the customers page show it, worded exactly as the order's own composed address. Not sent on the wire.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string FullText => Falah.Domain.Delivery.DeliveryRules.ComposeDeliveryAddress(Area, Street, Building, Floor, Apartment, Landmark);
+}
 
 public sealed record CustomerDto(
     string Id, string Phone, string Name, IReadOnlyList<CustomerAddressDto> Addresses, DateTimeOffset CreatedAtUtc, DateTimeOffset UpdatedAtUtc,

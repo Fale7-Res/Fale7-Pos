@@ -81,7 +81,7 @@ public partial class DeliveryViewModel
     private static readonly (string Key, string Title)[] DeliveryStageOrder =
     {
         ("new", "جديد"), ("preparing", "قيد التحضير"), ("ready", "جاهز للتسليم"), ("out", "مع السائق"),
-        ("delivered", "اتسلّم - مستني التسوية"), ("failed", "فشل التوصيل"), ("returned", "رجع للمطعم"),
+        ("delivered", "اتسلّم للعميل"), ("failed", "فشل التوصيل"), ("returned", "رجع للمطعم"),
     };
 
     private static readonly (string Key, string Title)[] PickupStageOrder =
@@ -150,11 +150,6 @@ public partial class DeliveryViewModel
             case "mark_ready" when card.Delivery is { } d: await MarkReadyAsync(d); return;
             case "assign" when card.Delivery is { } d: OpenAssign(d); return;
             case "record_result" when card.Delivery is { } d: OpenOutcome(d); return;
-            case "settle_driver":
-                if (card.Order.DriverId is { } driverId && Drivers.FirstOrDefault(x => x.Id == driverId) is { } driver)
-                    await OpenDriverAccountAsync(driver);
-                else ActionError = "السائق ده مش في قايمة السائقين النشطين. سوّيه من «السائقون وخدمات التوصيل».";
-                return;
             case "collect": OpenCollect(card); return;
         }
 

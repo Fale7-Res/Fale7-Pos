@@ -39,6 +39,9 @@ public partial class CallCenterViewModel
         OnPropertyChanged(nameof(GrandTotalPiastres));
         OnPropertyChanged(nameof(GrandTotalDisplay));
         NotifyDeliverySummary();
+        // Owner, 2026-11-25: an offer may be limited to order types; a gift may count the delivery fee.
+        RefreshVisibleProducts();
+        ReconcileGifts();
     }
 
     partial void OnPaymentMethodChanged(string value) => OnPropertyChanged(nameof(PaymentHint));

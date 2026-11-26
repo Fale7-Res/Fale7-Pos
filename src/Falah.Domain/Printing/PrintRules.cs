@@ -145,7 +145,8 @@ public static class PrintRules
         if (!string.IsNullOrWhiteSpace(header.DeliveryArea)) lines.Add(TicketLayout.Field("المنطقة", header.DeliveryArea!));
         if (!string.IsNullOrWhiteSpace(header.DeliveryAddress)) lines.Add(TicketLayout.Field("العنوان", header.DeliveryAddress!));
 
-        lines.AddRange(ComposeCustomerItems(items));
+        // Owner, 2026-11-25: an item's note is for the kitchen and prints on the prep paper only.
+        lines.AddRange(ComposeCustomerItems(items, withItemNotes: false));
         lines.Add(TicketLayout.SectionBand("الحساب"));
         lines.AddRange(ComposeCashierTotals(header, totals));
         lines.AddRange(ComposeCollectionInstruction(delivery.IsCashOnDelivery, header.ElectronicPaymentPending, delivery.AmountToCollect));
@@ -202,20 +203,19 @@ public static class PrintRules
     }
 
     /// <summary>The priced item grid of a customer paper (the takeaway receipt and the driver's paper).</summary>
-    private static IEnumerable<TicketElement> ComposeCustomerItems(IReadOnlyList<TicketItem> items)
+    private static IEnumerable<TicketElement> ComposeCustomerItems(IReadOnlyList<TicketItem> items, bool withItemNotes = true)
     {
         yield return TicketLayout.SectionBand("الأصناف");
         yield return TicketLayout.CashierItemHeader();
         foreach (var item in items)
         {
             yield return TicketLayout.CashierItemRow(item);
-            if (!string.IsNullOrWhiteSpace(item.Notes))
+            if (withItemNotes && !string.IsNullOrWhiteSpace(item.Notes))
                 yield return TicketLayout.CashierItemNote($"ملاحظات: {item.Notes}");
             // Printed from the order's own frozen snapshot, so a ticket reprinted after an offer is
             // edited or disabled still shows the offer that was actually applied at sale time.
-            if (!string.IsNullOrWhiteSpace(item.PriceRuleName))
-                yield return TicketLayout.CashierItemNote($"عرض: {item.PriceRuleName}"
-                    + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {TicketFormat.Amount(list)})" : ""));
+            if (TicketLayout.OfferNote(item) is { } offer)
+                yield return TicketLayout.CashierItemNote(offer);
         }
     }
 

@@ -27,6 +27,8 @@ public class FalahDbContext : DbContext
     public DbSet<PriceRuleEntity> PriceRules => Set<PriceRuleEntity>();
     public DbSet<PriceRuleProductEntity> PriceRuleProducts => Set<PriceRuleProductEntity>();
     public DbSet<PriceRuleDayEntity> PriceRuleDays => Set<PriceRuleDayEntity>();
+    public DbSet<PriceRuleCategoryEntity> PriceRuleCategories => Set<PriceRuleCategoryEntity>();
+    public DbSet<PriceRuleGiftTierEntity> PriceRuleGiftTiers => Set<PriceRuleGiftTierEntity>();
     public DbSet<TaxRuleEntity> TaxRules => Set<TaxRuleEntity>();
     public DbSet<RecipeEntity> Recipes => Set<RecipeEntity>();
     public DbSet<RecipeItemEntity> RecipeItems => Set<RecipeItemEntity>();
@@ -240,6 +242,22 @@ public class FalahDbContext : DbContext
             b.HasKey(r => r.Id);
             b.HasMany(r => r.Products).WithOne().HasForeignKey(p => p.PriceRuleId).OnDelete(DeleteBehavior.Cascade);
             b.HasMany(r => r.Days).WithOne().HasForeignKey(d => d.PriceRuleId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(r => r.Categories).WithOne().HasForeignKey(c => c.PriceRuleId).OnDelete(DeleteBehavior.Cascade);
+            b.HasMany(r => r.GiftTiers).WithOne().HasForeignKey(t => t.PriceRuleId).OnDelete(DeleteBehavior.Cascade);
+            b.Property(r => r.Kind).HasMaxLength(32).HasDefaultValue("ItemFixedPrice");
+            b.Property(r => r.OrderTypes).HasMaxLength(64);
+            b.Property(r => r.Stations).HasMaxLength(32);
+        });
+        modelBuilder.Entity<PriceRuleCategoryEntity>(b =>
+        {
+            b.HasKey(c => new { c.PriceRuleId, c.CategoryId });
+            b.HasOne<CategoryEntity>().WithMany().HasForeignKey(c => c.CategoryId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<PriceRuleGiftTierEntity>(b =>
+        {
+            b.HasKey(t => t.Id);
+            b.HasIndex(t => t.PriceRuleId);
+            b.HasOne<ProductEntity>().WithMany().HasForeignKey(t => t.ProductId).OnDelete(DeleteBehavior.NoAction);
         });
         modelBuilder.Entity<PriceRuleProductEntity>(b =>
         {

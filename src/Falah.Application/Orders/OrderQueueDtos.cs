@@ -26,6 +26,15 @@ public sealed record QueueOrderDto(
     /// paper has not reached the printer. It never holds the order back: the main step stays available.</summary>
     string? SecondaryAction = null, string? SecondaryActionLabel = null);
 
+/// <summary>Owner, 2026-11-25 («ترحيل»): clears the queue's screen for the next shift. Every order of the chosen kinds
+/// taken up to now whose cycle has finished leaves the queue; one still in progress stays until it finishes and then
+/// leaves by itself. Nothing is deleted - the orders, their reports and the driver accounts are untouched.</summary>
+public sealed record ClearOrderQueueRequest(string RequestId, bool Deliveries, bool Pickups, string ActorUserId);
+
+/// <param name="Removed">Finished orders that left the queue.</param>
+/// <param name="Kept">Orders still in progress, kept until they finish.</param>
+public sealed record ClearOrderQueueResult(int Removed, int Kept, bool WasReplayed);
+
 /// <summary>Sends the kitchen papers of an order whose kitchen invoice never reached the printer (printing was off,
 /// failed, or is still waiting): the missing first papers are queued and a failed one is sent again. StationRoute is
 /// the customer-copy route of the station asking ("Receipt" at a till, "CallCenter" at the call center).</summary>

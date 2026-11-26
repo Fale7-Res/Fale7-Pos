@@ -92,7 +92,7 @@ public partial class CashierViewModel : ObservableObject
         foreach (var p in source)
             VisibleProducts.Add(new ProductTile(
                 p,
-                p.ApplicableOffers.Select(o => new OfferChoice(p, o)).ToList(),
+                OffersFor(p).Select(o => new OfferChoice(p, o)).ToList(),
                 _session.Api.ProductImageUri(p.Id, p.ImageVersion),
                 iconByProduct.TryGetValue(p.Id, out var icon) ? icon : null,
                 _bestSellerIds.Contains(p.Id)));
@@ -107,21 +107,30 @@ public partial class CashierViewModel : ObservableObject
     [RelayCommand]
     private Task RetryLoadMenuAsync() => LoadMenuAsync();
 
-    public async Task LoadMenuAsync()
+    public async Task LoadMenuAsync() => await LoadMenuAsync(quiet: false);
+
+    /// <summary>Quiet (the minute refresh, owner 2026-11-25): no loading state, a failure keeps the menu already shown,
+    /// and the section on screen stays selected.</summary>
+    private async Task LoadMenuAsync(bool quiet)
     {
-        IsLoadingMenu = true;
-        MenuError = null;
-        OnPropertyChanged(nameof(HasNoResults));
+        var keepCategoryId = quiet ? SelectedCategory?.Id : null;
+        if (!quiet)
+        {
+            IsLoadingMenu = true;
+            MenuError = null;
+            OnPropertyChanged(nameof(HasNoResults));
+        }
         try
         {
             var result = await _session.Api.GetMenuAsync();
             if (!result.Success || result.Value is null)
             {
-                MenuError = result.Error ?? "تعذر تحميل المنيو.";
+                if (!quiet) MenuError = result.Error ?? "تعذر تحميل المنيو.";
                 return;
             }
             var taxes = await _session.Api.GetTaxRulesAsync();
-            if (!taxes.Success || taxes.Value is null) { MenuError = taxes.Error; return; }
+            if (!taxes.Success || taxes.Value is null) { if (!quiet) MenuError = taxes.Error; return; }
+            _giftOffers = result.Value.GiftOffers ?? Array.Empty<MenuGiftOfferDto>();
             var tax = taxes.Value.FirstOrDefault(t => t.Enabled);
             _taxRule = tax is null ? null : new(tax.Id, tax.Name, tax.RateBasisPoints,
                 tax.Mode == "Inclusive" ? Falah.Domain.Financial.TaxMode.Inclusive : Falah.Domain.Financial.TaxMode.Exclusive, tax.Enabled);
@@ -143,11 +152,14 @@ public partial class CashierViewModel : ObservableObject
             if (_bestSellers is not null) CategoryTiles.Add(new CategoryTile(_bestSellers));
             foreach (var c in Categories) CategoryTiles.Add(new CategoryTile(c));
 
-            SelectedCategory = _bestSellers ?? Categories.FirstOrDefault();
+            SelectedCategory = (keepCategoryId is null ? null
+                : keepCategoryId == BestSellersCategoryId ? _bestSellers : Categories.FirstOrDefault(c => c.Id == keepCategoryId))
+                ?? _bestSellers ?? Categories.FirstOrDefault();
+            ReconcileGifts();
         }
         finally
         {
-            IsLoadingMenu = false;
+            if (!quiet) IsLoadingMenu = false;
             OnPropertyChanged(nameof(HasNoResults));
         }
     }
@@ -188,7 +200,12 @@ public partial class CashierViewModel : ObservableObject
     // price before they commit to a choice.
     public bool HasPendingOffer => PendingOffer is not null;
     public string? PendingOfferBanner => PendingOffer is null ? null
-        : $"🎁 {PendingOffer.Name} — السعر الثابت {PendingOffer.FixedPricePiastres / 100m:0.00} ج بغض النظر عن الاختيار";
+        : PendingOffer.Kind switch
+        {
+            "ItemPercent" or "CategoryPercent" => $"🎁 {PendingOffer.Name} — خصم {PendingOffer.PercentBasisPoints / 100m:0.##}% على الحجم اللي تختاره",
+            "CategoryAmount" => $"🎁 {PendingOffer.Name} — {PendingOffer.AmountOffPiastres / 100m:0.##} ج أقل من سعر الحجم اللي تختاره",
+            _ => $"🎁 {PendingOffer.Name} — السعر الثابت {PendingOffer.FixedPricePiastres / 100m:0.00} ج بغض النظر عن الاختيار",
+        };
     partial void OnPendingOfferChanged(MenuOfferDto? value)
     {
         OnPropertyChanged(nameof(HasPendingOffer));
@@ -212,10 +229,11 @@ public partial class CashierViewModel : ObservableObject
     {
         if (!CanEditOperation) return;
         var offer = offerId is null ? null : product.ApplicableOffers.FirstOrDefault(o => o.Id == offerId);
-        var unitPrice = offer?.FixedPricePiastres ?? variant?.PricePiastres ?? product.BasePricePiastres;
+        var listPrice = variant?.PricePiastres ?? product.BasePricePiastres;
+        var unitPrice = offer is null ? listPrice : offer.UnitPriceFor(listPrice);
         // Owner 2026-11-17: the same item tapped again raises its quantity. A line that already has
         // its own kitchen note stays as it is - the second one may not want the same note.
-        var same = Cart.FirstOrDefault(l => l.ProductId == product.Id && l.VariantId == variant?.Id
+        var same = Cart.FirstOrDefault(l => l.ProductId == product.Id && l.VariantId == variant?.Id && !l.IsGift
             && l.AppliedOfferId == offer?.Id && string.IsNullOrWhiteSpace(l.Notes));
         if (same is not null) { same.Quantity++; RecomputeCartTotals(); return; }
         Cart.Add(new CartLine

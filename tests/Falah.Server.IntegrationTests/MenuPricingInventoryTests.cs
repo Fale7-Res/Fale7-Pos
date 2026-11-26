@@ -76,15 +76,17 @@ public class MenuPricingInventoryTests : IAsyncLifetime
         Assert.Equal(6000, item.UnitPricePiastres);
     }
 
+    /// <summary>Owner, 2026-11-25: an offer that stopped while the order sat in the cart is refused with a message - it
+    /// was silently charged at the list price, a total the screen never showed.</summary>
     [Fact]
-    public async Task An_inactive_price_rule_is_ignored_and_the_list_price_is_charged()
+    public async Task An_inactive_price_rule_is_refused_and_nothing_is_recorded()
     {
         var productId = await _factory.SeedProductAsync(10000);
         var ruleId = await _factory.SeedPriceRuleAsync(productId, 6000, active: false);
         var response = await _client.PostAsJsonAsync("/api/orders/checkout", Checkout(productId, null, 1, priceRuleId: ruleId));
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<CheckoutOrderResult>();
-        Assert.Equal(10000, result!.TotalPiastres);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        Assert.Contains("السعر العادي", await response.Content.ReadAsStringAsync());
+        Assert.Equal(0, await _factory.QueryAsync(db => db.Orders.CountAsync()));
     }
 
     [Fact]

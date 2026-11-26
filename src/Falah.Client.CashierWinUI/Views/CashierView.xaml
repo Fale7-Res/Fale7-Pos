@@ -123,6 +123,44 @@
             </Grid>
         </Grid>
 
+        <!-- ================= QUANTITY PAD (owner, 2026-11-25) =================
+             Tapping a cart line's quantity types it here: 0-9, clear, delete, or the keyboard. 1 to 999. -->
+        <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsQuantityPadOpen, Converter={StaticResource BoolToVisibleConverter}}">
+            <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" Width="340"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                <StackPanel Spacing="12">
+                    <controls:ModalHeaderView Title="{Binding QuantityPadTitle}" CloseCommand="{Binding CloseQuantityPadCommand}"/>
+                    <TextBox Text="{Binding QuantityPadText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" InputScope="Number"
+                             FontSize="32" FontWeight="Bold" TextAlignment="Center" MinHeight="60" PlaceholderText="العدد"
+                             AutomationProperties.Name="العدد" AutomationProperties.AutomationId="QuantityPad_Value"/>
+                    <Grid ColumnSpacing="8" RowSpacing="8" FlowDirection="LeftToRight">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <Button Grid.Row="0" Grid.Column="0" Content="7" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="7" AutomationProperties.AutomationId="QuantityPad_7"/>
+                        <Button Grid.Row="0" Grid.Column="1" Content="8" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="8" AutomationProperties.AutomationId="QuantityPad_8"/>
+                        <Button Grid.Row="0" Grid.Column="2" Content="9" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="9" AutomationProperties.AutomationId="QuantityPad_9"/>
+                        <Button Grid.Row="1" Grid.Column="0" Content="4" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="4" AutomationProperties.AutomationId="QuantityPad_4"/>
+                        <Button Grid.Row="1" Grid.Column="1" Content="5" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="5" AutomationProperties.AutomationId="QuantityPad_5"/>
+                        <Button Grid.Row="1" Grid.Column="2" Content="6" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="6" AutomationProperties.AutomationId="QuantityPad_6"/>
+                        <Button Grid.Row="2" Grid.Column="0" Content="1" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="1" AutomationProperties.AutomationId="QuantityPad_1"/>
+                        <Button Grid.Row="2" Grid.Column="1" Content="2" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="2" AutomationProperties.AutomationId="QuantityPad_2"/>
+                        <Button Grid.Row="2" Grid.Column="2" Content="3" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="3" AutomationProperties.AutomationId="QuantityPad_3"/>
+                        <Button Grid.Row="3" Grid.Column="0" Content="مسح" MinHeight="56" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadClearCommand}" AutomationProperties.AutomationId="QuantityPad_Clear"/>
+                        <Button Grid.Row="3" Grid.Column="1" Content="0" MinHeight="56" HorizontalAlignment="Stretch" FontSize="22" FontWeight="SemiBold" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadDigitCommand}" CommandParameter="0" AutomationProperties.AutomationId="QuantityPad_0"/>
+                        <Button Grid.Row="3" Grid.Column="2" Content="⌫" MinHeight="56" HorizontalAlignment="Stretch" FontSize="20" Style="{StaticResource SecondaryButtonStyle}" Command="{Binding QuantityPadBackspaceCommand}" AutomationProperties.Name="حذف رقم" AutomationProperties.AutomationId="QuantityPad_Backspace"/>
+                    </Grid>
+                    <TextBlock Text="{Binding QuantityPadError}" Foreground="{ThemeResource DangerBrush}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"
+                               Visibility="{Binding QuantityPadError, Converter={StaticResource NullToCollapsedConverter}}"/>
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Button Content="تم" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource CtaButtonStyle}"
+                                Command="{Binding ConfirmQuantityPadCommand}" AutomationProperties.AutomationId="QuantityPad_Confirm"/>
+                        <Button Grid.Column="1" Content="رجوع" MinHeight="52" HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding CloseQuantityPadCommand}" AutomationProperties.AutomationId="QuantityPad_Back"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
         <!-- ================= VARIANT PICKER MODAL ================= -->
         <Grid Background="{ThemeResource OverlayBrush}" Visibility="{Binding IsVariantPickerOpen, Converter={StaticResource BoolToVisibleConverter}}">
             <Border Background="{ThemeResource CardBackgroundBrush}" CornerRadius="20" Padding="20" Width="420" MaxHeight="500"

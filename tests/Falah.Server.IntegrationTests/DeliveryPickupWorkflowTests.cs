@@ -183,13 +183,100 @@ public class DeliveryPickupWorkflowTests : IAsyncLifetime
         Assert.Equal(("out", "record_result"), ((await QueuedAsync(order.OrderId)).Stage, (await QueuedAsync(order.OrderId)).NextAction));
         (await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/result", new RecordDeliveryResultRequest(
             $"req-{Guid.NewGuid():N}", deliveryId, "delivered", null, null, null, _dispatcherId, null, null, null))).EnsureSuccessStatusCode();
-        Assert.Equal(("delivered", "settle_driver"), ((await QueuedAsync(order.OrderId)).Stage, (await QueuedAsync(order.OrderId)).NextAction));
+        // Owner, 2026-11-25: no settlement step on the queue - the driver is settled from his account.
+        Assert.Equal(("delivered", null), ((await QueuedAsync(order.OrderId)).Stage, (await QueuedAsync(order.OrderId)).NextAction));
         Assert.Equal("completed", await _factory.QueryAsync(db => db.Orders.Where(o => o.Id == order.OrderId).Select(o => o.Status).FirstAsync()));
 
         (await _client.PostAsJsonAsync($"/api/delivery/drivers/{driver}/settle",
             new SettleDriverCustodyRequest($"req-{Guid.NewGuid():N}", driver, 15_000, null, _dispatcherId, null, null))).EnsureSuccessStatusCode();
 
         Assert.DoesNotContain((await QueueAsync())!, q => q.OrderId == order.OrderId);
+    }
+
+    // ---- «ترحيل» (owner, 2026-11-25) ----
+
+    private async Task<string> DispatchAsync(string orderId)
+    {
+        var deliveryId = await DeliveryIdAsync(orderId);
+        (await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/ready", new MarkDeliveryReadyRequest(deliveryId, _dispatcherId, null, null))).EnsureSuccessStatusCode();
+        var driver = (await (await _client.PostAsJsonAsync("/api/delivery/drivers", new CreateDriverRequest($"req-{Guid.NewGuid():N}", "سائق", _dispatcherId))).Content.ReadFromJsonAsync<DriverDto>())!.Id;
+        (await _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/assign", new AssignDeliveryRequest($"req-{Guid.NewGuid():N}", deliveryId, driver, _dispatcherId, null, null))).EnsureSuccessStatusCode();
+        return deliveryId;
+    }
+
+    private Task<HttpResponseMessage> DeliveredAsync(string deliveryId) => _client.PostAsJsonAsync($"/api/delivery/{deliveryId}/result",
+        new RecordDeliveryResultRequest($"req-{Guid.NewGuid():N}", deliveryId, "delivered", null, null, null, _dispatcherId, null, null, null));
+
+    private Task<HttpResponseMessage> ClearAsync(string requestId, bool deliveries, bool pickups) =>
+        _client.PostAsJsonAsync("/api/orders/queue/clear", new ClearOrderQueueRequest(requestId, deliveries, pickups, _cashierId));
+
+    [Fact]
+    public async Task Clearing_deliveries_removes_the_finished_ones_keeps_one_still_out_until_it_finishes_and_deletes_nothing()
+    {
+        var product = await _factory.SeedProductAsync(10_000);
+        var done = await OrderAsync("delivery", "cash", product, 10_000, "خلص");
+        var outWithDriver = await OrderAsync("delivery", "cash", product, 10_000, "مع السائق");
+        var pickup = await OrderAsync("pickup", "cash", product, 10_000, "استلام");
+        (await DeliveredAsync(await DispatchAsync(done.OrderId))).EnsureSuccessStatusCode();
+        var stillOut = await DispatchAsync(outWithDriver.OrderId);
+        (await _client.PostAsJsonAsync("/api/orders/hand-over-pickup",
+            new HandOverPickupRequest($"ho-{Guid.NewGuid():N}", pickup.OrderId, _cashierId))).EnsureSuccessStatusCode();
+        var ordersBefore = await _factory.QueryAsync(db => db.Orders.CountAsync());
+
+        var response = await ClearAsync($"qclr-{Guid.NewGuid():N}", deliveries: true, pickups: false);
+
+        response.EnsureSuccessStatusCode();
+        var result = (await response.Content.ReadFromJsonAsync<ClearOrderQueueResult>())!;
+        Assert.Equal((1, 1, false), (result.Removed, result.Kept, result.WasReplayed));
+        var queue = (await QueueAsync())!;
+        Assert.DoesNotContain(queue, q => q.OrderId == done.OrderId);
+        Assert.Equal("out", queue.Single(q => q.OrderId == outWithDriver.OrderId).Stage);
+        Assert.Equal("completed", queue.Single(q => q.OrderId == pickup.OrderId).Stage);   // pickups were not chosen
+        Assert.Equal(ordersBefore, await _factory.QueryAsync(db => db.Orders.CountAsync()));
+        Assert.Equal(1, await _factory.QueryAsync(db => db.AuditEvents.CountAsync(a => a.Category == "order_queue_clear" && a.ReferenceId == "delivery")));
+
+        // A new order after the clear shows; the one still out leaves by itself once its cycle finishes.
+        var next = await OrderAsync("delivery", "cash", product, 10_000, "جديد");
+        (await DeliveredAsync(stillOut)).EnsureSuccessStatusCode();
+        var after = (await QueueAsync())!;
+        Assert.DoesNotContain(after, q => q.OrderId == outWithDriver.OrderId);
+        Assert.Contains(after, q => q.OrderId == next.OrderId);
+    }
+
+    [Fact]
+    public async Task Clearing_pickups_removes_the_handed_over_ones_and_keeps_one_the_customer_has_not_collected()
+    {
+        var product = await _factory.SeedProductAsync(10_000);
+        var collected = await OrderAsync("pickup", "cash", product, 10_000, "استلم");
+        var waiting = await OrderAsync("pickup", "cash", product, 10_000, "لسه", payOnCollection: true);
+        var delivery = await OrderAsync("delivery", "cash", product, 10_000);
+        (await _client.PostAsJsonAsync("/api/orders/hand-over-pickup",
+            new HandOverPickupRequest($"ho-{Guid.NewGuid():N}", collected.OrderId, _cashierId))).EnsureSuccessStatusCode();
+
+        var result = (await (await ClearAsync($"qclr-{Guid.NewGuid():N}", deliveries: false, pickups: true)).Content.ReadFromJsonAsync<ClearOrderQueueResult>())!;
+
+        Assert.Equal((1, 1), (result.Removed, result.Kept));
+        var queue = (await QueueAsync())!;
+        Assert.DoesNotContain(queue, q => q.OrderId == collected.OrderId);
+        Assert.Contains(queue, q => q.OrderId == waiting.OrderId);
+        Assert.Contains(queue, q => q.OrderId == delivery.OrderId);
+    }
+
+    [Fact]
+    public async Task A_clear_replays_by_its_request_id_and_needs_a_kind_chosen()
+    {
+        var product = await _factory.SeedProductAsync(10_000);
+        var done = await OrderAsync("delivery", "cash", product, 10_000);
+        (await DeliveredAsync(await DispatchAsync(done.OrderId))).EnsureSuccessStatusCode();
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await ClearAsync($"qclr-{Guid.NewGuid():N}", false, false)).StatusCode);
+
+        var id = $"qclr-{Guid.NewGuid():N}";
+        (await ClearAsync(id, true, true)).EnsureSuccessStatusCode();
+        var replay = (await (await ClearAsync(id, true, true)).Content.ReadFromJsonAsync<ClearOrderQueueResult>())!;
+
+        Assert.Equal((1, 0, true), (replay.Removed, replay.Kept, replay.WasReplayed));
+        Assert.Equal(2, await _factory.QueryAsync(db => db.AuditEvents.CountAsync(a => a.Category == "order_queue_clear")));
     }
 
     [Fact]

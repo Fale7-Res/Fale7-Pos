@@ -87,11 +87,9 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Area}" Style="{StaticResource TableCellText}"
                                                        FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Style="{StaticResource TableCellText}"
-                                                       TextWrapping="Wrap" VerticalAlignment="Center">
-                                                <Run Text="{Binding Street}"/><Run Text=" "/><Run Text="{Binding Building}"/>
-                                                <Run Text=" "/><Run Text="{Binding Landmark}"/>
-                                            </TextBlock>
+                                            <!-- Owner, 2026-11-25: the address in full - floor and apartment too. -->
+                                            <TextBlock Grid.Column="1" Text="{Binding FullText}" Style="{StaticResource TableCellText}"
+                                                       TextWrapping="Wrap" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="2" Text="{Binding ServiceName}" Style="{StaticResource TableCellText}"
                                                        Foreground="{ThemeResource TextMutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center"/>
                                         </Grid>

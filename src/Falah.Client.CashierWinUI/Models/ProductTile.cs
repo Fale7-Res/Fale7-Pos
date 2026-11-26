@@ -9,7 +9,7 @@ namespace Falah.Client.CashierWinUI.Models;
 public sealed record OfferChoice(MenuProductDto Product, MenuOfferDto Offer)
 {
     /// <summary>What a screen reader and UI Automation call the offer pill: what is printed on it.</summary>
-    public override string ToString() => $"{Offer.Name} {Services.CashInput.Display(Offer.FixedPricePiastres)} ج";
+    public override string ToString() => $"{Offer.Name} {Offer.PriceLabel}";
     public string AccessibleName => ToString();
 }
 

@@ -19,6 +19,8 @@ public partial class CartLine : ObservableObject
     public long UnitPricePiastres { get; init; }
     public string? AppliedOfferId { get; init; }
     public string? AppliedOfferName { get; init; }
+    /// <summary>Owner, 2026-11-25: a line a gift offer gives free (0 ج); it follows the order's total.</summary>
+    public bool IsGift { get; init; }
 
     [ObservableProperty]
     private int _quantity = 1;

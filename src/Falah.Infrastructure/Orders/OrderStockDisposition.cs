@@ -67,8 +67,8 @@ internal static class OrderStockDisposition
         }
     }
 
-    /// <summary>The same valuation RecordWasteHandler uses for a logged loss: each item's last
-    /// purchase cost, unknown (null) when it was never bought.</summary>
+    /// <summary>The same valuation RecordWasteHandler uses for a logged loss (PurchasingRules.LossUnitCost): each
+    /// item's last purchase cost, else its estimated cost, unknown (null) when it has neither.</summary>
     private static async Task<Dictionary<string, Money?>> LastPurchaseUnitCostsAsync(
         FalahDbContext db, IReadOnlyList<string> itemIds, CancellationToken ct)
     {
@@ -78,6 +78,9 @@ internal static class OrderStockDisposition
             .ToListAsync(ct);
         var facts = receipts.Select(m => new StockMovementFacts(m.InventoryItemId, StockMovementType.PurchaseReceipt,
             Money.FromPiastres(m.UnitCostPiastres!.Value), m.CreatedAtUtc)).ToList();
-        return itemIds.ToDictionary(id => id, id => PurchasingRules.LastPurchaseUnitCost(facts, id));
+        var estimates = await db.InventoryItems.AsNoTracking().Where(i => itemIds.Contains(i.Id))
+            .ToDictionaryAsync(i => i.Id, i => i.EstimatedUnitCostPiastres, ct);
+        return itemIds.ToDictionary(id => id,
+            id => PurchasingRules.LossUnitCost(PurchasingRules.LastPurchaseUnitCost(facts, id), estimates.GetValueOrDefault(id)));
     }
 }

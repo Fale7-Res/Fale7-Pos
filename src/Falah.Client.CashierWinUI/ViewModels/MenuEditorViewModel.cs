@@ -80,7 +80,7 @@ public partial class MenuEditorViewModel : ObservableObject
     public bool IsTax => Kind == "tax";
     public bool IsPriceRule => Kind == "prices";
     public bool HasSortOrder => IsProduct || IsCategory;
-    public bool HasPrice => IsProduct || IsPriceRule;
+    public bool HasPrice => IsProduct || IsOfferFixedPrice;
     public bool HasActive => IsTax || IsPriceRule;
     public bool CanOpen => new[] { "menu_manage", "settings_manage", "offers_manage" }.Any(_session.HasPermission);
     public bool CanManageKind => _session.HasPermission(IsTax ? "settings_manage" : IsPriceRule ? "offers_manage" : "menu_manage");
@@ -147,6 +147,7 @@ public partial class MenuEditorViewModel : ObservableObject
             foreach (var id in _products.SelectMany(p => p.Variants.Select(v => v.RecipeId).Append(p.RecipeId)).Where(id => id is not null).Distinct())
                 if (!RecipeChoices.Any(c => c.Id == id)) RecipeChoices.Add(new(id, "وصفة مرتبطة غير متاحة في القائمة"));
             PriceProducts.Clear(); foreach (var p in _products) PriceProducts.Add(new() { Id = p.Id, Name = p.Name });
+            LoadOfferChoices();
             IsReady = true; RefreshRows();
         }
         finally { IsLoading = false; }
@@ -157,6 +158,7 @@ public partial class MenuEditorViewModel : ObservableObject
         ++_editorVersion;
         Kind = kind; HasEditor = false; _editing = null; ActionError = ActionNote = null; ProductImageUri = null;
         foreach (var name in new[] { nameof(IsProduct), nameof(IsCategory), nameof(IsTax), nameof(IsPriceRule), nameof(HasSortOrder), nameof(HasPrice), nameof(HasActive), nameof(CanManageKind), nameof(KindTitle), nameof(EmptySelectionHint) }) OnPropertyChanged(name);
+        NotifyOfferKind();
         RefreshRows(); NotifyState();
     }
     /// <summary>A hundred-odd products in a scroll-only list is a scroll-only list. Filtering by
@@ -174,7 +176,7 @@ public partial class MenuEditorViewModel : ObservableObject
         {
             "categories" => _categories.OrderBy(c => c.SortOrder).Select(c => new CatalogRow(c.Name, c.Active ? "نشط" : "متوقف", c)),
             "tax" => _tax.Select(t => new CatalogRow(t.Name, $"{t.RateBasisPoints / 100m:0.##}% • {(t.Enabled ? "مفعّلة" : "متوقفة")}", t)),
-            "prices" => _prices.Select(p => new CatalogRow(p.Name, CashInput.Display(p.FixedPricePiastres) + " ج • " + (p.Active ? "نشط" : "متوقف"), p)),
+            "prices" => _prices.Select(p => new CatalogRow(p.Name, OfferSummary(p), p)),
             _ => _products.OrderBy(p => p.SortOrder).Select(p => new CatalogRow(p.Name, CashInput.Display(p.BasePricePiastres) + " ج • " + (p.IsAvailable ? "متاح" : "متوقف"), p))
         };
         var term = SearchText.Trim();
@@ -199,6 +201,7 @@ public partial class MenuEditorViewModel : ObservableObject
         SendToGrill = Active = false; ActionError = ActionNote = null; Variants.Clear(); ProductImageUri = null;
         foreach (var p in PriceProducts) p.Selected = false;
         foreach (var d in Days) d.Selected = false;
+        ResetOffer();
     }
     [RelayCommand] private void SelectRow(CatalogRow row)
     {
@@ -220,6 +223,7 @@ public partial class MenuEditorViewModel : ObservableObject
                 StartTimeText = p.StartTime?.ToString("HH:mm") ?? ""; EndTimeText = p.EndTime?.ToString("HH:mm") ?? "";
                 foreach (var product in PriceProducts) product.Selected = p.ProductIds.Contains(product.Id);
                 foreach (var day in Days) day.Selected = p.DaysOfWeek?.Contains(day.Value) == true;
+                LoadOffer(p);
                 break;
         }
         NotifyState();
@@ -352,10 +356,9 @@ public partial class MenuEditorViewModel : ObservableObject
                 : new CreateTaxRuleRequest(key, Name.Trim(), (int)rate, TaxMode.Id, Active, actor);
         }
         if (!TryTime(StartTimeText, out var start) || !TryTime(EndTimeText, out var end)) { ActionError = "أدخل الوقت بنظام 24 ساعة مثل 18:30، أو اتركه فارغًا."; return null; }
-        var ids = PriceProducts.Where(p => p.Selected).Select(p => p.Id).ToArray();
-        if (ids.Length == 0) { ActionError = "اختر صنفًا واحدًا على الأقل للعرض."; return null; }
+        if (start.HasValue != end.HasValue) { ActionError = "حدد ساعة البداية والنهاية الاتنين، أو سيبهم فاضيين."; return null; }
         var days = Days.Where(d => d.Selected).Select(d => d.Value).ToArray();
-        return new SavePriceRuleRequest(key, (_editing as PriceRuleDto)?.Id, Name.Trim(), ids, price, days.Length == 0 ? null : days, start, end, Active, actor, null, null);
+        return CreateOfferRequest(key, actor, start, end, days);
     }
     [RelayCommand] private async Task SaveAsync()
     {

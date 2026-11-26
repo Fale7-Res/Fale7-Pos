@@ -244,8 +244,16 @@ internal static class TicketLayout
     {
         if (!string.IsNullOrWhiteSpace(item.Notes))
             yield return GridNote($"ملاحظات: {item.Notes}", bold: true);
-        if (withPriceRule && !string.IsNullOrWhiteSpace(item.PriceRuleName))
-            yield return GridNote($"عرض: {item.PriceRuleName}"
-                + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {TicketFormat.Amount(list)})" : ""));
+        if (withPriceRule && OfferNote(item) is { } offer)
+            yield return GridNote(offer);
+    }
+
+    /// <summary>The offer line under a priced item: «عرض: name (بدل 95 ج)», or «هدية: name» for a gift - a line given
+    /// free by an offer (owner, 2026-11-25). Null without an offer.</summary>
+    internal static string? OfferNote(TicketItem item)
+    {
+        if (string.IsNullOrWhiteSpace(item.PriceRuleName)) return null;
+        if (!item.UnitPrice.IsPositive && item.ListUnitPrice is { IsPositive: true }) return $"هدية: {item.PriceRuleName}";
+        return $"عرض: {item.PriceRuleName}" + (item.ListUnitPrice is { IsPositive: true } list ? $" (بدل {TicketFormat.Amount(list)})" : "");
     }
 }

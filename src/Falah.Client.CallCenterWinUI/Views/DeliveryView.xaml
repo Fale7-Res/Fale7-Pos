@@ -41,6 +41,10 @@
                 </Border>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <Button Content="ترحيل" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                        AutomationProperties.AutomationId="Queue_Clear" AutomationProperties.Name="ترحيل الطابور"
+                        ToolTipService.ToolTip="يشيل الطلبات اللي خلصت من الواجهة علشان الوردية الجاية - ما بيمسحش حاجة"
+                        Command="{Binding OpenQueueClearCommand}"/>
                 <Button Content="كشف يومية السائق" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
                         AutomationProperties.AutomationId="Delivery_DriverStatement"
                         Command="{Binding OpenDriverStatementCommand}"/>

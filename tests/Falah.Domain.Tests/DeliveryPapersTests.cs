@@ -115,6 +115,33 @@ public class DeliveryPapersTests
         Assert.DoesNotContain("إعادة إسناد", text);
     }
 
+    /// <summary>Owner, 2026-11-25: an item's note ("حار", "من غير بصل") is for the kitchen - it prints on the prep
+    /// paper only, never on the paper that travels with the driver. The delivery note stays: it is for the driver.</summary>
+    [Fact]
+    public void The_driver_paper_leaves_item_notes_to_the_prep_paper()
+    {
+        var driver = Texts(PrintRules.ComposeDriverDispatchTicket(Header(), Items, Totals, Collect, "محمود", Now, false));
+        Assert.DoesNotContain(driver, s => s.Contains("حار"));
+        Assert.Contains(driver, s => s.Contains("الجرس بايظ"));
+
+        Assert.Contains(Texts(PrintRules.ComposeReceiptTicket(PrintRoute.CallCenter, Header(), Items, Totals)), s => s.Contains("حار"));
+    }
+
+    /// <summary>Owner, 2026-11-25: a line an offer gives free prints as a gift, not as "offer instead of 25 ج".</summary>
+    [Fact]
+    public void A_gift_line_prints_as_a_gift_and_an_offer_line_keeps_its_old_price()
+    {
+        var items = new[]
+        {
+            new TicketItem("كولا لتر", null, 1, Money.Zero, Money.Zero, null, "هدية الكولا", Money.FromEgp(25), null),
+            new TicketItem("كفتة", null, 1, Money.FromEgp(80), Money.FromEgp(80), null, "عرض الكفتة", Money.FromEgp(95), null),
+        };
+        var text = Texts(PrintRules.ComposeDriverDispatchTicket(Header(), items, Totals, Collect, "محمود", Now, false));
+        Assert.Contains(text, s => s == "هدية: هدية الكولا");
+        Assert.Contains(text, s => s.StartsWith("عرض: عرض الكفتة") && s.Contains("بدل"));
+        Assert.DoesNotContain(text, s => s.Contains("هدية الكولا") && s.Contains("بدل"));
+    }
+
     [Fact]
     public void A_reassigned_driver_paper_says_so() =>
         Assert.Contains("إعادة إسناد", Texts(PrintRules.ComposeDriverDispatchTicket(

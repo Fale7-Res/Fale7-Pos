@@ -38,6 +38,8 @@ public partial class CashierViewModel
 
     partial void OnOrderTypeChanged(string value)
     {
+        // Owner, 2026-11-25: an offer may be limited to order types - the item buttons follow the order type.
+        RefreshVisibleProducts();
         NotifyTotals();
         OnPropertyChanged(nameof(IsDelivery));
         OnPropertyChanged(nameof(IsPickup));

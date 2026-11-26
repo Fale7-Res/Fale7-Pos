@@ -59,7 +59,7 @@
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding Offer.Name}" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource SuccessTextBrush}"
                                                                        TextWrapping="Wrap" TextAlignment="Right" VerticalAlignment="Center"/>
-                                                            <TextBlock Grid.Column="1" Text="{Binding Offer.FixedPricePiastres, Converter={StaticResource PiastresToDisplayConverter}}"
+                                                            <TextBlock Grid.Column="1" Text="{Binding Offer.PriceLabel}"
                                                                        FontSize="12" FontWeight="Black" Foreground="{ThemeResource SuccessTextBrush}" VerticalAlignment="Center"/>
                                                         </Grid>
                                                     </Button>

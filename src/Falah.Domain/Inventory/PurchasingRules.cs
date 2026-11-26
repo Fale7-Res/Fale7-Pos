@@ -71,6 +71,13 @@ public static class PurchasingRules
     /// recomputed later from current prices, so a purchase next week cannot restate last week's
     /// loss. Callers persist the returned value alongside the unit cost for exactly that
     /// reason.</summary>
+    /// <summary>The unit cost a loss is valued at (owner, 2026-11-25): the last actual purchase cost, else the item's
+    /// estimated cost - the same order food cost uses (CostingRules) - else unknown. Frozen on the movement when posted.</summary>
+    public static Money? LossUnitCost(Money? lastPurchaseUnitCost, long? estimatedUnitCostPiastres) =>
+        lastPurchaseUnitCost is { IsPositive: true } purchase ? purchase
+        : estimatedUnitCostPiastres is { } estimated && estimated > 0 ? Money.FromPiastres(estimated)
+        : null;
+
     public static Money? ValueStockLoss(long quantityMilliUnits, Money? unitCost) =>
         unitCost is { IsPositive: true } cost ? PurchaseLineTotal(quantityMilliUnits, cost) : null;
 

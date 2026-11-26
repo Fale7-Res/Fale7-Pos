@@ -13,9 +13,18 @@ public sealed partial class CashierView : UserControl
     // and price text, too wide on a 1920+ one steals rows from the product grid for no benefit.
     private const double CartWidthRatio = 0.30, CartMinWidth = 350, CartMaxWidth = 420;
 
+    // Owner, 2026-11-25: the menu and its offers are re-read every minute while the till is shown.
+    private readonly DispatcherTimer _menuRefresh = new() { Interval = CashierViewModel.MenuRefreshInterval };
+
     public CashierView()
     {
         InitializeComponent();
+        _menuRefresh.Tick += (_, _) =>
+        {
+            if (ViewModel is { } vm && vm.RefreshMenuQuietlyCommand.CanExecute(null)) vm.RefreshMenuQuietlyCommand.Execute(null);
+        };
+        Loaded += (_, _) => _menuRefresh.Start();
+        Unloaded += (_, _) => _menuRefresh.Stop();
     }
 
     private CashierViewModel? ViewModel => DataContext as CashierViewModel;

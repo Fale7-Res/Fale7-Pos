@@ -2114,6 +2114,21 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.ToTable("PrepRecipeLines");
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleCategoryEntity", b =>
+                {
+                    b.Property<string>("PriceRuleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CategoryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("PriceRuleId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("PriceRuleCategories");
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity", b =>
                 {
                     b.Property<string>("PriceRuleId")
@@ -2135,22 +2150,95 @@ namespace Falah.Infrastructure.Persistence.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
+                    b.Property<long>("AmountOffPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
                     b.Property<TimeOnly?>("EndTime")
                         .HasColumnType("time");
 
                     b.Property<long>("FixedPricePiastres")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("GiftAutoAdd")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("GiftIncludesDelivery")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)")
+                        .HasDefaultValue("ItemFixedPrice");
+
+                    b.Property<int?>("MaxPerDay")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxPerOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxTotal")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OrderTypes")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("PercentBasisPoints")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly?>("StartDate")
+                        .HasColumnType("date");
+
                     b.Property<TimeOnly?>("StartTime")
                         .HasColumnType("time");
+
+                    b.Property<string>("Stations")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("Id");
 
                     b.ToTable("PriceRules");
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleGiftTierEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PriceRuleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ThresholdPiastres")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("VariantId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PriceRuleId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("PriceRuleGiftTiers");
                 });
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleProductEntity", b =>
@@ -3269,12 +3357,42 @@ namespace Falah.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleCategoryEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.CategoryEntity", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.PriceRuleEntity", null)
+                        .WithMany("Categories")
+                        .HasForeignKey("PriceRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleDayEntity", b =>
                 {
                     b.HasOne("Falah.Infrastructure.Persistence.Entities.PriceRuleEntity", null)
                         .WithMany("Days")
                         .HasForeignKey("PriceRuleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleGiftTierEntity", b =>
+                {
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.PriceRuleEntity", null)
+                        .WithMany("GiftTiers")
+                        .HasForeignKey("PriceRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Falah.Infrastructure.Persistence.Entities.ProductEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -3428,7 +3546,11 @@ namespace Falah.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Falah.Infrastructure.Persistence.Entities.PriceRuleEntity", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("Days");
+
+                    b.Navigation("GiftTiers");
 
                     b.Navigation("Products");
                 });

@@ -155,7 +155,7 @@ public partial class DeliveryViewModel : ObservableObject
     /// awaited, or a dialog about one delivery or driver is open.</summary>
     public bool CanAutoRefresh => !IsLoading && !IsBusy && CanEditAction
         && CancelTarget is null && AssignTarget is null && OutcomeTarget is null && AccountDriver is null
-        && QueueCancelTarget is null && CollectTarget is null && ReassignTarget is null;
+        && QueueCancelTarget is null && CollectTarget is null && ReassignTarget is null && !IsQueueClearOpen;
 
     [RelayCommand]
     private async Task AutoRefreshAsync()

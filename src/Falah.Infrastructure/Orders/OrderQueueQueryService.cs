@@ -17,7 +17,8 @@ using Microsoft.EntityFrameworkCore;
 ///   preparing  - delivery New/Preparing, kitchen paper printed                                → mark_ready
 ///   ready      - delivery Ready                                     → assign, or confirm_transfer while one is pending
 ///   out        - Assigned / HandedToDriver / OutForDelivery                                    → record_result
-///   delivered / failed / returned - outcome recorded, driver not settled yet                   → settle_driver
+///   delivered / failed / returned - outcome recorded; no step here (owner, 2026-11-25: the driver is settled from
+///                his account, opened by his name)
 ///   (Settled or Cancelled leave the queue.)
 /// PICKUP (order + its print jobs)
 ///   new / preparing - not handed over (new while its kitchen paper has not reached the printer, which adds print_kitchen
@@ -28,13 +29,35 @@ using Microsoft.EntityFrameworkCore;
 ///
 /// Cancel is offered only on an unpaid order still at the restaurant - cash with the driver or an unconfirmed transfer
 /// on a delivery not yet out; an unpaid or unconfirmed pickup not yet handed over. A paid order is refunded instead.
+///
+/// «ترحيل» (owner, 2026-11-25, ClearOrderQueueHandler): an order taken up to the last clear of its kind leaves the
+/// queue once its cycle has finished (IsFinished); one still in progress stays until it finishes.
 /// </summary>
 public sealed class OrderQueueQueryService
 {
+    /// <summary>The audit category a queue clear is recorded under; ReferenceId is the kind ("delivery" / "pickup").</summary>
+    public const string ClearCategory = "order_queue_clear";
+
     private readonly FalahDbContext _db;
     public OrderQueueQueryService(FalahDbContext db) => _db = db;
 
+    /// <summary>The order's cycle is over: nothing is left to do with it on the queue. A delivery whose outcome is
+    /// recorded (a paid one that never arrived only once its refund is made); a pickup handed over.</summary>
+    public static bool IsFinished(QueueOrderDto q) => q.OrderType == "delivery"
+        ? q.Stage is "delivered" or "failed" or "returned" && !q.NeedsRefund
+        : q.Stage == "completed";
+
     public async Task<IReadOnlyList<QueueOrderDto>> ListAsync(CancellationToken ct = default)
+    {
+        var all = await ListUnclearedAsync(ct);
+        var clears = await _db.AuditEvents.AsNoTracking().Where(a => a.Category == ClearCategory && a.ReferenceId != null)
+            .GroupBy(a => a.ReferenceId!).Select(g => new { Kind = g.Key, At = g.Max(a => a.TimestampUtc) })
+            .ToDictionaryAsync(x => x.Kind, x => x.At, ct);
+        if (clears.Count == 0) return all;
+        return all.Where(q => !(clears.TryGetValue(q.OrderType, out var at) && q.CreatedAtUtc <= at && IsFinished(q))).ToList();
+    }
+
+    private async Task<IReadOnlyList<QueueOrderDto>> ListUnclearedAsync(CancellationToken ct)
     {
         var deliveries = await _db.Deliveries.AsNoTracking()
             .Where(d => d.Status != nameof(DeliveryStatus.Settled) && d.Status != nameof(DeliveryStatus.Cancelled))
@@ -104,9 +127,10 @@ public sealed class OrderQueueQueryService
             DeliveryStatus.Ready => ("ready", "جاهز للتسليم", "assign", "سلّم للسائق"),
             DeliveryStatus.Assigned or DeliveryStatus.HandedToDriver or DeliveryStatus.OutForDelivery =>
                 ("out", "مع السائق", "record_result", "سجّل نتيجة التوصيل"),
-            DeliveryStatus.Delivered => ("delivered", "اتسلّم للعميل - مستني تسوية السائق", "settle_driver", "سوّي السائق"),
-            DeliveryStatus.Failed => ("failed", "فشل التوصيل - مستني تسوية السائق", "settle_driver", "سوّي السائق"),
-            DeliveryStatus.Returned => ("returned", "رجع للمطعم - مستني تسوية السائق", "settle_driver", "سوّي السائق"),
+            // Owner, 2026-11-25: the queue has no settlement step - a driver is settled from his name (his account).
+            DeliveryStatus.Delivered => ("delivered", "اتسلّم للعميل", (string?)null, (string?)null),
+            DeliveryStatus.Failed => ("failed", "فشل التوصيل", null, null),
+            DeliveryStatus.Returned => ("returned", "رجع للمطعم", null, null),
             _ => ("out", delivery.Status, (string?)null, (string?)null),
         };
         // A paid order that never reached its customer still holds their money: it is refunded by hand (owner, 2026-11-24).

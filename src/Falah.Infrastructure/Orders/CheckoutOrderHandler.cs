@@ -57,7 +57,9 @@ public sealed class CheckoutOrderHandler
         var cashier = ToActor(cashierUser);
 
         var now0 = DateTimeOffset.UtcNow;
-        var resolvedItems = await _pricing.ResolveAsync(request.Items, now0, ct);
+        // Owner, 2026-11-25: an offer may be limited to order types and stations - both known before pricing.
+        var station = PricingRules.StationOf(request.CustomerPrintRoute);
+        var resolvedItems = await _pricing.ResolveAsync(request.Items, now0, OrderEnumMapping.ParseOrderType(request.OrderType), station, ct);
         var items = resolvedItems.Select(r => r.Item).ToList();
 
         var taxRuleEntity = await _db.TaxRules.AsNoTracking().FirstOrDefaultAsync(t => t.Enabled, ct);
@@ -195,6 +197,22 @@ public sealed class CheckoutOrderHandler
         var plan = CheckoutRules.BuildPlan(orderType, paymentMethod, items, discount, taxRule,
             deliveryFee, compAmount, amountPaid, splits, request.WalletProvider, request.PayOnCollection);
 
+        // Owner, 2026-11-25: a gift is earned by what the customer actually pays (with or without the delivery fee, as
+        // the offer says) - the highest tier reached, its product and size, no more than its quantity. The gift lines
+        // are 0, so they never count towards their own threshold.
+        foreach (var gift in resolvedItems.Where(r => r.GiftRule is not null).GroupBy(r => r.GiftRule!.Id))
+        {
+            var rule = gift.First().GiftRule!;
+            var basis = PricingRules.GiftBasis(rule, plan.PayableTotal, plan.DeliveryFee);
+            var tier = PricingRules.GiftTierFor(rule, basis)
+                ?? throw new DomainException($"الطلب ما وصلش لمبلغ هدية «{rule.Name}» ({rule.GiftTiers.Min(t => t.Threshold.Piastres) / 100m:0.##} ج). شيل الهدية.");
+            var lines = gift.Select(r => r.Item).ToList();
+            if (lines.Any(l => l.ProductId != tier.ProductId || (tier.VariantId is not null && l.VariantId != tier.VariantId)))
+                throw new DomainException($"هدية «{rule.Name}» للطلب ده {tier.Quantity} من صنف تاني - حدّث الهدية.");
+            if (lines.Sum(l => l.Quantity) > tier.Quantity)
+                throw new DomainException($"هدية «{rule.Name}» للطلب ده {tier.Quantity} بس.");
+        }
+
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         try
         {
@@ -205,6 +223,23 @@ public sealed class CheckoutOrderHandler
             var currentShift = await _db.Shifts.AsNoTracking().FirstOrDefaultAsync(s => s.Id == request.ShiftId, ct);
             if (currentShift?.Status != nameof(ShiftStatus.Open))
                 throw new ShiftNotOpenException("يجب فتح وردية قبل تسجيل أي عملية بيع.");
+            // Owner, 2026-11-25: an offer's daily / overall limit, counted inside the admission lock every sale takes,
+            // so two tills cannot both sell its last pieces.
+            var limited = resolvedItems.Select(r => r.OfferRule ?? r.GiftRule).Where(r => r is { MaxPerDay: not null } or { MaxTotal: not null })
+                .DistinctBy(r => r!.Id).Select(r => r!).ToList();
+            if (limited.Count > 0)
+            {
+                var sold = await Falah.Infrastructure.Pricing.OfferUsage.SoldAsync(_db, limited, now0, ct);
+                foreach (var rule in limited)
+                {
+                    var here = resolvedItems.Where(r => (r.OfferRule ?? r.GiftRule)?.Id == rule.Id).Sum(r => r.Item.Quantity);
+                    var s = sold.GetValueOrDefault(rule.Id);
+                    if (rule.MaxPerDay is { } day && s.Today + here > day)
+                        throw new DomainException($"العرض «{rule.Name}» فاضل منه {Math.Max(0, day - s.Today)} قطعة النهارده بس.");
+                    if (rule.MaxTotal is { } total && s.Total + here > total)
+                        throw new DomainException($"العرض «{rule.Name}» فاضل منه {Math.Max(0, total - s.Total)} قطعة بس.");
+                }
+            }
             var saleKey = $"sale-{request.CheckoutRequestId}";
             if (!plan.DefersAllMoney)
             {

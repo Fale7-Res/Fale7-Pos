@@ -156,6 +156,23 @@
                                 <TextBox MaxLength="200" Header="الاسم" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                          Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
+                                <!-- Owner, 2026-11-25: what the offer does. Each kind shows only the fields it needs. -->
+                                <StackPanel Spacing="8" Visibility="{Binding IsPriceRule, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <ComboBox Header="نوع العرض" MinHeight="44" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEdit}"
+                                              AutomationProperties.AutomationId="Offer_Kind"
+                                              ItemsSource="{Binding OfferKinds}" DisplayMemberPath="Label"
+                                              SelectedItem="{Binding OfferKind, Mode=TwoWay}"/>
+                                    <TextBlock Text="{Binding OfferKindHint}" Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                    <TextBox Header="نسبة الخصم % (مثال 10)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                             AutomationProperties.AutomationId="Offer_Percent"
+                                             Visibility="{Binding IsOfferPercent, Converter={StaticResource BoolToVisibleConverter}}"
+                                             Text="{Binding PercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Header="مبلغ الخصم بالجنيه على كل صنف (مثال 10)" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                             AutomationProperties.AutomationId="Offer_AmountOff"
+                                             Visibility="{Binding IsOfferAmount, Converter={StaticResource BoolToVisibleConverter}}"
+                                             Text="{Binding AmountOffText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+
                                 <TextBox Header="الأيقونة (اختياري)" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                          Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibleConverter}}"
                                          Text="{Binding Icon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -209,6 +226,96 @@
                                     <TextBox Grid.Column="1" Header="إلى الساعة" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                              Text="{Binding EndTimeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </Grid>
+
+                                <!-- Owner, 2026-11-25: when, for whom and how many. Every field empty means no limit. -->
+                                <StackPanel Spacing="10" Visibility="{Binding IsPriceRule, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <TextBlock Text="الساعات ممكن تعدّي نص الليل (مثال من 22:00 لـ 02:00) - وقتها بتتحسب على اليوم اللي العرض بدأ فيه."
+                                               Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBox Header="من تاريخ (مثال 2026-12-01)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                                 AutomationProperties.AutomationId="Offer_StartDate"
+                                                 Text="{Binding StartDateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <TextBox Grid.Column="1" Header="إلى تاريخ" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                                 AutomationProperties.AutomationId="Offer_EndDate"
+                                                 Text="{Binding EndDateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
+                                    <TextBlock Text="نوع الطلب (سيبهم فاضيين = كل الأنواع)" Style="{StaticResource SectionTitleText}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <CheckBox Content="تيك أواي" MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding OfferTakeaway, Mode=TwoWay}"/>
+                                        <CheckBox Content="توصيل" MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding OfferDelivery, Mode=TwoWay}"/>
+                                        <CheckBox Content="استلام من الفرع" MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding OfferPickup, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="الجهاز (سيبهم فاضيين = الاتنين)" Style="{StaticResource SectionTitleText}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <CheckBox Content="الكاشير" MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding OfferTill, Mode=TwoWay}"/>
+                                        <CheckBox Content="الكول سنتر" MinHeight="44" IsEnabled="{Binding CanEdit}" IsChecked="{Binding OfferCallCenter, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="الحد الأقصى بالقطعة (فاضي = من غير حد)" Style="{StaticResource SectionTitleText}"/>
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBox Header="في الطلب الواحد" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                                 AutomationProperties.AutomationId="Offer_MaxPerOrder"
+                                                 Text="{Binding MaxPerOrderText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <TextBox Grid.Column="1" Header="في اليوم" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                                 AutomationProperties.AutomationId="Offer_MaxPerDay"
+                                                 Text="{Binding MaxPerDayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <TextBox Grid.Column="2" Header="طول العرض" MinHeight="44" InputScope="Number" IsEnabled="{Binding CanEdit}"
+                                                 AutomationProperties.AutomationId="Offer_MaxTotal"
+                                                 Text="{Binding MaxTotalText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Owner, 2026-11-25: a gift with an order over an amount - one row per amount. -->
+                                <StackPanel Spacing="10" Visibility="{Binding IsOfferGift, Converter={StaticResource BoolToVisibleConverter}}">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="الهدايا" Style="{StaticResource SectionTitleText}" VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" Content="إضافة هدية" MinHeight="44" Style="{StaticResource SecondaryButtonStyle}"
+                                                AutomationProperties.AutomationId="Offer_AddGiftTier"
+                                                IsEnabled="{Binding CanEdit}" Command="{Binding AddGiftTierCommand}"/>
+                                    </Grid>
+                                    <TextBlock Text="مثال: فوق 200 ج = لتر كولا، فوق 500 ج = 2 لتر كولا. الطلب ياخد هدية أعلى مبلغ وصله بس."
+                                               Style="{StaticResource CaptionText}" TextWrapping="Wrap"/>
+                                    <ItemsControl ItemsSource="{Binding GiftTiers}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{ThemeResource NeutralBackgroundBrush}" CornerRadius="12" Padding="12" Margin="0,0,0,8">
+                                                    <Grid ColumnSpacing="10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="70"/><ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox Header="فوق مبلغ (ج)" MinHeight="44" InputScope="Number"
+                                                                 IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                 Text="{Binding ThresholdText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                        <ComboBox Grid.Column="1" Header="صنف الهدية" MinHeight="44" HorizontalAlignment="Stretch"
+                                                                  IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                  ItemsSource="{Binding ElementName=Root, Path=DataContext.GiftProductChoices}"
+                                                                  DisplayMemberPath="Label" SelectedItem="{Binding Product, Mode=TwoWay}"/>
+                                                        <ComboBox Grid.Column="2" Header="الحجم" MinHeight="44" HorizontalAlignment="Stretch"
+                                                                  IsEnabled="{Binding HasVariants}"
+                                                                  ItemsSource="{Binding VariantChoices}" DisplayMemberPath="Label"
+                                                                  SelectedItem="{Binding Variant, Mode=TwoWay}"/>
+                                                        <TextBox Grid.Column="3" Header="العدد" MinHeight="44" InputScope="Number"
+                                                                 IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                 Text="{Binding QuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                        <Button Grid.Column="4" Content="حذف" MinHeight="44" MinWidth="64" VerticalAlignment="Bottom"
+                                                                Style="{StaticResource DangerButtonStyle}"
+                                                                IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                Command="{Binding ElementName=Root, Path=DataContext.RemoveGiftTierCommand}"
+                                                                CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <CheckBox Content="رسوم التوصيل محسوبة ضمن المبلغ" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                              AutomationProperties.AutomationId="Offer_GiftIncludesDelivery"
+                                              IsChecked="{Binding GiftIncludesDelivery, Mode=TwoWay}"/>
+                                    <CheckBox Content="الهدية تنزل لوحدها في السلة (لو مش متعلّمة: الكاشير يضغط «أضف الهدية»)" MinHeight="44" IsEnabled="{Binding CanEdit}"
+                                              AutomationProperties.AutomationId="Offer_GiftAutoAdd"
+                                              IsChecked="{Binding GiftAutoAdd, Mode=TwoWay}"/>
+                                </StackPanel>
 
                                 <CheckBox Content="مفعّلة" MinHeight="44" IsEnabled="{Binding CanEdit}"
                                           Visibility="{Binding HasActive, Converter={StaticResource BoolToVisibleConverter}}"
@@ -320,9 +427,27 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
 
-                                    <TextBlock Text="الأصناف المشمولة" Style="{StaticResource SectionTitleText}"/>
+                                    <TextBlock Text="الأقسام المشمولة" Style="{StaticResource SectionTitleText}"
+                                               Visibility="{Binding IsOfferOnCategories, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                    <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="12" MaxHeight="260"
+                                            Visibility="{Binding IsOfferOnCategories, Converter={StaticResource BoolToVisibleConverter}}">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                                            <ItemsControl ItemsSource="{Binding PriceCategories}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox MinHeight="44" Content="{Binding Name}"
+                                                                  IsEnabled="{Binding ElementName=Root, Path=DataContext.CanEdit}"
+                                                                  IsChecked="{Binding Selected, Mode=TwoWay}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+
+                                    <TextBlock Text="الأصناف المشمولة" Style="{StaticResource SectionTitleText}"
+                                               Visibility="{Binding IsOfferOnItems, Converter={StaticResource BoolToVisibleConverter}}"/>
                                     <Border BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" CornerRadius="12"
-                                            MaxHeight="260">
+                                            MaxHeight="260" Visibility="{Binding IsOfferOnItems, Converter={StaticResource BoolToVisibleConverter}}">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
                                             <ItemsControl ItemsSource="{Binding PriceProducts}">
                                                 <ItemsControl.ItemTemplate>

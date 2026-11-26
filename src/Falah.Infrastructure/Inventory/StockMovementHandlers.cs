@@ -109,8 +109,9 @@ public sealed class RecordCountAdjustmentHandler
 
 /// <summary>Ported from recordInventoryWaste. Loss is deliberately not one bucket - waste (prep
 /// error), spoilage (storage/expiry), breakage (handling accident) point at three different fixes.
-/// Valued at the LAST ACTUAL PURCHASE unit cost, frozen at posting time - a later purchase at a
-/// different price must never restate this loss (PurchasingRules.ValueStockLoss's own doc comment).
+/// Valued at the LAST ACTUAL PURCHASE unit cost - or, for an item never bought through the system, its
+/// estimated cost (owner, 2026-11-25; PurchasingRules.LossUnitCost) - frozen at posting time: a later
+/// purchase or estimate must never restate this loss (PurchasingRules.ValueStockLoss's own doc comment).
 /// Never checked against the current balance: real stock can legitimately lag the system, and
 /// blocking on that would hide the very discrepancy this command exists to record.</summary>
 public sealed class RecordWasteHandler
@@ -163,7 +164,7 @@ public sealed class RecordWasteHandler
             .Select(m => new { m.UnitCostPiastres, m.CreatedAtUtc })
             .ToListAsync(ct);
         var facts = purchaseMovements.Select(m => new StockMovementFacts(item.Id, StockMovementType.PurchaseReceipt, Money.FromPiastres(m.UnitCostPiastres!.Value), m.CreatedAtUtc));
-        var unitCost = PurchasingRules.LastPurchaseUnitCost(facts, item.Id);
+        var unitCost = PurchasingRules.LossUnitCost(PurchasingRules.LastPurchaseUnitCost(facts, item.Id), item.EstimatedUnitCostPiastres);
         var lossValue = PurchasingRules.ValueStockLoss(request.QuantityMilliUnits, unitCost);
 
         var entity = new StockMovementEntity

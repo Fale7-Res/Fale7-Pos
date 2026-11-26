@@ -109,6 +109,8 @@ public partial class CashierViewModel
         if (IsCheckoutOpen && (PaymentMethod != "cash" || IsCashOnDelivery) && CanEditOperation)
             AmountPaidText = CashInput.Format(GrandTotalPiastres);
         else FollowTotalWithPrefilledTender();
+        // Owner, 2026-11-25: a gift follows the total (items, discount, comp, tax, delivery).
+        ReconcileGifts();
     }
 
     [RelayCommand]

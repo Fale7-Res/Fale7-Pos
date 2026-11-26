@@ -18,20 +18,26 @@ public sealed class MenuQueryService
     {
         var categories = await _db.Categories.AsNoTracking().Where(c => c.Active).OrderBy(c => c.SortOrder).ToListAsync(ct);
         var products = await LoadProductsInMenuOrderAsync(availableOnly: true, ct);
-        var priceRuleEntities = await _db.PriceRules.AsNoTracking().Include(r => r.Products).Include(r => r.Days).Where(r => r.Active).ToListAsync(ct);
+        var priceRuleEntities = await Falah.Infrastructure.Pricing.PriceRuleMapping.Full(_db).AsNoTracking().AsSplitQuery().Where(r => r.Active).ToListAsync(ct);
         // Stamps only. Projecting the two scalar columns keeps the photo bytes out of the menu
         // response entirely - the client fetches each image on its own, once, and caches it.
         var imageVersions = await _db.ProductImages.AsNoTracking()
             .Select(i => new { i.ProductId, i.Version }).ToDictionaryAsync(i => i.ProductId, i => i.Version, ct);
-        var domainRules = priceRuleEntities.Select(MenuPricingService.ToDomainRule).ToList();
         var now = DateTimeOffset.UtcNow;
+        // Owner, 2026-11-25: an offer is shown only while it is live and its daily / overall limit is not used up.
+        var liveRules = priceRuleEntities.Select(Falah.Infrastructure.Pricing.PriceRuleMapping.ToDomain)
+            .Where(r => PricingRules.IsActiveAt(r, now, BusinessClock.CairoTimeZone)).ToList();
+        var sold = await Falah.Infrastructure.Pricing.OfferUsage.SoldAsync(_db, liveRules, now, ct);
+        var domainRules = liveRules.Where(r => !Falah.Infrastructure.Pricing.OfferUsage.IsExhausted(r, sold.GetValueOrDefault(r.Id))).ToList();
+        static IReadOnlyList<string>? Wire(PriceRule r) => r.OrderTypes?.Select(t => t.ToWireString()).ToList();
 
         var categoryDtos = categories.Select(category =>
         {
             var categoryProducts = products.Where(p => p.CategoryId == category.Id).Select(product =>
             {
-                var offers = PricingRules.ApplicableRules(product.Id, domainRules, now, BusinessClock.CairoTimeZone)
-                    .Select(r => new MenuOfferDto(r.Id, r.Name, r.FixedPrice.Piastres)).ToList();
+                var offers = PricingRules.ApplicableRules(product.Id, domainRules, now, BusinessClock.CairoTimeZone, product.CategoryId)
+                    .Select(r => new MenuOfferDto(r.Id, r.Name, r.FixedPrice.Piastres, r.Kind.ToString(), r.PercentBasisPoints,
+                        r.AmountOff.Piastres, Wire(r), r.Stations, r.MaxPerOrder)).ToList();
                 var variants = product.Variants.Select(v => new MenuVariantDto(v.Id, v.Name, v.PricePiastres)).ToList();
                 return new MenuProductDto(product.Id, product.Name, product.BasePricePiastres, product.SendToGrill, product.IsAvailable, variants, offers, product.PreparationStation,
                     imageVersions.TryGetValue(product.Id, out var imageVersion) ? imageVersion : null);
@@ -39,7 +45,18 @@ public sealed class MenuQueryService
             return new MenuCategoryDto(category.Id, category.Name, category.Icon, categoryProducts);
         }).ToList();
 
-        return new MenuResponse(categoryDtos, await LoadBestSellerIdsAsync(products.Select(p => p.Id).ToHashSet(), ct));
+        // Gift offers: each tier named with the product (and size) it gives, as the station shows it.
+        var productsById = products.ToDictionary(p => p.Id);
+        var gifts = domainRules.Where(r => r.Kind == OfferKind.OrderGift).Select(r => new MenuGiftOfferDto(
+            r.Id, r.Name, r.GiftIncludesDelivery, r.GiftAutoAdd, Wire(r), r.Stations,
+            r.GiftTiers.Where(t => productsById.ContainsKey(t.ProductId)).Select(t =>
+            {
+                var p = productsById[t.ProductId];
+                var variant = t.VariantId is null ? (p.Variants.Count == 1 ? p.Variants[0] : null) : p.Variants.FirstOrDefault(v => v.Id == t.VariantId);
+                return new MenuGiftTierDto(t.Threshold.Piastres, p.Id, variant?.Id, p.Name, variant?.Name, t.Quantity);
+            }).ToList())).Where(g => g.Tiers.Count > 0).ToList();
+
+        return new MenuResponse(categoryDtos, await LoadBestSellerIdsAsync(products.Select(p => p.Id).ToHashSet(), ct), gifts);
     }
 
     /// <summary>

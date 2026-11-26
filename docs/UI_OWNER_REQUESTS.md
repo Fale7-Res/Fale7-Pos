@@ -803,3 +803,27 @@ Installer `artifacts/install/Falah-Setup-019D209C680D1F5F.exe` (417 MB, SHA-256
 copy of the restaurant's data. Installing it on `Falah` applies those two migrations: `DEPLOYMENT.md` §0 (verified
 backup first, service stopped outside a shift). Still open before go-live: acceptance §2 on site, the §4 owner
 decisions, the demo PINs on the two active accounts, trial-data cleanup.
+
+### Owner's requests on the laptop trial — Claude, 2026-11-25/26
+
+Run from the working tree on `FalahLocal_20261125` (a restore of the same 17:03 COPY_ONLY backup; served in
+Development, automatic backup off; 48 → 51 migrations on the copy only; `Falah` not touched). The owner tried every
+item on screen and confirmed it ("كلو شغال"). Owner-facing guide for offers: [OFFERS_GUIDE.md](OFFERS_GUIDE.md).
+
+| # | Owner's request | Change |
+|---|---|---|
+| 1 | A saved address picked from the list showed without floor and apartment | The data was complete; the list showed only the street (till) or area and street (call center), so two addresses on one street looked alike. `CustomerAddressDto.FullText` (the server's own `ComposeDeliveryAddress` wording, not on the wire) in both lists and on the customers page |
+| 2 | No settlement step in the delivery queue | Delivered / failed / returned carry no next action; a driver is settled from his account (his name) as before |
+| 3 | «ترحيل»: clear the queue's screen for the next shift | `POST /api/orders/queue/clear` (delivery, pickup or both; replays by request id): one audit row per kind (`order_queue_clear`); the queue hides an order taken up to then once its cycle has finished (delivered/failed/returned with no refund owed; a pickup handed over). One still in progress stays, with a warning in the window, and leaves by itself when it finishes. Nothing deleted; no schema change |
+| 4 | Item notes off the driver's paper | Printed on the prep paper only; the delivery note stays on the driver's paper |
+| 5 | Waste valued as unknown for 51 of 52 ingredients (none bought through the system) | Owner decision: last purchase cost, else the item's estimated cost (the order food cost already uses), frozen when posted - logged waste and a prepared cancellation alike (`PurchasingRules.LossUnitCost`) |
+| 6 | Offers "almost not working" | Cause: the till and the desk loaded the menu - and the offers - once per shift, so a new, edited, day- or hour-bound offer did not change until the next shift, and an expired one was silently charged at list price. Menu refreshed every minute (quiet, keeps the section); an offer no longer allowed is refused at checkout with its name |
+| 7 | Offers "customizable", per the owner's choices | Kinds: fixed price on items (one price for every size), percentage on items, amount or percentage off whole categories, gift on an order over an amount (tiers, highest only; threshold on what the customer pays with or without the delivery fee; added by itself or by a button, per offer). Conditions: days, hours (across midnight, on the day it opened), dates, order types, stations, limits per order / day / overall. Every offer optional. Migration `AddFlexibleOffers` (additive: 12 columns with defaults on `PriceRules`, tables `PriceRuleCategories`, `PriceRuleGiftTiers`; snapshot +122 lines, nothing removed); existing offers read as fixed price unchanged. Gift lines priced 0 with their list price kept, so "قيمة العروض" includes them; printed «هدية: …» |
+| 8 | A number pad for quantity | Tap the quantity on a cart line (both apps): 0-9, clear, delete, keyboard; 1-999 |
+
+Tests: domain `OfferRulesTests` (15), `DeliveryPapersTests` (+2); integration `FlexibleOffersTests` (15),
+`DeliveryPickupWorkflowTests` (+3 «ترحيل», settlement assertion changed), `InventoryVerticalSliceTests` (+2),
+`MenuPricingInventoryTests` (an inactive offer is now refused, not charged at list price); client
+`OwnerRequestsQueueAddressTests` (11), `QuantityPadTests` (10), `OfferClientTests` (6), `OfferEditorTests` (3).
+Domain 643/643, client 565/565. Full integration suite on a copy of this tree (2026-11-26 11:47-14:17, no code
+change after the copy): 1195/1195 in 2 h 29 m.

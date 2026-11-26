@@ -212,6 +212,7 @@ public partial class CallCenterViewModel
         OnPropertyChanged(nameof(GrandTotalDisplay));
         OnPropertyChanged(nameof(DeliveryFeeDisplay));
         NotifyDeliverySummary();
+        ReconcileGifts();   // owner, 2026-11-25: a gift may count the delivery fee
     }
 
     [RelayCommand]

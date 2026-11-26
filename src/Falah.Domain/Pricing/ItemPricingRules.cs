@@ -18,11 +18,11 @@ public static class ItemPricingRules
 
     public static ResolvedItemPrice Resolve(
         string productId, Money listUnitPrice, string? requestedPriceRuleId,
-        IEnumerable<PriceRule> allRules, DateTimeOffset whenUtc, TimeZoneInfo timeZone)
+        IEnumerable<PriceRule> allRules, DateTimeOffset whenUtc, TimeZoneInfo timeZone, string? categoryId = null)
     {
-        var validRule = PricingRules.ValidateAppliedRule(productId, requestedPriceRuleId, allRules, whenUtc, timeZone);
+        var validRule = PricingRules.ValidateAppliedRule(productId, requestedPriceRuleId, allRules, whenUtc, timeZone, categoryId);
         return validRule is null
             ? new ResolvedItemPrice(listUnitPrice, listUnitPrice, null, null)
-            : new ResolvedItemPrice(listUnitPrice, validRule.FixedPrice, validRule.Id, validRule.Name);
+            : new ResolvedItemPrice(listUnitPrice, PricingRules.OfferUnitPrice(validRule, listUnitPrice), validRule.Id, validRule.Name);
     }
 }

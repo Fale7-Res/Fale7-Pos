@@ -244,6 +244,9 @@ public sealed partial class ApiClient
     /// <summary>Workflow redesign (owner, 2026-11-24): the live delivery and pickup queue, stages computed by the server.</summary>
     public Task<ApiResult<List<QueueOrderDto>>> GetOrderQueueAsync(CancellationToken ct = default) =>
         SendAsync<List<QueueOrderDto>>(() => _http.GetAsync("/api/orders/queue", ct), ct);
+    /// <summary>Owner, 2026-11-25 («ترحيل»): finished orders leave the queue's screen; nothing is deleted.</summary>
+    public Task<ApiResult<ClearOrderQueueResult>> ClearOrderQueueAsync(ClearOrderQueueRequest request, CancellationToken ct = default) =>
+        SendAsync<ClearOrderQueueResult>(() => _http.PostAsJsonAsync("/api/orders/queue/clear", request, ct), ct);
 
     public Task<ApiResult<bool>> SendKitchenInvoiceAsync(SendKitchenInvoiceRequest request, CancellationToken ct = default) =>
         SendEmptyAsync(() => _http.PostAsJsonAsync($"/api/orders/{Uri.EscapeDataString(request.OrderId)}/kitchen-invoice", request, ct), ct);

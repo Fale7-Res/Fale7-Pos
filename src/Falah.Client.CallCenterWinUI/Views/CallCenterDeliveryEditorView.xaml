@@ -82,15 +82,8 @@
                         <StackPanel Spacing="14" Visibility="{Binding IsDelivery, Converter={StaticResource BoolToVisibleConverter}}">
                         <ComboBox Header="عنوان محفوظ" HorizontalAlignment="Stretch" MinHeight="44"
                                   ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}"
-                                  Visibility="{Binding SavedAddresses.Count, Converter={StaticResource CountToVisibleConverter}}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <Run Text="{Binding Area}"/><Run Text=" — "/><Run Text="{Binding Street}"/>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                                  DisplayMemberPath="FullText"
+                                  Visibility="{Binding SavedAddresses.Count, Converter={StaticResource CountToVisibleConverter}}"/>
 
                         <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
