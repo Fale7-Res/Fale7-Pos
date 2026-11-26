@@ -81,14 +81,19 @@ function Read-ServerUrl([string]$value) {
     return $uri.GetLeftPart([UriPartial]::Authority)
 }
 
-function New-DesktopShortcut([string]$name, [string]$target) {
-    $desktop = [Environment]::GetFolderPath('CommonDesktopDirectory')
+function New-DesktopShortcut([string]$name, [string]$target, [string]$desktop = '') {
+    if (-not $desktop) { $desktop = [Environment]::GetFolderPath('CommonDesktopDirectory') }
     $shell = New-Object -ComObject WScript.Shell
-    $link = $shell.CreateShortcut((Join-Path $desktop "$name.lnk"))
+    # WshShortcut.Save converts the file name through the ANSI code page: on an English-locale Windows the Arabic
+    # name turns into '?' and the save fails (first real install, 2026-11-26). Save under an ASCII name, then rename.
+    $final = Join-Path $desktop "$name.lnk"
+    $temp = Join-Path $desktop ('falah-' + [guid]::NewGuid().ToString('N') + '.lnk')
+    $link = $shell.CreateShortcut($temp)
     $link.TargetPath = $target
     $link.WorkingDirectory = Split-Path $target -Parent
     $link.IconLocation = "$target,0"
     $link.Save()
+    Move-Item -LiteralPath $temp -Destination $final -Force
     Write-Ok "اختصار على سطح المكتب: $name"
 }
 
