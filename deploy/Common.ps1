@@ -35,7 +35,10 @@ function Assert-Administrator {
 
 # Mirror a published folder into its install location, keeping the previous version beside it for rollback.
 function Install-Folder([string]$source, [string]$target) {
-    if (-not (Test-Path -LiteralPath (Join-Path $source '*'))) { throw "مجلد البرنامج فاضي أو مش موجود: $source" }
+    # Not Test-Path -LiteralPath "$source\*": -LiteralPath takes '*' as a file name, so that check refused every
+    # folder (first real install, 2026-11-26).
+    $any = if (Test-Path -LiteralPath $source -PathType Container) { Get-ChildItem -LiteralPath $source -Force | Select-Object -First 1 }
+    if (-not $any) { throw "مجلد البرنامج فاضي أو مش موجود: $source" }
     if (Test-Path -LiteralPath $target) {
         $previous = "$target.previous"
         if (Test-Path -LiteralPath $previous) { Remove-Item -LiteralPath $previous -Recurse -Force }
