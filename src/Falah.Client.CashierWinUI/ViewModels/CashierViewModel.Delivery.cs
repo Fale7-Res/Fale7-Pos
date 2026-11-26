@@ -62,7 +62,11 @@ public partial class CashierViewModel
         if (value == "pickup") OpenPickupEditor();
     }
 
-    partial void OnSelectedDeliveryServiceChanged(DeliveryServiceDto? value) => NotifyTotals();
+    partial void OnSelectedDeliveryServiceChanged(DeliveryServiceDto? value)
+    {
+        NotifyTotals();
+        SyncDeliveryServiceQuery(value);   // owner, 2026-11-26: the search box shows the chosen service
+    }
     partial void OnCustomerPhoneChanged(string value)
     {
         SavedAddresses.Clear(); SelectedSavedAddress = null; CustomerLookupMessage = null;

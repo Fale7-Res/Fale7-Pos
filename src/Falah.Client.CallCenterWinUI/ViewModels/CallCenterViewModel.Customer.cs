@@ -213,6 +213,7 @@ public partial class CallCenterViewModel
         OnPropertyChanged(nameof(DeliveryFeeDisplay));
         NotifyDeliverySummary();
         ReconcileGifts();   // owner, 2026-11-25: a gift may count the delivery fee
+        SyncDeliveryServiceQuery(value);   // owner, 2026-11-26: the search box shows the chosen service
     }
 
     [RelayCommand]

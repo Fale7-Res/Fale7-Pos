@@ -74,6 +74,35 @@ public sealed partial class CallCenterDeliveryEditorView : UserControl
         if (!_pushing && _vm is not null) _vm.PickupDate = sender.Date;
     }
 
+    // Owner, 2026-11-26: the delivery service is searched by typing (about 50 of them). Only the person's typing
+    // searches; the box's own text updates (a chosen suggestion, the view model's value) do not.
+    private void OnServiceTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput) _vm?.SearchDeliveryServices(sender.Text);
+    }
+
+    private void OnServiceChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        if (_vm is not null && args.SelectedItem is Falah.Application.Delivery.DeliveryServiceDto service) _vm.SelectedDeliveryService = service;
+    }
+
+    /// <summary>Enter picks the highlighted suggestion, or the first one.</summary>
+    private void OnServiceSubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        if (_vm is null) return;
+        var service = args.ChosenSuggestion as Falah.Application.Delivery.DeliveryServiceDto ?? _vm.DeliveryServiceSuggestions.FirstOrDefault();
+        if (service is not null) _vm.SelectedDeliveryService = service;
+        sender.IsSuggestionListOpen = false;
+    }
+
+    /// <summary>On focus the list opens with what matches the text so far (every service when it is empty).</summary>
+    private void OnServiceFocused(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (_vm is null || sender is not AutoSuggestBox box || _vm.SelectedDeliveryService is not null) return;
+        _vm.SearchDeliveryServices(box.Text);
+        box.IsSuggestionListOpen = _vm.DeliveryServiceSuggestions.Count > 0;
+    }
+
     /// <summary>A time once both its hour and its minute are chosen; until then none.</summary>
     private void OnPickupTimePartChanged(object sender, SelectionChangedEventArgs e)
     {

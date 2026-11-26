@@ -14,7 +14,9 @@
     <TextBox MaxLength="200" Header="اسم العميل" Text="{Binding CustomerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <ComboBox Header="عنوان محفوظ" ItemsSource="{Binding SavedAddresses}" SelectedItem="{Binding SelectedSavedAddress, Mode=TwoWay}" DisplayMemberPath="FullText" HorizontalAlignment="Stretch"/>
     <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-     <TextBox Header="المنطقة" Text="{Binding DeliveryArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><ComboBox Grid.Column="1" Header="خدمة التوصيل" ItemsSource="{Binding DeliveryServices}" SelectedItem="{Binding SelectedDeliveryService, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>
+     <TextBox Header="المنطقة" Text="{Binding DeliveryArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/><AutoSuggestBox Grid.Column="1" Header="خدمة التوصيل" PlaceholderText="اكتب جزء من اسم الخدمة" AutomationProperties.AutomationId="Delivery_ServiceSearch"
+       Text="{Binding DeliveryServiceQuery, Mode=OneWay}" ItemsSource="{Binding DeliveryServiceSuggestions}" DisplayMemberPath="PickerLabel" TextMemberPath="Name"
+       TextChanged="OnServiceTextChanged" SuggestionChosen="OnServiceChosen" QuerySubmitted="OnServiceSubmitted" GotFocus="OnServiceFocused" HorizontalAlignment="Stretch"/>
     </Grid>
     <TextBox Header="الشارع" Text="{Binding DeliveryStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

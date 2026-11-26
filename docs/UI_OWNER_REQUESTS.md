@@ -874,3 +874,10 @@ Owner requests the same day:
   script and removes the entry. Not run for real (this laptop holds the real `Falah`).
 
 Client tests 565/565.
+
+- **Delivery service by search (same day):** about 50 services; the order taker types part of a name in both
+  apps (`AutoSuggestBox` in place of the list) and picks from suggestions showing the fee («مدينة نصر — 30 ج»).
+  `DeliveryServiceSearch`: أ/إ/آ/ا, ة/ه, ى/ي, diacritics and tatweel alike; the name's start first, then a word's
+  start, then anywhere. Editing the text drops a service chosen before (its fee cannot stay unseen); a whole name
+  typed selects it; Enter takes the first suggestion; a saved address puts its service's name in the box.
+  `DeliveryServicePickerTests` (9); client 574/574. Not yet run on screen (needs a server with services).

@@ -90,9 +90,12 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <ComboBox Header="خدمة التوصيل" HorizontalAlignment="Stretch" MinHeight="44"
-                                      ItemsSource="{Binding DeliveryServices}" SelectedItem="{Binding SelectedDeliveryService, Mode=TwoWay}"
-                                      DisplayMemberPath="Name"/>
+                            <AutoSuggestBox Header="خدمة التوصيل" HorizontalAlignment="Stretch" MinHeight="44"
+                                            PlaceholderText="اكتب جزء من اسم الخدمة" AutomationProperties.AutomationId="Delivery_ServiceSearch"
+                                            Text="{Binding DeliveryServiceQuery, Mode=OneWay}" ItemsSource="{Binding DeliveryServiceSuggestions}"
+                                            DisplayMemberPath="PickerLabel" TextMemberPath="Name"
+                                            TextChanged="OnServiceTextChanged" SuggestionChosen="OnServiceChosen"
+                                            QuerySubmitted="OnServiceSubmitted" GotFocus="OnServiceFocused"/>
                             <TextBox Grid.Column="1" Header="المنطقة" MinHeight="44"
                                      Text="{Binding DeliveryArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
