@@ -6,6 +6,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>Falah.Client.CallCenterWinUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>../Falah.Client.Shared/Brand/falah.ico</ApplicationIcon>
     <UseWinUI>true</UseWinUI>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -31,6 +32,8 @@
     <Compile Include="../Falah.Client.Shared/CrashLog.cs" Link="Diagnostics/CrashLog.cs" />
     <Compile Include="../Falah.Client.Shared/ClientLog.cs" Link="Diagnostics/ClientLog.cs" />
     <Compile Include="../Falah.Client.Shared/CorrelationLoggingHandler.cs" Link="Diagnostics/CorrelationLoggingHandler.cs" />
+    <Compile Include="../Falah.Client.Shared/StationWindow.cs" Link="Windowing/StationWindow.cs" />
+    <Content Include="../Falah.Client.Shared/Brand/falah.ico" Link="Assets/falah.ico" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\Falah.Application\Falah.Application.csproj" />
   </ItemGroup>
 

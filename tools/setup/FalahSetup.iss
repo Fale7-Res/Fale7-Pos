@@ -36,7 +36,14 @@ OutputDir={#OutDir}
 Compression=lzma2/normal
 SolidCompression=yes
 LZMANumBlockThreads=4
-Uninstallable=no
+; Owner request 2026-11-26: removable from Windows' Apps list. The uninstaller runs deploy\Uninstall-Falah.ps1
+; (see [Code] below); the database and SQL Server go only when the owner ticks the box, after a final backup.
+Uninstallable=yes
+UninstallDisplayName=فالح أبو العنب - نظام المطعم
+UninstallDisplayIcon={app}\falah.ico
+#ifdef IconFile
+SetupIconFile={#IconFile}
+#endif
 WizardStyle=modern
 SetupLogging=yes
 ShowLanguageDialog=no
@@ -49,9 +56,16 @@ Name: "ar"; MessagesFile: "compiler:Languages\Arabic.isl"
 Source: "{#PkgDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion; Excludes: "Certificate\*.cer"
 ; Only the server PC needs SQL Server; it goes to {tmp} and is deleted when Setup ends.
 Source: "{#SqlInstaller}"; DestDir: "{tmp}"; Flags: nocompression deleteafterinstall; Check: NeedsSql
+#ifdef IconFile
+Source: "{#IconFile}"; DestDir: "{app}"; DestName: "falah.ico"; Flags: ignoreversion
+#endif
 
 [Dirs]
 Name: "{app}\Certificate"
+
+[UninstallDelete]
+; The installation package this uninstaller came from (the script removes the older ones).
+Type: filesandordirs; Name: "{app}"
 
 [Code]
 const
@@ -557,4 +571,113 @@ end;
 function NeedRestart: Boolean;
 begin
   Result := RestartAfterSql;
+end;
+
+// ---- Uninstall (owner request 2026-11-26) ----------------------------------------------------------------------
+// The programs, services, shortcuts and settings always go. The database and SQL Server go only when the owner
+// ticks the box and confirms; the script takes a final verified backup first and keeps the backup folders.
+// A silent uninstall (/SILENT or /VERYSILENT) asks nothing and removes the database only with /REMOVEDATA.
+
+var
+  RemoveData: Boolean;
+
+function InitializeUninstall: Boolean;
+var
+  Form: TSetupForm;
+  Info: TNewStaticText;
+  RemoveDataBox: TNewCheckBox;
+  OkButton, CancelButton: TNewButton;
+begin
+  RemoveData := Pos('/REMOVEDATA', Uppercase(GetCmdTail)) > 0;
+  Result := True;
+  if UninstallSilent then exit;
+  Form := CreateCustomForm(ScaleX(480), ScaleY(250), False, False);
+  try
+    Form.Caption := 'إزالة فالح';
+
+    Info := TNewStaticText.Create(Form);
+    Info.Parent := Form;
+    Info.AutoSize := False;
+    Info.WordWrap := True;
+    Info.Left := ScaleX(16);
+    Info.Top := ScaleY(16);
+    Info.Width := Form.ClientWidth - ScaleX(32);
+    Info.Height := ScaleY(120);
+    Info.Caption :=
+      'هيتشال من الجهاز ده: السيرفر والكاشير والكول سنتر وبرامج الطباعة وخدماتها، والاختصارات والإعدادات.' + #13#10#13#10 +
+      'قاعدة البيانات وSQL Server بيفضلوا، ولو ركّبت تاني كل البيانات بترجع.' + #13#10 +
+      'علّم المربع لو عايز تمسحهم كمان: هتتعمل نسخة احتياطية أخيرة في مجلد النسخ الأول.' + #13#10 +
+      'مجلد النسخ الاحتياطية عمره ما بيتمسح.';
+
+    RemoveDataBox := TNewCheckBox.Create(Form);
+    RemoveDataBox.Parent := Form;
+    RemoveDataBox.Left := ScaleX(16);
+    RemoveDataBox.Top := Info.Top + Info.Height + ScaleY(12);
+    RemoveDataBox.Width := Form.ClientWidth - ScaleX(32);
+    RemoveDataBox.Height := ScaleY(22);
+    RemoveDataBox.Caption := 'امسح قاعدة البيانات وSQL Server كمان';
+    RemoveDataBox.Checked := RemoveData;
+
+    OkButton := TNewButton.Create(Form);
+    OkButton.Parent := Form;
+    OkButton.Caption := 'إزالة';
+    OkButton.Width := ScaleX(90);
+    OkButton.Height := ScaleY(28);
+    OkButton.Left := Form.ClientWidth - ScaleX(16) - OkButton.Width * 2 - ScaleX(10);
+    OkButton.Top := Form.ClientHeight - ScaleY(16) - OkButton.Height;
+    OkButton.ModalResult := mrOk;
+
+    CancelButton := TNewButton.Create(Form);
+    CancelButton.Parent := Form;
+    CancelButton.Caption := 'إلغاء';
+    CancelButton.Width := OkButton.Width;
+    CancelButton.Height := OkButton.Height;
+    CancelButton.Left := Form.ClientWidth - ScaleX(16) - CancelButton.Width;
+    CancelButton.Top := OkButton.Top;
+    CancelButton.ModalResult := mrCancel;
+    CancelButton.Cancel := True;
+    CancelButton.Default := True;
+
+    Result := Form.ShowModal = mrOk;
+    RemoveData := Result and RemoveDataBox.Checked;
+    if RemoveData then
+    begin
+      Result := MsgBox('قاعدة البيانات هتتمسح: كل الطلبات والورديات والمنيو والمستخدمين والعملاء والمخزون.' + #13#10 +
+        'هتتعمل نسخة احتياطية أخيرة في مجلد النسخ الاحتياطية قبل المسح، ولو النسخة فشلت مفيش حاجة هتتمسح.' + #13#10 +
+        'وبعدين SQL Server هيتشال.' + #13#10#13#10 + 'متأكد؟', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
+      RemoveData := Result;
+    end;
+  finally
+    Form.Free;
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  ResultCode: Integer;
+  ResultFile, Parameters: String;
+  Lines: TArrayOfString;
+begin
+  if CurUninstallStep <> usUninstall then exit;
+  ResultFile := AddBackslash(GetTempDir) + 'falah-uninstall-result.txt';
+  DeleteFile(ResultFile);
+  Parameters := '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\Uninstall-Falah.ps1') +
+    '" -KeepDir "' + ExpandConstant('{app}') + '" -ResultFile "' + ResultFile + '"';
+  if RemoveData then Parameters := Parameters + ' -RemoveDatabase';
+#ifdef DryRun
+  Parameters := Parameters + ' -DryRun';
+#endif
+  UninstallProgressForm.StatusLabel.Caption := 'إزالة فالح... ما تقفلش الجهاز.';
+  Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'), Parameters, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  if not LoadStringsFromFile(ResultFile, Lines) then SetArrayLength(Lines, 0);
+  if UninstallSilent then exit;
+  if GetArrayLength(Lines) >= 3 then
+  begin
+    if Lines[0] = 'OK' then
+      MsgBox(Lines[1] + #13#10#13#10 + 'السجل: ' + Lines[2], mbInformation, MB_OK)
+    else
+      MsgBox(Lines[1] + #13#10#13#10 + 'السجل: ' + Lines[2], mbError, MB_OK);
+  end
+  else
+    MsgBox('الإزالة ما كملتش (كود ' + IntToStr(ResultCode) + ').', mbError, MB_OK);
 end;

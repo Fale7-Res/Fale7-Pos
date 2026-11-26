@@ -19,6 +19,7 @@
    <Button x:Name="ThemeButton" AutomationProperties.AutomationId="ThemeToggle" Click="OnThemeClicked"
            ToolTipService.ToolTip="تبديل المظهر: حسب ويندوز ← فاتح ← داكن" Style="{ThemeResource SecondaryButtonStyle}" Padding="14,8"/>
    <Button x:Name="LockButton" IsEnabled="{Binding CanLock}" ToolTipService.ToolTip="قفل الشاشة والعودة لإدخال الرمز. لا يعمل أثناء عملية مالية لم تُحسم بعد." Click="OnLockClicked" Content="قفل" Style="{StaticResource SecondaryButtonStyle}" Padding="18,8"/>
+   <Button x:Name="ExitButton" AutomationProperties.AutomationId="Header_Exit" ToolTipService.ToolTip="قفل البرنامج. لا يقفل أثناء عملية مالية لم تُحسم بعد. F11 يطلع من الشاشة الكاملة." Click="OnExitClicked" Content="خروج" Style="{StaticResource SecondaryButtonStyle}" Padding="18,8"/>
   </StackPanel>
  </Grid>
 </Border></UserControl>

@@ -2,8 +2,9 @@ using System.ComponentModel;
 using Falah.Client.CashierWinUI.Services;
 using Falah.Client.CashierWinUI.ViewModels;
 using Falah.Client.CashierWinUI.Views;
-using Microsoft.UI.Windowing;
+using Falah.Client.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 
 namespace Falah.Client.CashierWinUI;
 
@@ -27,7 +28,11 @@ public partial class MainWindow : Window
 
         HeaderHost.DataContext = _viewModel.Header;
         HeaderHost.LockRequested += (_, _) => _viewModel.LockCommand.Execute(null);
+        HeaderHost.ExitRequested += (_, _) => RequestExit();
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        var fullScreen = new KeyboardAccelerator { Key = Windows.System.VirtualKey.F11 };
+        fullScreen.Invoked += (_, args) => { args.Handled = true; StationWindow.ToggleFullScreen(AppWindow); };
+        RootGrid.KeyboardAccelerators.Add(fullScreen);
 
         // Applied before the rest of the tree is populated: RootGrid.RequestedTheme is inherited
         // by every descendant, so whatever is realised next (login screen or the full shell) is
@@ -38,10 +43,19 @@ public partial class MainWindow : Window
         ApplyIsLoggedIn();
         ApplyIsOnline();
         ApplyCurrentView();
-        // Maximize can show the native window and initiate layout. Attach its content and
+        // Maximize / full screen can show the native window and initiate layout. Attach its content and
         // bindings first; do not expose a partially initialized root to activation/layout.
-        MaximizeOnTargetDisplay();
+        StationWindow.Prepare(AppWindow);
     }
+
+    /// <summary>The header's «خروج» and the PIN screen's: the same guard as the title bar's X (an unresolved money
+    /// operation keeps the program open and says why).</summary>
+    private void RequestExit()
+    {
+        if (_viewModel.TryClose()) Close();
+    }
+
+    private void OnExitClicked(object sender, RoutedEventArgs e) => RequestExit();
 
     /// <summary>Live theme switching, no restart: RequestedTheme on the root propagates to the
     /// whole subtree, and every `{ThemeResource}` binding in it re-resolves on its own. Raised off
@@ -50,16 +64,9 @@ public partial class MainWindow : Window
     private void OnThemeChanged(AppTheme theme) =>
         DispatcherQueue.TryEnqueue(() => RootGrid.RequestedTheme = ThemeService.ToElementTheme(theme));
 
-    /// <summary>This is real dedicated POS hardware (a ~15" touch terminal), not a resizable desktop
-    /// tool window - it should own the whole screen from launch. Maximizing rather than requesting a
-    /// specific pixel size also sidesteps AppWindow.Resize's one DPI gotcha in WinUI 3: unlike XAML
-    /// content lengths (already DIP-based and auto-scaled per monitor), AppWindow's own Win32-level
-    /// APIs take physical pixels, so a hardcoded Resize() call clips at higher display scaling.</summary>
-    private void MaximizeOnTargetDisplay()
-    {
-        if (AppWindow.Presenter is OverlappedPresenter presenter)
-            presenter.Maximize();
-    }
+    // This is real dedicated POS hardware (a ~15" touch terminal), not a resizable desktop tool window - it owns the
+    // whole screen from launch (StationWindow: full screen over a maximized window, never a fixed pixel size, which
+    // AppWindow.Resize takes in physical pixels and so clips at higher display scaling).
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -77,8 +84,11 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ApplyIsLoggedIn() =>
+    private void ApplyIsLoggedIn()
+    {
         HeaderHost.Visibility = _viewModel.IsLoggedIn ? Visibility.Visible : Visibility.Collapsed;
+        LoginExitButton.Visibility = _viewModel.IsLoggedIn ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     private void ApplyIsOnline() =>
         OfflineBanner.Visibility = _viewModel.IsOnline ? Visibility.Collapsed : Visibility.Visible;

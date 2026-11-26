@@ -1,8 +1,9 @@
 using System.ComponentModel;
 using Falah.Client.CallCenterWinUI.ViewModels;
 using Falah.Client.CallCenterWinUI.Views;
-using Microsoft.UI.Windowing;
+using Falah.Client.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 
 namespace Falah.Client.CallCenterWinUI;
 
@@ -29,22 +30,27 @@ public partial class MainWindow : Window
 
         HeaderHost.DataContext = _viewModel.Header;
         HeaderHost.LockRequested += (_, _) => _viewModel.LockCommand.Execute(null);
+        HeaderHost.ExitRequested += (_, _) => RequestExit();
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        var fullScreen = new KeyboardAccelerator { Key = Windows.System.VirtualKey.F11 };
+        fullScreen.Invoked += (_, args) => { args.Handled = true; StationWindow.ToggleFullScreen(AppWindow); };
+        RootGrid.KeyboardAccelerators.Add(fullScreen);
 
         ApplyIsLoggedIn();
         ApplyIsOnline();
         ApplyCurrentView();
-        // Install the initial screen before maximizing can activate native layout.
-        MaximizeOnTargetDisplay();
+        // Install the initial screen before maximizing / full screen can activate native layout. Same reasoning as
+        // CashierWinUI's MainWindow - real dedicated LAN station hardware, not a resizable desktop tool window.
+        StationWindow.Prepare(AppWindow);
     }
 
-    /// <summary>Same reasoning as CashierWinUI's own MainWindow - real dedicated LAN station
-    /// hardware, not a resizable desktop tool window.</summary>
-    private void MaximizeOnTargetDisplay()
+    /// <summary>The header's «خروج» and the PIN screen's: the same guard as the title bar's X.</summary>
+    private void RequestExit()
     {
-        if (AppWindow.Presenter is OverlappedPresenter presenter)
-            presenter.Maximize();
+        if (_viewModel.TryClose()) Close();
     }
+
+    private void OnExitClicked(object sender, RoutedEventArgs e) => RequestExit();
 
     private void OnThemeChanged(Services.AppTheme theme) =>
         DispatcherQueue.TryEnqueue(() => RootGrid.RequestedTheme = Services.ThemeService.ToElementTheme(theme));
@@ -75,6 +81,7 @@ public partial class MainWindow : Window
     {
         HeaderHost.Visibility = _viewModel.IsLoggedIn ? Visibility.Visible : Visibility.Collapsed;
         SectionBar.Visibility = HeaderHost.Visibility;
+        LoginExitButton.Visibility = _viewModel.IsLoggedIn ? Visibility.Collapsed : Visibility.Visible;
         ApplyDeliveryTab();
         ApplySection();
     }

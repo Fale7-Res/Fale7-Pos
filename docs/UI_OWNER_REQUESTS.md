@@ -834,3 +834,43 @@ Committed as `6bb150c` on `main` and pushed. Installer built from that commit wi
 last `20261126091329_AddFlexibleOffers`. Installing it on `Falah` (at 48) applies `AddPickupHandover`,
 `AddDriverPhone` and `AddFlexibleOffers`: `DEPLOYMENT.md` §0 (verified backup first, service stopped outside a
 shift). Not yet installed at the restaurant; still open before go-live as in the previous section.
+
+### First real install on the restaurant's server PC; icon, full screen, uninstaller — Claude, 2026-11-26
+
+The owner ran Setup on the restaurant's server PC (Windows 10, English system locale, 8 GB). Two installer defects,
+both in `deploy/Common.ps1`, neither reachable by Setup's dry run (it never runs the steps):
+
+| Commit | Symptom on site | Cause and fix |
+|---|---|---|
+| `380bfee` | «مجلد البرنامج فاضي أو مش موجود» at the copy step | `Test-Path -LiteralPath "<folder>\*"` takes `*` as a file name: every folder looked empty, so every step (server, stations, print agents) stopped there. Checks the folder's entries instead |
+| `0a8d95c` | «Unable to save shortcut "…\???? - ???????.lnk"» after the server step had succeeded | `WshShortcut.Save` converts the name through the ANSI code page (1252): the Arabic name became `?`. Saved under an ASCII name, then renamed |
+
+Both reproduced on this laptop (same locale) against the previous script and passed after the fix (scratch
+checks: full / update with `.previous` / empty / missing folder; both Arabic shortcut names, re-run, no leftovers).
+Between the two runs the owner deleted the `Falah` database to start empty; its files stayed in SQL Server's data
+folder and made `CREATE DATABASE` fail, and were moved aside by hand (`C:\Falah\OldDatabase`). The server step then
+created a new database at 51 migrations and started; the owner's PIN was set in Setup.
+
+Owner requests the same day:
+
+- **Icon:** the restaurant's logo (`tools/brand/falah-logo.png`) → `src/Falah.Client.Shared/Brand/falah.ico`
+  (`tools/make-icon.ps1`: trimmed, square, PNG frames 16-256). On both clients' exe, window and taskbar, the
+  desktop shortcuts, Setup.exe and the Apps entry.
+- **Full screen:** both clients open full screen (no taskbar, no title bar) over a maximized window
+  (`StationWindow`); F11 toggles; «خروج» in the header and on the PIN screen closes through the same guard as the
+  title bar's X (an unresolved money operation keeps the program open). Checked by launching each built client:
+  window covers the screen, no caption, icon set, F11 out and back, the PIN screen's «خروج» closes it. The header's
+  «خروج» calls the same method but was not clicked (it needs a running server to log in).
+- **Uninstaller:** Setup is now uninstallable (Apps: «فالح أبو العنب - نظام المطعم»). The uninstaller asks in its
+  own window; `deploy/Uninstall-Falah.ps1` always removes the services, programs, packages, logs, settings
+  (`%ProgramData%\Falah`, each user's `%LocalAppData%\Falah`), shortcuts into `C:\Falah`, firewall rule,
+  `FALAH_SERVER_URL` and the server certificate. With the box ticked and confirmed (owner's choice): a final
+  `COPY_ONLY` backup, verified, in the server's backup folder, then the database is dropped and SQL Server Express
+  removed, unless the instance holds another database (kept, and said). Backup folders are never removed; the
+  log goes into them. Scratch checks (scratch folders, a `FalahTest_uninst_*` database, a fake SQL setup): dry run
+  removes nothing; without the box the database stays; with it the backup is written and restores with its data,
+  the database is dropped, SQL Server kept because of other databases, unknown folders kept. Dry-run Setup: listed
+  in Apps with the icon, the window shows the text and the box, «إلغاء» removes nothing, a silent uninstall runs the
+  script and removes the entry. Not run for real (this laptop holds the real `Falah`).
+
+Client tests 565/565.

@@ -25,4 +25,10 @@ public sealed partial class AppHeaderView : UserControl
     }
 
     private void OnLockClicked(object sender, RoutedEventArgs e) => LockRequested?.Invoke(this, EventArgs.Empty);
+
+    /// <summary>The station runs full screen with no title bar, so the header carries the way out; MainWindow closes
+    /// the program through the same guard as the title bar's X.</summary>
+    public event EventHandler? ExitRequested;
+
+    private void OnExitClicked(object sender, RoutedEventArgs e) => ExitRequested?.Invoke(this, EventArgs.Empty);
 }

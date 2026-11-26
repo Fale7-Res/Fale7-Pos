@@ -50,7 +50,8 @@ if (-not $Compiler) { throw 'Inno Setup compiler (ISCC.exe) not found; pass -Com
 $script = Join-Path $outDir 'FalahSetup.build.iss'
 [IO.File]::WriteAllText($script, [IO.File]::ReadAllText((Join-Path $repo 'tools\setup\FalahSetup.iss'), [Text.Encoding]::UTF8),
     (New-Object Text.UTF8Encoding($true)))
-$defines = @("/DPkgId=$id", "/DPkgDir=$PackageDir", "/DSqlInstaller=$SqlInstaller", "/DOutDir=$outDir")
+$defines = @("/DPkgId=$id", "/DPkgDir=$PackageDir", "/DSqlInstaller=$SqlInstaller", "/DOutDir=$outDir",
+             "/DIconFile=$(Join-Path $repo 'src\Falah.Client.Shared\Brand\falah.ico')")
 if ($DryRun) { $defines += '/DDryRun' }
 Write-Host "Setup for $id$(if ($DryRun) { ' (dry run)' }) from $PackageDir"
 & $Compiler /Q @defines $script
