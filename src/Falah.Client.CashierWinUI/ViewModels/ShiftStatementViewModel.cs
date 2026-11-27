@@ -91,6 +91,7 @@ public partial class ShiftStatementViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            Falah.Client.Diagnostics.ClientLog.WriteException("shift close paper", ex);
             // Shown right after a successful close: whatever goes wrong fetching the paper must never
             // escape into the close itself, which has already committed and must not look failed.
             Error = "تعذر تحميل ورقة الإغلاق الآن. الإغلاق تم؛ افتحها لاحقًا من سجل الورديات.";

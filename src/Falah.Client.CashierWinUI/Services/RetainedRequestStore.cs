@@ -82,6 +82,7 @@ public sealed class FileRetainedRequestStore : IRetainedRequestStore
 
     private void ReportError(Exception ex)
     {
+        Falah.Client.Diagnostics.ClientLog.WriteException("pending-operation file on this PC", ex);
         if (ex is PendingDataProtectionException)
             RecoveryError = "تعذر فتح محاولة محفوظة بحساب ويندوز الحالي. الملفات محفوظة؛ استخدم حساب ويندوز الأصلي أو استعد مفاتيحه قبل تسجيل عمليات جديدة.";
         _onError?.Invoke(ex);

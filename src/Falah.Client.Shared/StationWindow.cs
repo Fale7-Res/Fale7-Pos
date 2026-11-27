@@ -17,6 +17,28 @@ public static class StationWindow
         window.SetPresenter(AppWindowPresenterKind.FullScreen);
     }
 
+    /// <summary>Owner request 2026-11-27: «تصغير» puts the station in the taskbar without closing it - the shift,
+    /// the order being typed and the session all stay - and clicking it there brings it back full screen.
+    /// A full-screen presenter cannot be minimized, so the window goes overlapped first; <see cref="Restored"/>
+    /// (wired to the window's Activated event) puts full screen back on its return.</summary>
+    public static void MinimizeToTaskbar(AppWindow window)
+    {
+        _returnToFullScreen.Add(window.Id.Value);
+        if (window.Presenter.Kind != AppWindowPresenterKind.Overlapped) window.SetPresenter(AppWindowPresenterKind.Overlapped);
+        if (window.Presenter is OverlappedPresenter presenter) presenter.Minimize();
+    }
+
+    /// <summary>Call when the window is activated: a window minimized by «تصغير» goes back to full screen.</summary>
+    public static void Restored(AppWindow window)
+    {
+        if (window.Presenter is OverlappedPresenter { State: OverlappedPresenterState.Minimized }) return;
+        if (!_returnToFullScreen.Remove(window.Id.Value)) return;
+        if (window.Presenter is OverlappedPresenter presenter) presenter.Maximize();
+        window.SetPresenter(AppWindowPresenterKind.FullScreen);
+    }
+
+    private static readonly HashSet<ulong> _returnToFullScreen = new();
+
     public static void ToggleFullScreen(AppWindow window)
     {
         if (window.Presenter.Kind == AppWindowPresenterKind.FullScreen)

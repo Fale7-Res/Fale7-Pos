@@ -268,7 +268,7 @@ public partial class MenuEditorViewModel : ObservableObject
         var version = _editorVersion;
         (string ContentType, byte[] Bytes)? picked;
         try { picked = await PickImageAsync(); }
-        catch (Exception ex) { ActionError = "تعذّر قراءة الملف: " + ex.Message; return; }
+        catch (Exception ex) { Falah.Client.Diagnostics.ClientLog.WriteException("menu: reading the picked image", ex); ActionError = "تعذّر قراءة الملف: " + ex.Message; return; }
         if (picked is null || version != _editorVersion || !ReferenceEquals(_editing, product)) return;
 
         if (picked.Value.Bytes.Length > Falah.Domain.Menu.ProductImageRules.MaxBytes)

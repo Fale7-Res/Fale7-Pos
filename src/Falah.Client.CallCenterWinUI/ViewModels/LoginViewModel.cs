@@ -118,6 +118,7 @@ public partial class LoginViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            Falah.Client.Diagnostics.ClientLog.WriteException("sign-in", ex);
             ErrorMessage = $"تعذر الاتصال بالسيرفر: {ex.Message}";
         }
         finally

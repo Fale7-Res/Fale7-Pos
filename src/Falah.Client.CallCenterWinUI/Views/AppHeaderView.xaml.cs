@@ -31,4 +31,9 @@ public sealed partial class AppHeaderView : UserControl
     public event EventHandler? ExitRequested;
 
     private void OnExitClicked(object sender, RoutedEventArgs e) => ExitRequested?.Invoke(this, EventArgs.Empty);
+
+    /// <summary>«تصغير» (owner request 2026-11-27): to the taskbar, still running.</summary>
+    public event EventHandler? MinimizeRequested;
+
+    private void OnMinimizeClicked(object sender, RoutedEventArgs e) => MinimizeRequested?.Invoke(this, EventArgs.Empty);
 }

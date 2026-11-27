@@ -87,6 +87,10 @@ public partial class MainViewModel : ObservableObject
         Header.Stop();
     }
 
+    /// <summary>Owner request 2026-11-27: the log says which screen the station was on when something failed.</summary>
+    partial void OnCurrentViewChanged(object? value) =>
+        Falah.Client.Diagnostics.ClientLog.Write("INFO", $"screen: {value?.GetType().Name.Replace("ViewModel", "") ?? "none"}");
+
     [RelayCommand]
     private void Lock()
     {
@@ -122,6 +126,8 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(CanSeeDelivery));
         Section = "desk";
         IsLoggedIn = true;
+        if (_session.CurrentUser is { } user)
+            Falah.Client.Diagnostics.ClientLog.Write("INFO", $"signed in: {user.Name} ({user.Id}, {user.Role})");
         var vm = _session.GetOrderDesk(Header);
         CurrentView = vm;
         // async void (an event handler): anything that escaped InitializeAsync used to close the whole
@@ -131,6 +137,7 @@ public partial class MainViewModel : ObservableObject
         {
             Falah.Client.Diagnostics.CrashLog.Write(System.IO.Path.Combine(Services.FileRetainedRequestStore.DataRoot(), "logs"),
                 "callcenter", ex, "order desk start-up");
+            Falah.Client.Diagnostics.ClientLog.WriteException("order desk start-up", ex);
             vm.ShiftError = "تعذر تحميل بيانات المحطة. تحقق من الاتصال ثم اضغط تحديث.";
         }
     }

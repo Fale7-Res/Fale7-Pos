@@ -78,6 +78,7 @@ public partial class ReportsViewModel
             try { path = await Files.SaveAsAsync(file.Content, file.FileName); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
+                Falah.Client.Diagnostics.ClientLog.WriteException("reports: saving the exported file", ex);
                 ExportMessage = null;
                 ExportError = "تعذر حفظ الملف: قد يكون مفتوحًا في برنامج آخر، أو المكان غير مسموح بالكتابة فيه، أو القرص ممتلئ. أغلق الملف أو اختر مكانًا آخر.";
                 return;
@@ -108,6 +109,7 @@ public partial class ReportsViewModel
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
             {
+                Falah.Client.Diagnostics.ClientLog.WriteException("reports: opening the report for printing", ex);
                 ExportMessage = null;
                 ExportError = "تعذر فتح التقرير للطباعة. تأكد من وجود برنامج لعرض ملفات PDF، أو صدّر PDF واحفظه ثم اطبعه.";
             }
@@ -122,7 +124,8 @@ public partial class ReportsViewModel
         try { Files.Open(path); }
         catch (Exception ex) when (ex is IOException or System.ComponentModel.Win32Exception or InvalidOperationException)
         {
-            ExportError = "تعذر فتح الملف. افتحه من مكان حفظه.";
+            Falah.Client.Diagnostics.ClientLog.WriteException("reports: opening the saved file", ex);
+            ExportError ="تعذر فتح الملف. افتحه من مكان حفظه.";
         }
     }
 }

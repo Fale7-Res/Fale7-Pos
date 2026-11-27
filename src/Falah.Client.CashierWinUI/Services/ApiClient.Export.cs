@@ -32,6 +32,7 @@ public sealed partial class ApiClient
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or IOException)
         {
+            Falah.Client.Diagnostics.ClientLog.AnswerFailed(ex);
             return new(false, default, ex is OperationCanceledException
                 ? "استغرق إنشاء التقرير وقتًا طويلًا. صغّر الفترة أو أعد المحاولة."
                 : "تعذر إنشاء التقرير من السيرفر. تأكد من الاتصال ثم أعد المحاولة.", true);

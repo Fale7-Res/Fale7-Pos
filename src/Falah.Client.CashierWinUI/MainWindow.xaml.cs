@@ -29,6 +29,9 @@ public partial class MainWindow : Window
         HeaderHost.DataContext = _viewModel.Header;
         HeaderHost.LockRequested += (_, _) => _viewModel.LockCommand.Execute(null);
         HeaderHost.ExitRequested += (_, _) => RequestExit();
+        HeaderHost.MinimizeRequested += (_, _) => Minimize();
+        // Back from the taskbar after «تصغير»: full screen again.
+        Activated += (_, args) => { if (args.WindowActivationState != WindowActivationState.Deactivated) StationWindow.Restored(AppWindow); };
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
         var fullScreen = new KeyboardAccelerator { Key = Windows.System.VirtualKey.F11 };
         fullScreen.Invoked += (_, args) => { args.Handled = true; StationWindow.ToggleFullScreen(AppWindow); };
@@ -56,6 +59,15 @@ public partial class MainWindow : Window
     }
 
     private void OnExitClicked(object sender, RoutedEventArgs e) => RequestExit();
+
+    /// <summary>«تصغير» (owner request 2026-11-27): to the taskbar, still running - nothing is closed or lost.</summary>
+    private void Minimize()
+    {
+        Falah.Client.Diagnostics.ClientLog.Write("INFO", "minimized to the taskbar");
+        StationWindow.MinimizeToTaskbar(AppWindow);
+    }
+
+    private void OnMinimizeClicked(object sender, RoutedEventArgs e) => Minimize();
 
     /// <summary>Live theme switching, no restart: RequestedTheme on the root propagates to the
     /// whole subtree, and every `{ThemeResource}` binding in it re-resolves on its own. Raised off

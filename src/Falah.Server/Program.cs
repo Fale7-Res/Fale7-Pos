@@ -40,6 +40,7 @@ builder.Host.UseWindowsService(options => options.ServiceName = "FalahServer");
 // configuration so a test host's overrides (Logging:File:Enabled=false) apply. See RollingFileLoggerProvider.
 builder.Services.AddSingleton<ILoggerProvider>(sp =>
     new Falah.Server.Diagnostics.RollingFileLoggerProvider(Falah.Server.Diagnostics.FileLogOptions.From(sp.GetRequiredService<IConfiguration>())));
+builder.Services.AddSingleton<Falah.Server.Diagnostics.DetailedLogging>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -381,6 +382,10 @@ app.Use(async (context, next) =>
     context.Response.OnStarting(() => { context.Response.Headers["X-Correlation-Id"] = context.TraceIdentifier; return Task.CompletedTask; });
     await next();
 });
+
+// Owner request 2026-11-27: one log line per command, refusal, failure or slow request, with the user and the
+// reference. Outside the exception handler, so it records the answer that handler gives as well.
+app.UseMiddleware<Falah.Server.Diagnostics.RequestLogMiddleware>();
 
 app.UseExceptionHandler(branch => branch.Run(async context =>
 {

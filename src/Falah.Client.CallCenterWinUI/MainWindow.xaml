@@ -37,8 +37,12 @@
                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
 
         <!-- Full screen has no title bar: on the PIN screen (no header yet) this is the way out. -->
-        <Button x:Name="LoginExitButton" Grid.RowSpan="4" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="16"
-                Content="خروج" Style="{StaticResource SecondaryButtonStyle}" Padding="18,8" Click="OnExitClicked"
-                AutomationProperties.AutomationId="Login_Exit" ToolTipService.ToolTip="قفل البرنامج. F11 يطلع من الشاشة الكاملة."/>
+        <StackPanel x:Name="LoginExitButton" Grid.RowSpan="4" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="16"
+                    Orientation="Horizontal" Spacing="12">
+            <Button Content="خروج" Style="{StaticResource SecondaryButtonStyle}" Padding="18,8" Click="OnExitClicked"
+                    AutomationProperties.AutomationId="Login_Exit" ToolTipService.ToolTip="قفل البرنامج. F11 يطلع من الشاشة الكاملة."/>
+            <Button Content="تصغير" Style="{StaticResource SecondaryButtonStyle}" Padding="18,8" Click="OnMinimizeClicked"
+                    AutomationProperties.AutomationId="Login_Minimize" ToolTipService.ToolTip="تنزيل البرنامج لشريط المهام من غير ما يقفل."/>
+        </StackPanel>
     </Grid>
 </Window>

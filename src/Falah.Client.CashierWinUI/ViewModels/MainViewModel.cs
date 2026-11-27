@@ -122,6 +122,10 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void Lock() { if (!_session.HasUnresolvedOperation) ShowLogin(); }
 
+    /// <summary>Owner request 2026-11-27: the log says which screen the station was on when something failed.</summary>
+    partial void OnCurrentViewChanged(object? value) =>
+        Falah.Client.Diagnostics.ClientLog.Write("INFO", $"screen: {value?.GetType().Name.Replace("ViewModel", "") ?? "none"}");
+
     private void ShowLogin()
     {
         IsLoggedIn = false;
@@ -146,6 +150,8 @@ public partial class MainViewModel : ObservableObject
         }
         Header.Refresh();
         IsLoggedIn = true;
+        if (_session.CurrentUser is { } user)
+            Falah.Client.Diagnostics.ClientLog.Write("INFO", $"signed in: {user.Name} ({user.Id}, {user.Role})");
         CurrentView = HasAnyManagementPermission() || !_session.HasPermission("pos")
             ? new ShellViewModel(_session, Header)
             : CreateCashier();
@@ -165,7 +171,11 @@ public partial class MainViewModel : ObservableObject
             _session.ShiftName = shift.Value?.ShiftName;
             Header.Refresh();
         }
-        catch { /* the POS screen and the next login read it again */ }
+        catch (Exception ex)
+        {
+            // The POS screen and the next login read it again.
+            Falah.Client.Diagnostics.ClientLog.WriteException("reading the current shift after sign-in", ex, "WARN");
+        }
     }
 
     private bool HasAnyManagementPermission() =>

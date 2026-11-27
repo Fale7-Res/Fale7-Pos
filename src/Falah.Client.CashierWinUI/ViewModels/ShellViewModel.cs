@@ -152,6 +152,7 @@ public partial class ShellViewModel : ObservableObject
     private void Navigate(ShellNavItem item)
     {
         if (_session.HasUnresolvedOperation || !NavItems.Contains(item)) return;
+        Falah.Client.Diagnostics.ClientLog.Write("INFO", $"screen: {item.Key}");
         SelectedItem = item;
         CurrentPage = item.Key switch
         {

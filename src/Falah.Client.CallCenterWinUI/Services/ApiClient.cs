@@ -98,6 +98,7 @@ public sealed partial class ApiClient
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or System.Text.Json.JsonException or System.IO.IOException)
         {
+            Falah.Client.Diagnostics.ClientLog.AnswerFailed(ex);
             return new(false, default, "تعذر التحقق من نتيجة الاتصال. أعد المحاولة بنفس البيانات للتحقق من العملية.", true);
         }
     }

@@ -78,12 +78,88 @@ public sealed class RuntimeLoggingTests : IDisposable
         Assert.DoesNotContain("1234", log);
     }
 
+    // Owner request 2026-11-27 (detailed logging): a refusal is written with the words the employee saw,
+    // so "it said the drawer is short" can be found in the log. Until then refusals were not logged at all.
     [Fact]
-    public async Task A_validation_refusal_is_not_logged()
+    public async Task A_refusal_is_logged_with_the_message_the_employee_saw()
     {
-        var http = new HttpClient(new CorrelationLoggingHandler(new Stub(_ => Json(HttpStatusCode.UnprocessableEntity, "{\"error\":\"x\"}")))) { BaseAddress = new Uri("http://qa.invalid") };
-        await http.GetAsync("/api/shifts/current");
-        Assert.False(File.Exists(Path.Combine(_dir, $"cashier-{DateTime.UtcNow:yyyyMMdd}.log")));
+        var stub = new Stub(_ => Json(HttpStatusCode.UnprocessableEntity, "{\"error\":\"رصيد الدرج لا يكفي.\"}"));
+        var http = new HttpClient(new CorrelationLoggingHandler(stub)) { BaseAddress = new Uri("http://qa.invalid") };
+
+        var response = await http.PostAsync("/api/expenses", new StringContent("{\"amount\":1800}"));
+
+        var log = TodayLog();
+        Assert.Contains("422", log);
+        Assert.Contains("POST /api/expenses", log);
+        Assert.Contains("رصيد الدرج لا يكفي.", log);
+        Assert.Contains(Assert.Single(stub.Last!.Headers.GetValues(CorrelationLoggingHandler.HeaderName)), log);
+        Assert.DoesNotContain("1800", log);
+        // The caller still reads the same answer.
+        Assert.Contains("رصيد الدرج لا يكفي.", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task A_command_that_succeeded_is_logged_with_its_status_and_time()
+    {
+        var http = new HttpClient(new CorrelationLoggingHandler(new Stub(_ => Json(HttpStatusCode.OK, "{}")))) { BaseAddress = new Uri("http://qa.invalid") };
+        await http.PostAsync("/api/orders/checkout", new StringContent("{}"));
+        var log = TodayLog();
+        Assert.Contains("POST /api/orders/checkout", log);
+        Assert.Contains("200", log);
+        Assert.Contains(" ms", log);
+    }
+
+    [Fact]
+    public async Task A_successful_read_is_logged_only_in_the_detailed_mode()
+    {
+        var http = new HttpClient(new CorrelationLoggingHandler(new Stub(_ => Json(HttpStatusCode.OK, "{}")))) { BaseAddress = new Uri("http://qa.invalid") };
+        try
+        {
+            ClientLog.DetailedOverride = false;
+            await http.GetAsync("/api/shifts/current");
+            Assert.False(File.Exists(Path.Combine(_dir, $"cashier-{DateTime.UtcNow:yyyyMMdd}.log")));
+
+            ClientLog.DetailedOverride = true;
+            await http.GetAsync("/api/customers/lookup?phone=01012345678");
+            var log = TodayLog();
+            Assert.Contains("GET /api/customers/lookup", log);
+            Assert.DoesNotContain("01012345678", log);
+        }
+        finally { ClientLog.DetailedOverride = null; }
+    }
+
+    [Fact]
+    public async Task A_phone_search_that_finds_nobody_is_not_logged_as_a_refusal()
+    {
+        var http = new HttpClient(new CorrelationLoggingHandler(new Stub(_ => new HttpResponseMessage(HttpStatusCode.NotFound)))) { BaseAddress = new Uri("http://qa.invalid") };
+        try
+        {
+            ClientLog.DetailedOverride = false;
+            await http.GetAsync("/api/customers/lookup?phone=01099999999");
+            Assert.False(File.Exists(Path.Combine(_dir, $"cashier-{DateTime.UtcNow:yyyyMMdd}.log")));
+        }
+        finally { ClientLog.DetailedOverride = null; }
+    }
+
+    [Fact]
+    public async Task An_answer_the_station_cannot_read_is_logged()
+    {
+        var http = new HttpClient(new Stub(_ => Json(HttpStatusCode.OK, "<html>not json</html>"))) { BaseAddress = new Uri("http://qa.invalid") };
+        var result = await new Falah.Client.CashierWinUI.Services.ApiClient(http).GetCurrentShiftAsync();
+        Assert.False(result.Success);
+        var log = TodayLog();
+        Assert.Contains("could not be read", log);
+        Assert.Contains("JsonException", log);
+    }
+
+    [Fact]
+    public void A_caught_error_is_written_with_its_stack()
+    {
+        try { throw new InvalidOperationException("report file locked"); }
+        catch (Exception ex) { ClientLog.WriteException("report export", ex); }
+        var log = TodayLog();
+        Assert.Contains("report export: InvalidOperationException: report file locked", log);
+        Assert.Contains(nameof(A_caught_error_is_written_with_its_stack), log);
     }
 
     private sealed class FailingHandler : HttpMessageHandler

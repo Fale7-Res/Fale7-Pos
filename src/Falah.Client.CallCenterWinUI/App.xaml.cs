@@ -20,11 +20,21 @@ public partial class App : global::Microsoft.UI.Xaml.Application
         Falah.Client.Diagnostics.ClientLog.DeleteOldLogs(retentionDays: 30);
         Falah.Client.Diagnostics.ClientLog.Write("INFO", "call center station started");
         crashDirectory = Falah.Client.Diagnostics.ClientLog.ResolveDirectory(crashDirectory)!;
-        UnhandledException += (_, e) => Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "callcenter", e.Exception, "UI");
+        // Owner request 2026-11-27: the crash is also written in the day's station log, after the screens and
+        // calls that led to it.
+        UnhandledException += (_, e) =>
+        {
+            Falah.Client.Diagnostics.ClientLog.WriteException("CRASH (UI)", e.Exception, "FATAL");
+            Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "callcenter", e.Exception, "UI");
+        };
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            Falah.Client.Diagnostics.ClientLog.WriteException("CRASH (process)", e.ExceptionObject as Exception, "FATAL");
             Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "callcenter", e.ExceptionObject as Exception, "process");
+        };
         System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (_, e) =>
         {
+            Falah.Client.Diagnostics.ClientLog.WriteException("background task failed", e.Exception);
             Falah.Client.Diagnostics.CrashLog.Write(crashDirectory, "callcenter", e.Exception, "background task");
             e.SetObserved();
         };

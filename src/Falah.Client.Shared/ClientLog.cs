@@ -37,6 +37,48 @@ public static class ClientLog
     public static string? ResolveDirectory(string fallback) =>
         Environment.GetEnvironmentVariable("FALAH_LOG_DIR") is { Length: > 0 } root ? root : fallback;
 
+    /// <summary>Owner request 2026-11-27: the detailed mode, switched on for the whole PC by the file
+    /// <c>%ProgramData%\Falah\detailed-logging.on</c> (the drive's detailed-on.cmd makes it, detailed-off.cmd
+    /// removes it). On, every successful read is written too, not only commands, refusals and failures.
+    /// Looked up at most every 15 seconds. Tests set <see cref="DetailedOverride"/>.</summary>
+    public static bool Detailed
+    {
+        get
+        {
+            if (DetailedOverride is { } forced) return forced;
+            var now = Environment.TickCount64;
+            if (now - _detailedCheckedAt < 15_000 && _detailedCheckedAt != 0) return _detailedCached;
+            try { _detailedCached = File.Exists(DetailedFlagPath); } catch { _detailedCached = false; }
+            _detailedCheckedAt = now;
+            return _detailedCached;
+        }
+    }
+
+    public static bool? DetailedOverride { get; set; }
+    public static string DetailedFlagPath { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Falah", "detailed-logging.on");
+    private static long _detailedCheckedAt;
+    private static bool _detailedCached;
+
+    /// <summary>An error the station caught and showed (or swallowed): where it happened and the whole
+    /// exception - type, message and stack - on the lines under it, so the line says what failed and the
+    /// stack says where. Exceptions here never carry a request body, a PIN or a token.</summary>
+    public static void WriteException(string where, Exception? ex, string level = "ERROR")
+    {
+        if (ex is null) { Write(level, where); return; }
+        var detail = ex.ToString().Replace("\r", "").Replace("\n", Environment.NewLine + "    ");
+        Write(level, $"{where}: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}    {detail}");
+    }
+
+    /// <summary>A call that failed after the request went out. A lost connection is already written by
+    /// CorrelationLoggingHandler; an answer that arrived but could not be read (not the shape this build
+    /// expects, or cut off) is written here - the employee only sees "could not load".</summary>
+    public static void AnswerFailed(Exception ex)
+    {
+        if (ex is System.Text.Json.JsonException or IOException or NotSupportedException)
+            WriteException("the server's answer could not be read", ex);
+    }
+
     public static void Write(string level, string message)
     {
         lock (Gate)

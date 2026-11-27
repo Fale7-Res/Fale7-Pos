@@ -57,7 +57,7 @@ public partial class RecoveryItem : ObservableObject
     {
         if (!CanDiscard) return;
         try { Request.DiscardAfterReview(true); _owner.RefreshRecoveryState(); }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException) { Error = ex.Message; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException) { Falah.Client.Diagnostics.ClientLog.WriteException("discarding a pending operation", ex); Error = ex.Message; }
     }
 }
 

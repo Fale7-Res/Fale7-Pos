@@ -881,3 +881,27 @@ Client tests 565/565.
   start, then anywhere. Editing the text drops a service chosen before (its fee cannot stay unseen); a whole name
   typed selects it; Enter takes the first suggestion; a saved address puts its service's name in the box.
   `DeliveryServicePickerTests` (9); client 574/574. Not yet run on screen (needs a server with services).
+
+## Detailed logs for any error (owner, 2026-11-27)
+
+Asked "does the log show everything?". It did not: refusals were not logged anywhere, and there was no line per
+operation. Unreadable answers, errors caught inside screens and the screen in use were missing too.
+- **Server (`RequestLogMiddleware`):** one line per command, refusal (with its Arabic message), 5xx and slow
+  request (> 2 s). Each line has the user, status, time and the reference the station shows.
+- **Cashier and call center:** the same from the station's side. Also unreadable answers, errors caught in
+  screens (with the stack), sign-in, each screen change, and a crash line in the day's log.
+- **Detailed mode:** the file `%ProgramData%\Falah\detailed-logging.on` adds every read and poll, for all Falah
+  programs on that PC, within 15 s.
+- **Never logged:** bodies, PINs, amounts, query strings (phones), tokens.
+- **Drive tools (`Falah-Logs`):** `collect-logs.cmd` copies the last 7 days of every Falah log on the PC, the
+  Falah Windows events and a `summary.txt`. `detailed-on.cmd` / `detailed-off.cmd` switch the detailed mode.
+  The collector was tried on this laptop: server, print agent and station logs, events and summary all copied;
+  the detailed switch made and removed the flag.
+
+Details: `docs/FINAL_RUNTIME_LOGGING_REPORT.md` §8 and `docs/HOW_TO_COLLECT_RUNTIME_LOGS.md`.
+
+- **«تصغير» (same day):** the owner wants to leave the till for other Windows work and come back. A «تصغير»
+  button beside «خروج» (header and PIN screen, both apps) puts the station in the taskbar without closing it;
+  activating it from the taskbar brings it back full screen (`StationWindow.MinimizeToTaskbar` / `Restored`).
+  «خروج» still closes. Checked on the built cashier: minimized (iconic), restored to the full screen with no
+  caption; screenshot of the PIN screen with both buttons. Client 579/579.

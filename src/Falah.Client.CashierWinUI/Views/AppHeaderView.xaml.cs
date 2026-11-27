@@ -13,6 +13,9 @@ public sealed partial class AppHeaderView : UserControl
     /// <summary>The station runs full screen with no title bar, so the header carries the way out; MainWindow closes
     /// the program through the same guard as the title bar's X.</summary>
     public event EventHandler? ExitRequested;
+    public event EventHandler? MinimizeRequested;
+
+    private void OnMinimizeClicked(object sender, RoutedEventArgs e) => MinimizeRequested?.Invoke(this, EventArgs.Empty);
 
     public AppHeaderView()
     {
